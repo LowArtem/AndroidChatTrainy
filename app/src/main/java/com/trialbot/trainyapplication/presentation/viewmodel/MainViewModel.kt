@@ -52,7 +52,6 @@ class MainViewModel(
     private val mainLooper = Looper.getMainLooper()
 
     fun startMessageObserving() {
-        Log.d(MyApp.DEBUG_LOG_TAG, "MainViewModel.startMessageObserving()")
         messageObservingScope.launch {
             while (true) {
                 updateRecycler()
@@ -62,7 +61,6 @@ class MainViewModel(
     }
 
     fun stopMessageObserving() {
-        Log.d(MyApp.DEBUG_LOG_TAG, "MainViewModel.stopMessageObserving()")
         messageObservingScope.cancel()
     }
 

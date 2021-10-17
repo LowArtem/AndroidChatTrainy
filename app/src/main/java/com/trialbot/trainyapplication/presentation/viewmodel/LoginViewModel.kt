@@ -1,13 +1,17 @@
 package com.trialbot.trainyapplication.presentation.viewmodel
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.*
+import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
 import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
@@ -76,8 +80,15 @@ class LoginViewModel(
     }
 
     fun setUserOnline() {
-        viewModelScope.launch {
-            startStopRemoteActions.appStarted()
+        // Обратить внимание на возможные утечки памяти
+        // этот scope не закрывается после закрытия ViewModel
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                startStopRemoteActions.appStarted()
+            } catch (e: Exception) {
+                Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.setUserOnline -> ${e.localizedMessage}")
+                return@launch
+            }
         }
     }
 
