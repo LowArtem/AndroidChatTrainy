@@ -14,4 +14,5 @@
     <string name="register_button_text">Register</string>
     <string name="password_button_hint">Password</string>
     <string name="username_button_hint">Username</string>
+    <string name="loading_panel_text">Loading...</string>
 </resources>

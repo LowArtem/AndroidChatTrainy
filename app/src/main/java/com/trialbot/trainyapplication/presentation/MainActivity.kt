@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
@@ -66,18 +67,22 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
         viewModel.state.observe(this, { newValue ->
             when(newValue) {
                 is MessageState.Loading -> {
+                    binding.loadingPanel.visibility = View.VISIBLE
                     Toast.makeText(this, "Loading", Toast.LENGTH_SHORT).show()
                 }
                 is MessageState.Empty -> {
                     Toast.makeText(this, "Empty", Toast.LENGTH_SHORT).show()
+                    binding.loadingPanel.visibility = View.GONE
                 }
                 is MessageState.Success -> {
+                    binding.loadingPanel.visibility = View.GONE
                     adapter.updateMessages(newValue.messages)
                     viewModel.messages.observe(this, {
                         adapter.updateMessages(it)
                     })
                 }
                 is MessageState.Error -> {
+                    binding.loadingPanel.visibility = View.GONE
                     Toast.makeText(this, "Error: ${newValue.errorText}", Toast.LENGTH_LONG).show()
                 }
             }

@@ -58,7 +58,6 @@ class MainViewModel(
 
     // Main activity control function
     fun render() {
-        _state.set(MessageState.Loading)
         try {
             messageObservingScope.launch {
                 val initMessagesJob = viewModelScope.launch {
@@ -73,6 +72,7 @@ class MainViewModel(
                 }
                 else {
                     withContext(Dispatchers.Main) {
+                        Log.d(MyApp.DEBUG_LOG_TAG, "MessageState.Success")
                         _state.set(MessageState.Success(messages.value!!))
                     }
                 }
