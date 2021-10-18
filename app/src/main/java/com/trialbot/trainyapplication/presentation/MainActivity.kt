@@ -99,28 +99,36 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.action_exit -> {
-                AlertDialog.Builder(this).apply {
-                    setTitle("Подтверждение")
-                    setMessage("Вы уверены, что хотите выйти из программы?")
-
-                    setPositiveButton("Да") { _, _ ->
-                        super.onBackPressed()
-                    }
-
-                    setNegativeButton("Нет"){_, _ -> }
-                    setCancelable(true)
-                }.create().show()
+                actionExitHandler()
                 true
             }
             R.id.action_logout -> {
-                viewModel.logOut()
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                actionLogoutHandler()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun actionLogoutHandler() {
+        viewModel.logOut()
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun actionExitHandler() {
+        AlertDialog.Builder(this).apply {
+            setTitle("Confirmation")
+            setMessage("Are you sure, you want to exit?")
+
+            setPositiveButton("Yes") { _, _ ->
+                super.onBackPressed()
+            }
+
+            setNegativeButton("Cancel") { _, _ -> }
+            setCancelable(true)
+        }.create().show()
     }
 
     override fun onEditorAction(p0: TextView?, actionId: Int, p2: KeyEvent?): Boolean {
