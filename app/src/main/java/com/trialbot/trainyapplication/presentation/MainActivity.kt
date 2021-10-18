@@ -67,22 +67,34 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
         viewModel.state.observe(this, { newValue ->
             when(newValue) {
                 is MessageState.Loading -> {
-                    binding.loadingPanel.visibility = View.VISIBLE
+                    with(binding) {
+                        loadingPanel.visibility = View.VISIBLE
+                        textEmpty.visibility = View.GONE
+                    }
                     Toast.makeText(this, "Loading", Toast.LENGTH_SHORT).show()
                 }
                 is MessageState.Empty -> {
                     Toast.makeText(this, "Empty", Toast.LENGTH_SHORT).show()
-                    binding.loadingPanel.visibility = View.GONE
+                    with(binding) {
+                        loadingPanel.visibility = View.GONE
+                        textEmpty.visibility = View.VISIBLE
+                    }
                 }
                 is MessageState.Success -> {
-                    binding.loadingPanel.visibility = View.GONE
+                    with(binding) {
+                        loadingPanel.visibility = View.GONE
+                        textEmpty.visibility = View.GONE
+                    }
                     adapter.updateMessages(newValue.messages)
                     viewModel.messages.observe(this, {
                         adapter.updateMessages(it)
                     })
                 }
                 is MessageState.Error -> {
-                    binding.loadingPanel.visibility = View.GONE
+                    with(binding) {
+                        loadingPanel.visibility = View.GONE
+                        textEmpty.visibility = View.GONE
+                    }
                     Toast.makeText(this, "Error: ${newValue.errorText}", Toast.LENGTH_LONG).show()
                 }
             }

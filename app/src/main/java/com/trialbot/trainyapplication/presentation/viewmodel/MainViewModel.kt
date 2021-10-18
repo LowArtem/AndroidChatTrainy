@@ -18,6 +18,9 @@ import com.trialbot.trainyapplication.utils.set
 import kotlinx.coroutines.*
 import java.util.*
 
+
+const val DEBUG_CONDITION = true
+
 class MainViewModel(
     chatApi: ChatApi,
     sharedPrefs: SharedPreferences

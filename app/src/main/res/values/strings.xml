@@ -15,4 +15,5 @@
     <string name="password_button_hint">Password</string>
     <string name="username_button_hint">Username</string>
     <string name="loading_panel_text">Loading...</string>
+    <string name="message_list_is_empty_text">Message list is empty. Write something.</string>
 </resources>
