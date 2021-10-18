@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
                     Toast.makeText(this, "Empty", Toast.LENGTH_SHORT).show()
                 }
                 is MessageState.Success -> {
-                    adapter.setMessages(newValue.messages)
+                    adapter.updateMessages(newValue.messages)
                     viewModel.messages.observe(this, {
                         adapter.updateMessages(it)
                     })
