@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ActivityMainBinding
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
+import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
@@ -29,8 +31,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
         MainViewModel.MainViewModelFactory(
             chatApi = (application as MyApp).api,
-            sharedPrefs = prefs,
-            adapter = adapter
+            sharedPrefs = prefs
         )
     }
 
@@ -61,11 +62,32 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
         val username: String = intent.getStringExtra("username") ?: "Chat"
         supportActionBar?.title = username
+
+        viewModel.state.observe(this, { newValue ->
+            when(newValue) {
+                is MessageState.Loading -> {
+                    Toast.makeText(this, "Loading", Toast.LENGTH_SHORT).show()
+                }
+                is MessageState.Empty -> {
+                    Toast.makeText(this, "Empty", Toast.LENGTH_SHORT).show()
+                }
+                is MessageState.Success -> {
+                    adapter.setMessages(newValue.messages)
+                    viewModel.messages.observe(this, {
+                        adapter.updateMessages(it)
+                    })
+                }
+                is MessageState.Error -> {
+                    Toast.makeText(this, "Error: ${newValue.errorText}", Toast.LENGTH_LONG).show()
+                }
+            }
+        })
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.startMessageObserving()
+
+        viewModel.render()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

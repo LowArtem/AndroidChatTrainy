@@ -33,22 +33,25 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() 
 
     override fun getItemCount(): Int = messages.size
 
+    fun setMessages(new_messages: List<MessageDTO>) {
+        messages.clear()
+        messages.addAll(new_messages)
+        notifyDataSetChanged()
+    }
+
     fun updateMessages(new_messages: List<MessageDTO>) {
         if (messages.isNotEmpty() && new_messages.isNotEmpty()) {
-            if (messages.last() != new_messages.last()) {
-                messages.clear()
-                messages.addAll(new_messages)
+            messages.clear()
+            messages.addAll(new_messages)
 
-                if (messages.size > 10) {
-                    notifyItemRangeChanged(messages.size - 10, 10)
-                } else {
-                    notifyDataSetChanged()
-                }
+            if (messages.size > 10) {
+                notifyItemRangeChanged(messages.size - 10, 10)
+            } else {
+                notifyDataSetChanged()
             }
         }
         else {
-            messages.addAll(new_messages)
-            notifyDataSetChanged()
+            setMessages(new_messages)
         }
     }
 }
