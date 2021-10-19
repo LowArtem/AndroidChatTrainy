@@ -8,10 +8,9 @@ import android.util.Log
 object ContextUtility {
 
     fun Context.isInternetAvailable(): Boolean {
-        val connectivityManager =
-            this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
         if (capabilities != null) when {
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
                 Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
@@ -28,5 +27,4 @@ object ContextUtility {
         }
         return false
     }
-
 }

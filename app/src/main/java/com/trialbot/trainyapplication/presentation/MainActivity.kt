@@ -20,6 +20,7 @@ import com.trialbot.trainyapplication.databinding.ActivityMainBinding
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
+import com.trialbot.trainyapplication.utils.ContextUtility.isInternetAvailable
 
 class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
@@ -67,6 +68,9 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
         val username: String = intent.getStringExtra("username") ?: "Chat"
         supportActionBar?.title = username
+
+        // Проверка интернет-соединения
+        if (!applicationContext.isInternetAvailable()) viewModel.internetUnavailable()
 
         viewModel.state.observe(this, { newValue ->
             when(newValue) {

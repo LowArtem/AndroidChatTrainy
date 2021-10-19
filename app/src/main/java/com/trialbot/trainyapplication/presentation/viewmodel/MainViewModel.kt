@@ -146,4 +146,8 @@ class MainViewModel(
         }
         Thread.sleep(1000)
     }
+
+    fun internetUnavailable() {
+        _state.set(MessageState.Error("No internet connection"))
+    }
 }
