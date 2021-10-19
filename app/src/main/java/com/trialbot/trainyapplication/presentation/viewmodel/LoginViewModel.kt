@@ -106,7 +106,7 @@ class LoginViewModel(
     }
 
     private fun getLocalUserData() {
-        val userLocal = authUseCases.getLocalData()
+        val userLocal = authUseCases.localDataUseCases.getLocalData()
         if (userLocal != null) {
             username = userLocal.username
         }

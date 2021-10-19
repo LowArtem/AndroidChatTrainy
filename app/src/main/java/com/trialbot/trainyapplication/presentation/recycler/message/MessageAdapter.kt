@@ -1,14 +1,15 @@
 package com.trialbot.trainyapplication.presentation.recycler.message
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.data.model.MessageDTO
 import com.trialbot.trainyapplication.databinding.ItemMessageBinding
+import com.trialbot.trainyapplication.databinding.ItemMyMessageBinding
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 
 class MessageDiffCallback(
@@ -29,8 +30,13 @@ class MessageDiffCallback(
     }
 }
 
+abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewItem) {
+    abstract fun bind(item: T)
+}
 
-class MessageAdapter : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
+class MessageAdapter(
+    private val currentUserId: Long
+) : RecyclerView.Adapter<BaseViewHolder<*>>() {
 
     private var messages: MutableList<MessageDTO> = mutableListOf()
         set(newValue) {
@@ -41,22 +47,54 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() 
             diffResult.dispatchUpdatesTo(this)
         }
 
-    class MessageViewHolder(val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemMessageBinding.inflate(inflater, parent, false)
-        return MessageViewHolder(binding)
+    class CommonMessageViewHolder(val binding: ItemMessageBinding) : BaseViewHolder<MessageDTO>(binding.root) {
+        override fun bind(item: MessageDTO) {
+            with(this.binding) {
+                // TODO: добавить получение аватара
+                authorNameTV.text = item.author.username
+                messageTextTV.text = item.text
+
+                val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
+                pubDateTV.text = formatter.format(item.pubDate)
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        with(holder.binding) {
-            // TODO: добавить получение аватара
-            authorNameTV.text = messages[position].author.username
-            messageTextTV.text = messages[position].text
+    class MyMessageViewHolder(val binding: ItemMyMessageBinding) : BaseViewHolder<MessageDTO>(binding.root) {
+        override fun bind(item: MessageDTO) {
+            with(this.binding) {
+                // TODO: добавить получение аватара
+                authorNameTV.text = item.author.username
+                messageTextTV.text = item.text
 
-            val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
-            pubDateTV.text = formatter.format(messages[position].pubDate)
+                val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
+                pubDateTV.text = formatter.format(item.pubDate)
+            }
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (messages[position].author.id == currentUserId) return TYPE_MY_MESSAGE
+        else return TYPE_COMMON_MESSAGE
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
+        val inflater = LayoutInflater.from(parent.context)
+        if (viewType == TYPE_MY_MESSAGE) {
+            val binding = ItemMyMessageBinding.inflate(inflater, parent, false)
+            return MyMessageViewHolder(binding)
+        }
+        else {
+            val binding = ItemMessageBinding.inflate(inflater, parent, false)
+            return CommonMessageViewHolder(binding)
+        }
+    }
+
+    override fun onBindViewHolder(holder: BaseViewHolder<*>, position: Int) {
+        when(holder) {
+            is CommonMessageViewHolder -> holder.bind(messages[position])
+            is MyMessageViewHolder -> holder.bind(messages[position])
         }
     }
 
@@ -64,5 +102,10 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() 
 
     fun updateMessages(new_messages: List<MessageDTO>) {
         messages = new_messages.toMutableList()
+    }
+
+    companion object {
+        private const val TYPE_COMMON_MESSAGE = 0
+        private const val TYPE_MY_MESSAGE = 1
     }
 }

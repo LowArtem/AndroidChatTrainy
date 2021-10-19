@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
@@ -25,7 +26,7 @@ import com.trialbot.trainyapplication.utils.ContextUtility.isInternetAvailable
 class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter: MessageAdapter = MessageAdapter()
+    private lateinit var adapter: MessageAdapter
 
     private val viewModel: MainViewModel by viewModels {
         val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
@@ -42,6 +43,8 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
+        adapter = MessageAdapter(viewModel.getCurrentUserId())
+
         with (binding)
         {
             setContentView(root)
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
             val layoutManager = LinearLayoutManager(this@MainActivity)
             messagesRV.layoutManager = layoutManager
             messagesRV.adapter = adapter
+            messagesRV.addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
 
             messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
                 (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)

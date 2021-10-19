@@ -9,6 +9,7 @@ import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.data.model.MessageDTO
 import com.trialbot.trainyapplication.data.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
+import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.MessageUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
@@ -18,8 +19,6 @@ import com.trialbot.trainyapplication.utils.set
 import kotlinx.coroutines.*
 import java.util.*
 
-
-const val DEBUG_CONDITION = true
 
 class MainViewModel(
     chatApi: ChatApi,
@@ -52,6 +51,7 @@ class MainViewModel(
     )
 
     private val messageUseCases = MessageUseCases(chatApi)
+    private val localDataUseCases = LocalDataUseCases(sharedPrefs)
 
     val messages: LiveData<List<MessageDTO>> = messageUseCases.messages
 
@@ -149,5 +149,9 @@ class MainViewModel(
 
     fun internetUnavailable() {
         _state.set(MessageState.Error("No internet connection"))
+    }
+
+    fun getCurrentUserId(): Long {
+        return localDataUseCases.getLocalData()?.id ?: -1
     }
 }

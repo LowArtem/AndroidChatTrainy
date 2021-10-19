@@ -19,6 +19,8 @@ class AuthUseCases(
     private val authControllerRemote = AuthenticationControllerRemote(chatApi)
     private val authControllerLocal = AuthenticationControllerLocal(sharedPreferences)
 
+    val localDataUseCases = LocalDataUseCases(sharedPreferences)
+
     suspend fun register(username: String, password: String): UserFull? {
         val user = authControllerRemote.createUser(UserAuth(username, password)) ?: return null
 
@@ -38,14 +40,10 @@ class AuthUseCases(
         return user
     }
 
-    fun getLocalData(): UserAuthId? {
-        return authControllerLocal.getCredentials()
-    }
-
     private fun saveLocallyIfRemoteSuccessful(
         user: UserAuthId,
     ): Boolean {
-        if (!saveLocalData(user)) {
+        if (!localDataUseCases.saveLocalData(user)) {
             Log.e(
                 MyApp.ERROR_LOG_TAG, "AuthUseCases.login() -> cannot locally save user auth data"
             )
@@ -54,7 +52,5 @@ class AuthUseCases(
         return true
     }
 
-    private fun saveLocalData(userAuthId: UserAuthId): Boolean {
-        return authControllerLocal.saveCredentials(userAuthId)
-    }
+
 }
