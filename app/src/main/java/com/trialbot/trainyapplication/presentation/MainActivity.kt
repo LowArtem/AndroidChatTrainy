@@ -49,6 +49,10 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
             messagesRV.layoutManager = layoutManager
             messagesRV.adapter = adapter
 
+            messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
+                (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
+            }
+
             sendBtn.setOnClickListener {
                 sendMessage()
             }
