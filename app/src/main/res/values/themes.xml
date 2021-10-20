@@ -14,4 +14,8 @@
         <!-- Customize your theme here. -->
         <item name="android:textColor">@color/black</item>
     </style>
+
+    <style name="MyMessageTheme">
+        <item name="android:background">@color/light_green_50</item>
+    </style>
 </resources>
