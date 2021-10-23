@@ -76,13 +76,13 @@ class LoginActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    // FIXME: Update (setUserOnline) не меняет БД, хотя PATCH возвращет 200, возможно, надо передавать все поля (просто остальные null возможно, надо проверить)
     private fun startMainActivity() {
         viewModel.setUserOnline()
         val intent = Intent(this, MainActivity::class.java)
 
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
             intent.putExtra("username", viewModel.username)
+            intent.putExtra("avatarId", viewModel.avatarId)
             // TODO: добавить потом аватар, и может что-то еще
         }
         else {

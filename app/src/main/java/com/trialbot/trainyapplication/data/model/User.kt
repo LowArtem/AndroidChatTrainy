@@ -1,10 +1,12 @@
 package com.trialbot.trainyapplication.data.model
 
+import androidx.annotation.DrawableRes
 import java.util.*
 
 data class UserFull(
     val id: Long,
-    val icon: String?,
+    @DrawableRes
+    val icon: Int,
     val username: String,
     val password: String,
     val isOnline: Boolean,
@@ -13,7 +15,8 @@ data class UserFull(
 
 data class UserWithoutPassword(
     val id: Long,
-    val icon: String,
+    @DrawableRes
+    val icon: Int,
     val username: String,
     val isOnline: Boolean,
     val lastDate: Date
@@ -40,7 +43,8 @@ data class UserAuthId(
 
 data class UserMessage(
     val id: Long,
-    val icon: String,
+    @DrawableRes
+    val icon: Int,
     val username: String
 )
 

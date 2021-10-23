@@ -13,7 +13,7 @@
         android:layout_height="40dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="6dp"
-        android:src="@drawable/ic_default_avatar"
+        android:src="@drawable/ic_avatar_default"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/messageTextTV"
         app:layout_constraintTop_toTopOf="parent" />

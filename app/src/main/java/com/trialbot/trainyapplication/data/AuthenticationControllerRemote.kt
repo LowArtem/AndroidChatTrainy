@@ -23,7 +23,7 @@ class AuthenticationControllerRemote(private val chatApi: ChatApi) {
     suspend fun createUser(userAuth: UserAuth): UserFull? {
         val user = UserFull(
             id = 0,
-            icon = "string",
+            icon = -1,
             username = userAuth.username,
             password = userAuth.password,
             isOnline = true,

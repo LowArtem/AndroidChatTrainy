@@ -3,11 +3,9 @@ package com.trialbot.trainyapplication.domain
 import android.content.SharedPreferences
 import android.util.Log
 import com.trialbot.trainyapplication.MyApp
-import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
 import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.data.model.UserAuth
 import com.trialbot.trainyapplication.data.model.UserAuthId
-import com.trialbot.trainyapplication.data.model.UserFull
 import com.trialbot.trainyapplication.data.model.UserWithoutPassword
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 
@@ -17,15 +15,13 @@ class AuthUseCases(
 ) {
 
     private val authControllerRemote = AuthenticationControllerRemote(chatApi)
-    private val authControllerLocal = AuthenticationControllerLocal(sharedPreferences)
-
     val localDataUseCases = LocalDataUseCases(sharedPreferences)
 
-    suspend fun register(username: String, password: String): UserFull? {
+    suspend fun register(username: String, password: String): UserWithoutPassword? {
         val user = authControllerRemote.createUser(UserAuth(username, password)) ?: return null
 
         if (saveLocallyIfRemoteSuccessful(UserAuthId(user.id, user.username, password))) {
-            return user
+            return UserWithoutPassword(user.id, user.icon, user.username, user.isOnline, user.lastDate)
         }
         else {
             return null
@@ -51,6 +47,4 @@ class AuthUseCases(
         }
         return true
     }
-
-
 }

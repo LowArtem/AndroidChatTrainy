@@ -2,6 +2,7 @@ package com.trialbot.trainyapplication.presentation.viewmodel
 
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.*
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
@@ -57,6 +58,8 @@ class MainViewModel(
 
 
     private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
+
+    private var userId: Int = -1
 
 
     // Main activity control function
@@ -142,7 +145,7 @@ class MainViewModel(
 
     fun applicationClosing() {
         viewModelScope.launch {
-            startStopRemoteActions.appClosed()
+            startStopRemoteActions.appClosed(userId)
         }
         Thread.sleep(1000)
     }
@@ -153,5 +156,9 @@ class MainViewModel(
 
     fun getCurrentUserId(): Long {
         return localDataUseCases.getLocalData()?.id ?: -1
+    }
+
+    fun setUserIconId(@DrawableRes id: Int) {
+        userId = id
     }
 }

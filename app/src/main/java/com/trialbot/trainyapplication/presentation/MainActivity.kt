@@ -65,13 +65,17 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
             messageTextTV.setOnEditorActionListener(this@MainActivity)
         }
 
-        // TODO: вместо ic_logo потом сделать аватарку пользователя
-        supportActionBar?.setLogo(R.drawable.ic_default_avatar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayUseLogoEnabled(true)
 
         val username: String = intent.getStringExtra("username") ?: "Chat"
+        var avatarId: Int = intent.getIntExtra("avatarId", R.drawable.ic_avatar_default)
+        if (avatarId == -1) avatarId = R.drawable.ic_avatar_default
+
+        viewModel.setUserIconId(avatarId)
+
         supportActionBar?.title = username
+        supportActionBar?.setLogo(avatarId)
 
         // Проверка интернет-соединения
         if (!applicationContext.isInternetAvailable()) viewModel.internetUnavailable()

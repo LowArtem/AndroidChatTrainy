@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
 import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
+import com.trialbot.trainyapplication.data.model.UserWithoutPassword
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
@@ -43,6 +44,9 @@ class LoginViewModel(
     var username: String? = null
         private set
 
+    var avatarId: Int = -1
+        private set
+
     private var isLoginSuccessfulMutable: MutableLiveData<Boolean> = MutableLiveData(false)
     val isLoginSuccessful: LiveData<Boolean> = isLoginSuccessfulMutable
 
@@ -50,32 +54,27 @@ class LoginViewModel(
     fun login(usernameEntered: String, passwordEntered: String) {
         viewModelScope.launch {
             val user = authUseCases.login(usernameEntered, passwordEntered)
-
-            if (user != null) {
-                // TODO: добавить сюда изменение других параметров (пока их негде отображать) (isLoginSuccessfulMutable дложно быть в конце)
-                username = user.username
-                isLoginSuccessfulMutable.value = true
-            }
-            else {
-                username = null
-                isLoginSuccessfulMutable.value = false
-            }
+            setUserData(user)
         }
     }
 
     fun register(usernameEntered: String, passwordEntered: String) {
         viewModelScope.launch {
             val user = authUseCases.register(usernameEntered, passwordEntered)
+            setUserData(user)
+        }
+    }
 
-            if (user != null) {
-                // TODO: добавить сюда изменение других параметров (пока их негде отображать) (isLoginSuccessfulMutable дложно быть в конце)
-                username = user.username
-                isLoginSuccessfulMutable.value = true
-            }
-            else {
-                username = null
-                isLoginSuccessfulMutable.value = false
-            }
+    private fun setUserData(user: UserWithoutPassword?) {
+        if (user != null) {
+            // TODO: добавить сюда изменение других параметров (пока их негде отображать) (isLoginSuccessfulMutable дложно быть в конце)
+            avatarId = user.icon
+            username = user.username
+            isLoginSuccessfulMutable.value = true
+        } else {
+            avatarId = -1
+            username = null
+            isLoginSuccessfulMutable.value = false
         }
     }
 
@@ -84,7 +83,7 @@ class LoginViewModel(
         // этот scope не закрывается после закрытия ViewModel
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                startStopRemoteActions.appStarted()
+                startStopRemoteActions.appStarted(avatarId)
             } catch (e: Exception) {
                 Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.setUserOnline -> ${e.localizedMessage}")
                 return@launch
