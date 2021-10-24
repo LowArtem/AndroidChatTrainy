@@ -13,6 +13,14 @@ data class UserFull(
     val lastDate: Date
 )
 
+data class UserLocal(
+    val id: Long,
+    val username: String,
+    val password: String,
+    @DrawableRes
+    val icon: Int
+)
+
 data class UserWithoutPassword(
     val id: Long,
     @DrawableRes

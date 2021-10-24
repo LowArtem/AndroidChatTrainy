@@ -9,6 +9,7 @@ import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
 import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.data.model.MessageDTO
 import com.trialbot.trainyapplication.data.model.MessageWithAuthUser
+import com.trialbot.trainyapplication.data.model.UserAuthId
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
@@ -16,7 +17,6 @@ import com.trialbot.trainyapplication.domain.MessageUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.utils.default
-import com.trialbot.trainyapplication.utils.set
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -36,7 +36,6 @@ class MainViewModel(
             return MainViewModel(chatApi, sharedPrefs) as T
         }
     }
-
 
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
@@ -71,21 +70,15 @@ class MainViewModel(
                 }
                 initMessagesJob.join()
                 if (messages.value == null || messages.value!!.isEmpty()) {
-
-                    withContext(Dispatchers.Main) {
-                        _state.set(MessageState.Empty)
-                    }
+                    _state.postValue(MessageState.Empty)
                 }
                 else {
-                    withContext(Dispatchers.Main) {
-                        Log.d(MyApp.DEBUG_LOG_TAG, "MessageState.Success")
-                        _state.set(MessageState.Success(messages.value!!))
-                    }
+                    _state.postValue(MessageState.Success(messages.value!!))
                 }
             }
         } catch (e: Exception) {
             Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.render() -> ${e.localizedMessage}")
-            _state.set(MessageState.Error(e.localizedMessage?.toString() ?: "Message getting error"))
+            _state.postValue(MessageState.Error(e.localizedMessage?.toString() ?: "Message getting error"))
         }
 
         startMessageObserving()
@@ -102,13 +95,11 @@ class MainViewModel(
             } catch (e: Exception) {
                 Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e.localizedMessage}")
 
-                withContext(Dispatchers.Main) {
-                    _state.set(
-                        MessageState.Error(
-                            e.localizedMessage?.toString() ?: "Message getting error"
-                        )
+                _state.postValue(
+                    MessageState.Error(
+                        e.localizedMessage?.toString() ?: "Message getting error"
                     )
-                }
+                )
             }
         }
     }
@@ -127,7 +118,7 @@ class MainViewModel(
                     messageUseCases.sendMessage(
                         MessageWithAuthUser(
                             input,
-                            user,
+                            UserAuthId(user.id, user.username, user.password),
                             Calendar.getInstance().time
                         )
                     )
@@ -135,7 +126,7 @@ class MainViewModel(
             }
         } catch (e: Exception) {
             Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.send() -> ${e.localizedMessage}")
-            _state.set(MessageState.Error(e.localizedMessage?.toString() ?: "Message sending error"))
+            _state.postValue(MessageState.Error(e.localizedMessage?.toString() ?: "Message sending error"))
         }
     }
 
@@ -151,7 +142,7 @@ class MainViewModel(
     }
 
     fun internetUnavailable() {
-        _state.set(MessageState.Error("No internet connection"))
+        _state.postValue(MessageState.Error("No internet connection"))
     }
 
     fun getCurrentUserId(): Long {

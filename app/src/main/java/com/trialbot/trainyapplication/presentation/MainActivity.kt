@@ -15,13 +15,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ActivityMainBinding
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
-import com.trialbot.trainyapplication.utils.ContextUtility.isInternetAvailable
 
 class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
@@ -77,9 +77,6 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
         supportActionBar?.title = "  $username"
         supportActionBar?.setLogo(avatarId)
 
-        // Проверка интернет-соединения
-        if (!applicationContext.isInternetAvailable()) viewModel.internetUnavailable()
-
         viewModel.state.observe(this, { newValue ->
             when(newValue) {
                 is MessageState.Loading -> {
@@ -111,7 +108,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
                     }
-                    Toast.makeText(this, "Error: ${newValue.errorText}", Toast.LENGTH_LONG).show()
+                    Snackbar.make(binding.mainLayout, "Error: ${newValue.errorText}", Snackbar.LENGTH_INDEFINITE).show()
                 }
             }
         })

@@ -1,6 +1,7 @@
 package com.trialbot.trainyapplication.presentation.viewmodel
 
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.*
 import com.trialbot.trainyapplication.MyApp
@@ -11,9 +12,11 @@ import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.trialbot.trainyapplication.presentation.state.LoginState
+import com.trialbot.trainyapplication.utils.default
+import com.trialbot.trainyapplication.utils.isInternetAvailable
+import com.trialbot.trainyapplication.utils.isServerAvailable
+import kotlinx.coroutines.*
 
 class LoginViewModel(
     chatApi: ChatApi,
@@ -31,6 +34,8 @@ class LoginViewModel(
         }
     }
 
+    private val _state = MutableLiveData<LoginState>().default(LoginState.Loading)
+    val state: LiveData<LoginState> = _state
 
 
     private val loginStatus = LoginStatusUseCases(sharedPrefs)
@@ -47,8 +52,34 @@ class LoginViewModel(
     var avatarId: Int = -1
         private set
 
-    private var isLoginSuccessfulMutable: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isLoginSuccessful: LiveData<Boolean> = isLoginSuccessfulMutable
+    private var isLoginSuccessful: Boolean = false
+
+
+    fun render(connectivityManager: ConnectivityManager) = viewModelScope.launch {
+        var isServerAvailable = false
+
+        if (isInternetAvailable(connectivityManager)) {
+            isServerAvailable = isServerAvailable(connectivityManager)
+        }
+        else {
+            Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.render() -> internet unavailable")
+            _state.postValue(LoginState.Error("Internet connection is unavailable"))
+        }
+
+        if (isServerAvailable) {
+            if (getUserLoginStatus()) {
+                isLoginSuccessful = true
+                _state.postValue(LoginState.Success(username!!, avatarId))
+            } else {
+                isLoginSuccessful = false
+                _state.postValue(LoginState.UserNotFound("Login to your account to enter"))
+            }
+        }
+        else {
+            Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.render() -> server unavailable")
+            _state.postValue(LoginState.Error("Unable to connect to remote server"))
+        }
+    }
 
 
     fun login(usernameEntered: String, passwordEntered: String) {
@@ -67,14 +98,17 @@ class LoginViewModel(
 
     private fun setUserData(user: UserWithoutPassword?) {
         if (user != null) {
-            // TODO: добавить сюда изменение других параметров (isLoginSuccessfulMutable дложно быть в конце)
             avatarId = user.icon
             username = user.username
-            isLoginSuccessfulMutable.value = true
+            isLoginSuccessful = true
+
+            _state.postValue(LoginState.Success(username!!, avatarId))
         } else {
             avatarId = -1
             username = null
-            isLoginSuccessfulMutable.value = false
+            isLoginSuccessful = false
+
+            _state.postValue(LoginState.UserNotFound("Invalid username or password. If you try to register, this username is unavailable"))
         }
     }
 
@@ -92,22 +126,22 @@ class LoginViewModel(
     }
 
     fun saveUserLoginStatus() {
-        loginStatus.saveLoginStatus(isLoginSuccessful.value ?: false)
+        loginStatus.saveLoginStatus(isLoginSuccessful)
     }
 
-    fun getUserLoginStatus() {
-        if (loginStatus.getLoginStatus()) {
+    private fun getUserLoginStatus(): Boolean {
+        return if (loginStatus.getLoginStatus()) {
             getLocalUserData()
-            isLoginSuccessfulMutable.value = true
-        }
-        else
-            isLoginSuccessfulMutable.value = false
+            true
+        } else
+            false
     }
 
     private fun getLocalUserData() {
         val userLocal = authUseCases.localDataUseCases.getLocalData()
         if (userLocal != null) {
             username = userLocal.username
+            avatarId = userLocal.icon
         }
     }
 }

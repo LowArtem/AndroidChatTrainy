@@ -2,13 +2,17 @@ package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ActivityLoginBinding
+import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
 
 
@@ -37,11 +41,42 @@ class LoginActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayUseLogoEnabled(true)
 
-        viewModel.getUserLoginStatus()
+        viewModel.render((applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
 
-        viewModel.isLoginSuccessful.observe(this, {
-            if (it) {
-                startMainActivity()
+        viewModel.state.observe(this, {
+            when(it) {
+                is LoginState.Loading -> {
+                    with(binding) {
+                        progressLoading.visibility = View.VISIBLE
+                        loginBtn.isEnabled = false
+                        registerBtn.isEnabled = false
+                    }
+                }
+                is LoginState.Success -> {
+                    with(binding) {
+                        progressLoading.visibility = View.GONE
+                        loginBtn.isEnabled = true
+                        registerBtn.isEnabled = true
+                    }
+                    startMainActivity()
+                }
+                is LoginState.Error -> {
+                    with(binding) {
+                        progressLoading.visibility = View.GONE
+                        loginBtn.isEnabled = false
+                        registerBtn.isEnabled = false
+                    }
+                    Snackbar.make(binding.mainLayout, it.errorText, Snackbar.LENGTH_INDEFINITE).show()
+                }
+                is LoginState.UserNotFound -> {
+                    with(binding) {
+                        progressLoading.visibility = View.GONE
+                        loginBtn.isEnabled = true
+                        registerBtn.isEnabled = true
+                    }
+                    Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity -> user not found in DB")
+                    Snackbar.make(binding.mainLayout, it.message, Snackbar.LENGTH_INDEFINITE).show()
+                }
             }
         })
 

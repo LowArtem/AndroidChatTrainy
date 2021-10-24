@@ -5,7 +5,7 @@ import android.util.Log
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.data.model.UserAuth
-import com.trialbot.trainyapplication.data.model.UserAuthId
+import com.trialbot.trainyapplication.data.model.UserLocal
 import com.trialbot.trainyapplication.data.model.UserWithoutPassword
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 
@@ -20,7 +20,7 @@ class AuthUseCases(
     suspend fun register(username: String, password: String): UserWithoutPassword? {
         val user = authControllerRemote.createUser(UserAuth(username, password)) ?: return null
 
-        if (saveLocallyIfRemoteSuccessful(UserAuthId(user.id, user.username, password))) {
+        if (saveLocallyIfRemoteSuccessful(UserLocal(user.id, user.username, password, user.icon))) {
             return UserWithoutPassword(user.id, user.icon, user.username, user.isOnline, user.lastDate)
         }
         else {
@@ -31,13 +31,13 @@ class AuthUseCases(
     suspend fun login(username: String, password: String): UserWithoutPassword? {
         val user = authControllerRemote.getUserByAuthData(UserAuth(username, password)) ?: return null
 
-        if (!saveLocallyIfRemoteSuccessful(UserAuthId(user.id, user.username, password))) return null
+        if (!saveLocallyIfRemoteSuccessful(UserLocal(user.id, user.username, password, user.icon))) return null
 
         return user
     }
 
     private fun saveLocallyIfRemoteSuccessful(
-        user: UserAuthId,
+        user: UserLocal,
     ): Boolean {
         if (!localDataUseCases.saveLocalData(user)) {
             Log.e(
