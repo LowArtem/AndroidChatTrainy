@@ -15,8 +15,6 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 
-const val MY_BASE_URL = "https://10.0.2.2:5001/api/"
-
 
 class MyApp: Application() {
     lateinit var api: ChatApi
@@ -66,6 +64,7 @@ class MyApp: Application() {
     }
 
     companion object {
+        const val MY_BASE_URL = "https://10.0.2.2:5001/api/"
         const val DEBUG_LOG_TAG = "AAAA"
         const val ERROR_LOG_TAG = "Application_Error"
         const val SHARED_PREFS_AUTH_TAG = "user_auth_info"

@@ -37,12 +37,7 @@ class LoginActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayUseLogoEnabled(true)
 
-
         viewModel.getUserLoginStatus()
-
-        if (viewModel.isLoginSuccessful.value == true) {
-            startMainActivity()
-        }
 
         viewModel.isLoginSuccessful.observe(this, {
             if (it) {
@@ -83,7 +78,6 @@ class LoginActivity : AppCompatActivity() {
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
             intent.putExtra("username", viewModel.username)
             intent.putExtra("avatarId", viewModel.avatarId)
-            // TODO: добавить потом аватар, и может что-то еще
         }
         else {
             Log.e(MyApp.DEBUG_LOG_TAG, "LoginActivity.startMainActivity() -> viewModel.username is null or empty")
@@ -116,5 +110,4 @@ class LoginActivity : AppCompatActivity() {
             return false
         }
     }
-
 }

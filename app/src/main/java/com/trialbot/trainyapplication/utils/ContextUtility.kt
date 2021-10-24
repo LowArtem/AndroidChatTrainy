@@ -4,6 +4,10 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import com.trialbot.trainyapplication.MyApp
+import java.net.HttpURLConnection
+import java.net.URL
+
 
 object ContextUtility {
 
@@ -26,5 +30,20 @@ object ContextUtility {
             }
         }
         return false
+    }
+
+    fun Context.isServerAvailable(): Boolean {
+        if ((getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).activeNetwork == null) return false
+
+        return try {
+            val url = URL(MyApp.MY_BASE_URL)
+            val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
+            urlConnection.connectTimeout = 10 * 1000 // 10 s.
+            urlConnection.connect()
+
+            urlConnection.responseCode == 200
+        } catch (e: Exception) {
+            false
+        }
     }
 }

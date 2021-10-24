@@ -67,7 +67,7 @@ class LoginViewModel(
 
     private fun setUserData(user: UserWithoutPassword?) {
         if (user != null) {
-            // TODO: добавить сюда изменение других параметров (пока их негде отображать) (isLoginSuccessfulMutable дложно быть в конце)
+            // TODO: добавить сюда изменение других параметров (isLoginSuccessfulMutable дложно быть в конце)
             avatarId = user.icon
             username = user.username
             isLoginSuccessfulMutable.value = true

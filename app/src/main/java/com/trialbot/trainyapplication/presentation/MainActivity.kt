@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
         viewModel.setUserIconId(avatarId)
 
-        supportActionBar?.title = username
+        supportActionBar?.title = "  $username"
         supportActionBar?.setLogo(avatarId)
 
         // Проверка интернет-соединения
