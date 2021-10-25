@@ -14,8 +14,6 @@ class StartStopRemoteActions(
     private val authControllerLocal: AuthenticationControllerLocal
 ) {
     suspend fun appClosed(userIconId: Int) = withContext(Dispatchers.IO) {
-        Log.d(MyApp.DEBUG_LOG_TAG, "App closed")
-
         val user = authControllerLocal.getCredentials()
         if (user != null) {
             authControllerRemote.updateUser(
@@ -29,8 +27,6 @@ class StartStopRemoteActions(
     }
 
     suspend fun appStarted(userIconId: Int) = withContext(Dispatchers.IO) {
-        Log.d(MyApp.DEBUG_LOG_TAG, "App started")
-
         val user = authControllerLocal.getCredentials()
         if (user != null) {
             authControllerRemote.updateUser(

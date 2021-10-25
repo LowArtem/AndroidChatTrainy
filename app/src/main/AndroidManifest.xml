@@ -2,18 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.trialbot.trainyapplication">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".MyApp"
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@drawable/ic_chat"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TrainyApplication">
+        android:theme="@style/Theme.TrainyApplication"
+        android:usesCleartextTraffic="true">
 
         <!-- Login Activity -->
         <activity
@@ -21,13 +21,19 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <!-- Main Activity -->
-        <activity android:name=".presentation.MainActivity" android:exported="true"/>
+        <activity
+            android:name=".presentation.MainActivity"
+            android:exported="true" />
+
+        <!-- Profile Activity -->
+        <activity
+            android:name=".presentation.ProfileActivity"
+            android:exported="false" />
 
     </application>
 

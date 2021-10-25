@@ -116,7 +116,6 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
     override fun onStart() {
         super.onStart()
-
         viewModel.render()
     }
 
