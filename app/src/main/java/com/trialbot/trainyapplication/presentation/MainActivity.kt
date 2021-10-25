@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
                     }
-                    Snackbar.make(binding.mainLayout, "Error: ${newValue.errorText}", Snackbar.LENGTH_INDEFINITE).show()
+                    Snackbar.make(binding.mainLayout, "Error: ${newValue.errorText}", Snackbar.LENGTH_LONG).show()
                 }
             }
         })

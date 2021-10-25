@@ -19,6 +19,7 @@ import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.coroutines.cancellation.CancellationException
 
 
 class MainViewModel(
@@ -92,12 +93,15 @@ class MainViewModel(
                     messageUseCases.updateMessages()
                     delay(3000)
                 }
-            } catch (e: Exception) {
-                Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e.localizedMessage}")
+            } catch (e1: CancellationException) {
+
+            } catch (e2: Exception) {
+                Log.d(MyApp.DEBUG_LOG_TAG, e2.toString())
+                Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e2.localizedMessage}")
 
                 _state.postValue(
                     MessageState.Error(
-                        e.localizedMessage?.toString() ?: "Message getting error"
+                        e2.localizedMessage?.toString() ?: "Message getting error"
                     )
                 )
             }
@@ -139,10 +143,6 @@ class MainViewModel(
             startStopRemoteActions.appClosed(userId)
         }
         Thread.sleep(1000)
-    }
-
-    fun internetUnavailable() {
-        _state.postValue(MessageState.Error("No internet connection"))
     }
 
     fun getCurrentUserId(): Long {

@@ -9,11 +9,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
-
 
 
 class MyApp: Application() {
@@ -59,12 +57,15 @@ class MyApp: Application() {
         }.socketFactory
 
         sslSocketFactory(insecureSocketFactory, naiveTrustManager)
-        hostnameVerifier(HostnameVerifier { _, _ -> true })
+        hostnameVerifier { _, _ -> true }
         return this
     }
 
     companion object {
+        // AVD
         const val MY_BASE_URL = "https://10.0.2.2:5001/api/"
+        // REAL PHONE
+//        const val MY_BASE_URL = "/api/"
         const val DEBUG_LOG_TAG = "AAAA"
         const val ERROR_LOG_TAG = "Application_Error"
         const val SHARED_PREFS_AUTH_TAG = "user_auth_info"
