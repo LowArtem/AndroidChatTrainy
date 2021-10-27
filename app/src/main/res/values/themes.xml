@@ -18,4 +18,7 @@
     <style name="MyMessageTheme">
         <item name="android:background">@color/light_green_50</item>
     </style>
+    <style name="WarningButtonsTheme">
+        <item name="colorPrimary">@color/red_light</item>
+    </style>
 </resources>

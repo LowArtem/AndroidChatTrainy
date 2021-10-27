@@ -27,6 +27,9 @@ interface ChatApi {
         @Query("password") password: String
     ): UserWithoutPassword
 
+    @GET("./users/GetUserIsOnline")
+    suspend fun getUserIsOnline(@Query("Id") id: Long): Boolean
+
     @POST("./users/SaveUser")
     suspend fun saveUser(@Body user: UserFull): UserFull
 

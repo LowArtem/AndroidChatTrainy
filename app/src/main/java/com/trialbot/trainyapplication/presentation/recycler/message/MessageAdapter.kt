@@ -1,13 +1,16 @@
 package com.trialbot.trainyapplication.presentation.recycler.message
 
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.data.model.MessageDTO
+import com.trialbot.trainyapplication.data.model.UserMessage
 import com.trialbot.trainyapplication.databinding.ItemMessageBinding
 import com.trialbot.trainyapplication.databinding.ItemMyMessageBinding
+import com.trialbot.trainyapplication.domain.UserAvatarUseCases
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,12 +33,24 @@ class MessageDiffCallback(
     }
 }
 
+
 abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewItem) {
-    abstract fun bind(item: T)
+    abstract fun bind(item: T, resources: Resources)
+}
+
+sealed class ProfileViewStatus {
+    object Guest: ProfileViewStatus()
+    object Owner: ProfileViewStatus()
+}
+
+interface MessageAdapterClickNavigation {
+    fun openProfile(user: UserMessage, viewStatus: ProfileViewStatus)
 }
 
 class MessageAdapter(
-    private val currentUserId: Long
+    private val currentUserId: Long,
+    private val resources: Resources,
+    private val clickNavigation: MessageAdapterClickNavigation
 ) : RecyclerView.Adapter<BaseViewHolder<*>>() {
 
     private var messages: MutableList<MessageDTO> = mutableListOf()
@@ -47,29 +62,42 @@ class MessageAdapter(
             diffResult.dispatchUpdatesTo(this)
         }
 
-
-    class CommonMessageViewHolder(val binding: ItemMessageBinding) : BaseViewHolder<MessageDTO>(binding.root) {
-        override fun bind(item: MessageDTO) {
+    class CommonMessageViewHolder(
+        val binding: ItemMessageBinding,
+        val clickNavigation: MessageAdapterClickNavigation
+    ) : BaseViewHolder<MessageDTO>(binding.root) {
+        override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
-                // TODO: добавить получение аватара
+                authorAvatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(item.author.icon, resources))
                 authorNameTV.text = item.author.username
                 messageTextTV.text = item.text
 
                 val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
                 pubDateTV.text = formatter.format(item.pubDate)
+
+                authorAvatarIV.setOnClickListener {
+                    clickNavigation.openProfile(item.author, ProfileViewStatus.Guest)
+                }
             }
         }
     }
 
-    class MyMessageViewHolder(val binding: ItemMyMessageBinding) : BaseViewHolder<MessageDTO>(binding.root) {
-        override fun bind(item: MessageDTO) {
+    class MyMessageViewHolder(
+        val binding: ItemMyMessageBinding,
+        val clickNavigation: MessageAdapterClickNavigation
+    ) : BaseViewHolder<MessageDTO>(binding.root) {
+        override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
-                // TODO: добавить получение аватара
+                authorAvatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(item.author.icon, resources))
                 authorNameTV.text = item.author.username
                 messageTextTV.text = item.text
 
                 val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
                 pubDateTV.text = formatter.format(item.pubDate)
+
+                authorAvatarIV.setOnClickListener {
+                    clickNavigation.openProfile(item.author, ProfileViewStatus.Owner)
+                }
             }
         }
     }
@@ -83,18 +111,18 @@ class MessageAdapter(
         val inflater = LayoutInflater.from(parent.context)
         if (viewType == TYPE_MY_MESSAGE) {
             val binding = ItemMyMessageBinding.inflate(inflater, parent, false)
-            return MyMessageViewHolder(binding)
+            return MyMessageViewHolder(binding, clickNavigation)
         }
         else {
             val binding = ItemMessageBinding.inflate(inflater, parent, false)
-            return CommonMessageViewHolder(binding)
+            return CommonMessageViewHolder(binding, clickNavigation)
         }
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<*>, position: Int) {
         when(holder) {
-            is CommonMessageViewHolder -> holder.bind(messages[position])
-            is MyMessageViewHolder -> holder.bind(messages[position])
+            is CommonMessageViewHolder -> holder.bind(messages[position], resources)
+            is MyMessageViewHolder -> holder.bind(messages[position], resources)
         }
     }
 

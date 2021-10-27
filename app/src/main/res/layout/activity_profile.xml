@@ -3,6 +3,178 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.ProfileActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/avatarNameCL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/avatarIV"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="6dp"
+            android:src="@drawable/ic_avatar_default"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/nameTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="26dp"
+            android:layout_marginTop="6dp"
+            android:text="John Dou"
+            android:textSize="22sp"
+            app:layout_constraintStart_toEndOf="@+id/avatarIV"
+            app:layout_constraintTop_toTopOf="@+id/avatarIV" />
+
+<!--    todo: изменение username    -->
+<!--        <ImageButton-->
+<!--            android:id="@+id/editNameBtn"-->
+<!--            android:layout_width="20dp"-->
+<!--            android:layout_height="20dp"-->
+<!--            android:src="@drawable/ic_edit"-->
+<!--            android:layout_marginStart="6dp"-->
+<!--            android:background="@color/white"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/nameTV"-->
+<!--            app:layout_constraintTop_toTopOf="@+id/nameTV"-->
+<!--            app:layout_constraintBottom_toBottomOf="@+id/nameTV"/>-->
+
+        <TextView
+            android:id="@+id/statusTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="online"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/nameTV"
+            app:layout_constraintTop_toBottomOf="@+id/nameTV" />
+
+        <ImageButton
+            android:id="@+id/sendMessageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:background="@color/white"
+            android:src="@drawable/ic_message"
+            app:layout_constraintBottom_toBottomOf="@+id/avatarIV"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nameTV" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/aboutLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/avatarNameCL"
+        android:layout_marginTop="40dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/aboutTI"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="0.8"
+            android:hint="About"
+            android:inputType="text"/>
+
+        <ImageButton
+            android:id="@+id/editAboutBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="0.2"
+            android:layout_gravity="center"
+            android:background="@color/white"
+            android:src="@drawable/ic_edit"/>
+    </LinearLayout>
+
+<!--    todo: видна в режиме гостя -->
+    <Button
+        android:id="@+id/addToChatBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add this user to chat"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/aboutLL"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"/>
+
+<!--    todo: видна в режиме владельца аккаунта -->
+    <Button
+        android:id="@+id/createTheChatBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create a chat"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/aboutLL"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"/>
+
+    <!--    todo: видна в режиме владельца аккаунта -->
+    <LinearLayout
+        android:id="@+id/changePasswordLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createTheChatBtn"
+        android:layout_marginTop="40dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/changePasswordTI"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="0.8"
+            android:hint="Enter your current password"
+            android:inputType="textPassword"/>
+
+        <ImageButton
+            android:id="@+id/editPasswordBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="0.2"
+            android:layout_gravity="center"
+            android:background="@color/white"
+            android:src="@drawable/ic_edit"/>
+    </LinearLayout>
+
+    <!--    todo: видна в режиме владельца аккаунта -->
+    <Button
+        android:id="@+id/logoutBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log out"
+        android:theme="@style/WarningButtonsTheme"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

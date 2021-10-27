@@ -8,6 +8,15 @@ import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 
 class UserControllerRemote(private val chatApi: ChatApi) {
 
+    suspend fun getUserIsOnline(id: Long): Boolean {
+        return try {
+            chatApi.getUserIsOnline(id)
+        } catch (e: Exception) {
+            Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.getUserIsOnline() -> ${e.localizedMessage}")
+            false
+        }
+    }
+
     suspend fun updateUser(id: Long, user: UserFull): Boolean {
         return try {
             chatApi.updateUser(id, user)

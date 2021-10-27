@@ -18,12 +18,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
+import com.trialbot.trainyapplication.data.model.UserMessage
 import com.trialbot.trainyapplication.databinding.ActivityMainBinding
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
+import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapterClickNavigation
+import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
 
-class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
+class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, MessageAdapterClickNavigation {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MessageAdapter
@@ -43,7 +46,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        adapter = MessageAdapter(viewModel.getCurrentUserId())
+        adapter = MessageAdapter(viewModel.getCurrentUserId(), applicationContext.resources, this)
 
         with (binding)
         {
@@ -179,5 +182,23 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener {
             viewModel.send(messageTextTV.text.toString())
             messageTextTV.text.clear()
         }
+    }
+
+    override fun openProfile(user: UserMessage, viewStatus: ProfileViewStatus) {
+        val intent = Intent(this, ProfileActivity::class.java)
+
+        when (viewStatus) {
+            is ProfileViewStatus.Guest -> {
+                intent.putExtra("viewStatus", "guest")
+            }
+            is ProfileViewStatus.Owner -> {
+                intent.putExtra("viewStatus", "owner")
+            }
+        }
+
+        intent.putExtra("user_id", user.id)
+        intent.putExtra("user_username", user.username)
+        intent.putExtra("user_icon", user.icon)
+        startActivity(intent)
     }
 }
