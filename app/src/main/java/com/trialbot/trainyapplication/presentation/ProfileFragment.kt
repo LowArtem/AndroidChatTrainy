@@ -4,39 +4,38 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
-import com.trialbot.trainyapplication.databinding.ActivityProfileBinding
+import com.trialbot.trainyapplication.databinding.FragmentProfileBinding
 import com.trialbot.trainyapplication.domain.UserAvatarUseCases
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
-    private lateinit var binding: ActivityProfileBinding
+    private lateinit var binding: FragmentProfileBinding
 
     private val viewModel: ProfileViewModel by viewModels {
-        val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
+        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
         throw Exception("Shared Preferences is null")
 
         ProfileViewModel.ProfileViewModelFactory(
-            chatApi = (application as MyApp).api,
+            chatApi = (requireActivity().application as MyApp).api,
             sharedPrefs = prefs,
         )
     }
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        binding = ActivityProfileBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = FragmentProfileBinding.bind(view)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "User profile"
+        requireActivity().actionBar?.setDisplayHomeAsUpEnabled(true)
+        requireActivity().actionBar?.title = "User profile"
 
         val userId: Long = intent.getLongExtra("user_id", -1)
         val username: String = intent.getStringExtra("user_username") ?: "Username"
@@ -45,7 +44,7 @@ class ProfileActivity : AppCompatActivity() {
         val viewStatus: String = intent.getStringExtra("viewStatus") ?: "guest"
         viewModel.render(viewStatus, userId, username, userIcon)
 
-        viewModel.state.observe(this, {
+        viewModel.state.observe(viewLifecycleOwner, {
             when(it) {
                 is ProfileState.Loading -> {
                     with(binding) {
@@ -151,7 +150,7 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.logoutBtn.setOnClickListener {
             viewModel.logout()
-            val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
+            val intent = Intent(this@ProfileFragment, LoginFragment::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
             finish()
@@ -161,5 +160,10 @@ class ProfileActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = ProfileFragment()
     }
 }

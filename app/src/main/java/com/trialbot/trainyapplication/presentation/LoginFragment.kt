@@ -6,44 +6,42 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
-import com.trialbot.trainyapplication.databinding.ActivityLoginBinding
+import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
 
 
-class LoginActivity : AppCompatActivity() {
+class LoginFragment : Fragment(R.layout.fragment_login) {
 
-    private lateinit var binding: ActivityLoginBinding
+    private lateinit var binding: FragmentLoginBinding
 
     private val viewModel: LoginViewModel by viewModels {
-        val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
+        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
             throw Exception("Shared Preferences is null")
 
         LoginViewModel.LoginViewModelFactory(
-            chatApi = (application as MyApp).api,
+            chatApi = (requireActivity().application as MyApp).api,
             sharedPrefs = prefs
         )
     }
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentLoginBinding.bind(view)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        requireActivity().actionBar?.setLogo(R.drawable.ic_logo)
+        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
+        requireActivity().actionBar?.setDisplayUseLogoEnabled(true)
 
-        supportActionBar?.setLogo(R.drawable.ic_logo)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayUseLogoEnabled(true)
+        viewModel.render((requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
 
-        viewModel.render((applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
-
-        viewModel.state.observe(this, {
+        viewModel.state.observe(viewLifecycleOwner, {
             when(it) {
                 is LoginState.Loading -> {
                     with(binding) {
@@ -108,7 +106,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun startMainActivity() {
         viewModel.setUserOnline()
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, MainFragment::class.java)
 
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
             intent.putExtra("username", viewModel.username)
@@ -144,5 +142,10 @@ class LoginActivity : AppCompatActivity() {
 
             return false
         }
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = LoginFragment()
     }
 }
