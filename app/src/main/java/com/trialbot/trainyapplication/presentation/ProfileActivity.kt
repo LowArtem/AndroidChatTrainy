@@ -4,18 +4,29 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ActivityProfileBinding
 import com.trialbot.trainyapplication.domain.UserAvatarUseCases
+import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
 
 class ProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileBinding
 
-    private lateinit var viewModel: ProfileViewModel
+    private val viewModel: ProfileViewModel by viewModels {
+        val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
+        throw Exception("Shared Preferences is null")
+
+        ProfileViewModel.ProfileViewModelFactory(
+            chatApi = (application as MyApp).api,
+            sharedPrefs = prefs,
+        )
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,87 +42,120 @@ class ProfileActivity : AppCompatActivity() {
         val username: String = intent.getStringExtra("user_username") ?: "Username"
         val userIcon: Int = intent.getIntExtra("user_icon", -1)
 
-        val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
-        throw Exception("Shared Preferences is null")
-        viewModel = ProfileViewModel.ProfileViewModelFactory(
-            chatApi = (application as MyApp).api,
-            sharedPrefs = prefs,
-            userId
-        ).create(ProfileViewModel::class.java)
-
-
-
         val viewStatus: String = intent.getStringExtra("viewStatus") ?: "guest"
-        when(viewStatus) {
-            "guest" -> {
-                with(binding) {
-                    addToChatBtn.visibility = View.VISIBLE
-                    createTheChatBtn.visibility = View.GONE
-                    editAboutBtn.visibility = View.GONE
-                    changePasswordLL.visibility = View.GONE
-                    logoutBtn.visibility = View.GONE
-                    aboutTI.isEnabled = false
-                    sendMessageBtn.visibility = View.VISIBLE
+        viewModel.render(viewStatus, userId, username, userIcon)
 
-                    viewModel.userIsOnline.observe(this@ProfileActivity, {
-                        if (it == true) {
+        viewModel.state.observe(this, {
+            when(it) {
+                is ProfileState.Loading -> {
+                    with(binding) {
+                        nameTV.visibility = View.GONE
+                        avatarIV.visibility = View.GONE
+                        statusTV.visibility = View.GONE
+                        addToChatBtn.visibility = View.GONE
+                        createTheChatBtn.visibility = View.GONE
+                        editAboutBtn.visibility = View.GONE
+                        changePasswordLL.visibility = View.GONE
+                        logoutBtn.visibility = View.GONE
+                        aboutTI.visibility = View.GONE
+                        sendMessageBtn.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+
+                        loadingPanel.visibility = View.VISIBLE
+                    }
+                }
+                is ProfileState.ReadOnly -> {
+                    with(binding) {
+                        nameTV.visibility = View.VISIBLE
+                        avatarIV.visibility = View.VISIBLE
+                        statusTV.visibility = View.VISIBLE
+                        aboutTI.visibility = View.VISIBLE
+                        addToChatBtn.visibility = View.VISIBLE
+                        createTheChatBtn.visibility = View.GONE
+                        editAboutBtn.visibility = View.GONE
+                        changePasswordLL.visibility = View.GONE
+                        logoutBtn.visibility = View.GONE
+                        aboutTI.isEnabled = false
+                        sendMessageBtn.visibility = View.VISIBLE
+                        errorLayout.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+
+                        if (it.user.isOnline)
                             statusTV.text = getString(R.string.user_online_status_online)
-                        }
-                        else {
+                        else
                             statusTV.text = getString(R.string.user_online_status_offline)
+
+                        nameTV.text = it.user.username
+                        avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(it.user.icon, resources))
+
+                        sendMessageBtn.setOnClickListener {
+                            viewModel.sendMessageToUser()
                         }
-                    })
+                        addToChatBtn.setOnClickListener {
+                            viewModel.addUserToChat()
+                        }
+                    }
+                }
+                is ProfileState.ReadWrite -> {
+                    with(binding) {
+                        nameTV.visibility = View.VISIBLE
+                        avatarIV.visibility = View.VISIBLE
+                        statusTV.visibility = View.VISIBLE
+                        aboutTI.visibility = View.VISIBLE
+                        addToChatBtn.visibility = View.GONE
+                        createTheChatBtn.visibility = View.VISIBLE
+                        editAboutBtn.visibility = View.VISIBLE
+                        changePasswordLL.visibility = View.VISIBLE
+                        logoutBtn.visibility = View.VISIBLE
+                        aboutTI.isEnabled = true
+                        sendMessageBtn.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+
+                        statusTV.text = getString(R.string.user_online_status_online)
+                        nameTV.text = it.user.username
+                        avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(it.user.icon, resources))
+
+                        avatarIV.setOnClickListener {
+                            viewModel.editAvatar()
+                        }
+                        editPasswordBtn.setOnClickListener {
+                            viewModel.editPassword()
+                        }
+                        createTheChatBtn.setOnClickListener {
+                            viewModel.createChat()
+                        }
+                    }
+                }
+                is ProfileState.Error -> {
+                    with(binding) {
+                        nameTV.visibility = View.GONE
+                        avatarIV.visibility = View.GONE
+                        statusTV.visibility = View.GONE
+                        addToChatBtn.visibility = View.GONE
+                        createTheChatBtn.visibility = View.GONE
+                        editAboutBtn.visibility = View.GONE
+                        changePasswordLL.visibility = View.GONE
+                        logoutBtn.visibility = View.GONE
+                        aboutTI.visibility = View.GONE
+                        sendMessageBtn.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+
+                        errorLayout.visibility = View.VISIBLE
+
+                        Snackbar.make(binding.mainLayout, it.errorText, Snackbar.LENGTH_LONG).show()
+                    }
                 }
             }
-            "owner" -> {
-                with(binding) {
-                    statusTV.text = getString(R.string.user_online_status_online)
-                    addToChatBtn.visibility = View.GONE
-                    createTheChatBtn.visibility = View.VISIBLE
-                    editAboutBtn.visibility = View.VISIBLE
-                    changePasswordLL.visibility = View.VISIBLE
-                    logoutBtn.visibility = View.VISIBLE
-                    aboutTI.isEnabled = true
-                    sendMessageBtn.visibility = View.GONE
-                }
-            }
-            else -> {
-                throw IllegalArgumentException("Unknown profile view status")
-            }
+        })
+
+        binding.logoutBtn.setOnClickListener {
+            viewModel.logout()
+            val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+            finish()
         }
-
-        with(binding) {
-            nameTV.text = username
-            avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(userIcon, resources))
-
-            avatarIV.setOnClickListener {
-                viewModel.editAvatar()
-            }
-            editPasswordBtn.setOnClickListener {
-                viewModel.editPassword()
-            }
-            sendMessageBtn.setOnClickListener {
-                viewModel.sendMessageToUser()
-            }
-            logoutBtn.setOnClickListener {
-                viewModel.logout()
-                val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(intent)
-                finish()
-            }
-            createTheChatBtn.setOnClickListener {
-                viewModel.createChat()
-            }
-            addToChatBtn.setOnClickListener {
-                viewModel.addUserToChat()
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.render()
     }
 
     override fun onSupportNavigateUp(): Boolean {

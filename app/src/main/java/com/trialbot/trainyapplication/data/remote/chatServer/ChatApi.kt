@@ -2,6 +2,7 @@ package com.trialbot.trainyapplication.data.remote.chatServer
 
 import com.trialbot.trainyapplication.data.model.*
 import retrofit2.http.*
+import java.util.*
 
 interface ChatApi {
 
@@ -29,6 +30,9 @@ interface ChatApi {
 
     @GET("./users/GetUserIsOnline")
     suspend fun getUserIsOnline(@Query("Id") id: Long): Boolean
+
+    @GET("./users/GetUserLastDate")
+    suspend fun getUserLastDate(@Query("Id") id: Long): Date
 
     @POST("./users/SaveUser")
     suspend fun saveUser(@Body user: UserFull): UserFull

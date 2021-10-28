@@ -21,4 +21,7 @@
     <style name="WarningButtonsTheme">
         <item name="colorPrimary">@color/red_light</item>
     </style>
+    <style name="ErrorSmile">
+        <item name="android:src">@drawable/ic_sad_smile_light</item>
+    </style>
 </resources>

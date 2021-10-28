@@ -5,6 +5,7 @@ import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.data.model.UserFull
 import com.trialbot.trainyapplication.data.model.UserWithoutIcon
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
+import java.util.*
 
 class UserControllerRemote(private val chatApi: ChatApi) {
 
@@ -14,6 +15,15 @@ class UserControllerRemote(private val chatApi: ChatApi) {
         } catch (e: Exception) {
             Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.getUserIsOnline() -> ${e.localizedMessage}")
             false
+        }
+    }
+
+    suspend fun getUserLastDate(id: Long): Date? {
+        return try {
+            chatApi.getUserLastDate(id)
+        } catch (e: Exception) {
+            Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.getUserLastDate() -> ${e.localizedMessage}")
+            null
         }
     }
 
