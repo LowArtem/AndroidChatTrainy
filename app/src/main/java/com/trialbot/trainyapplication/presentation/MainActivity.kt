@@ -145,6 +145,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, Messa
     private fun actionLogoutHandler() {
         viewModel.logOut()
         val intent = Intent(this, LoginActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
         finish()
     }

@@ -96,7 +96,6 @@ class MainViewModel(
             } catch (e1: CancellationException) {
 
             } catch (e2: Exception) {
-                Log.d(MyApp.DEBUG_LOG_TAG, e2.toString())
                 Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e2.localizedMessage}")
 
                 _state.postValue(

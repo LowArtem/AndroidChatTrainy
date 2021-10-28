@@ -1,6 +1,7 @@
 package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,9 @@ class ProfileActivity : AppCompatActivity() {
 
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "User profile"
 
         val userId: Long = intent.getLongExtra("user_id", -1)
         val username: String = intent.getStringExtra("user_username") ?: "Username"
@@ -79,11 +83,39 @@ class ProfileActivity : AppCompatActivity() {
         with(binding) {
             nameTV.text = username
             avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(userIcon, resources))
+
+            avatarIV.setOnClickListener {
+                viewModel.editAvatar()
+            }
+            editPasswordBtn.setOnClickListener {
+                viewModel.editPassword()
+            }
+            sendMessageBtn.setOnClickListener {
+                viewModel.sendMessageToUser()
+            }
+            logoutBtn.setOnClickListener {
+                viewModel.logout()
+                val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
+                finish()
+            }
+            createTheChatBtn.setOnClickListener {
+                viewModel.createChat()
+            }
+            addToChatBtn.setOnClickListener {
+                viewModel.addUserToChat()
+            }
         }
     }
 
     override fun onStart() {
         super.onStart()
         viewModel.render()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

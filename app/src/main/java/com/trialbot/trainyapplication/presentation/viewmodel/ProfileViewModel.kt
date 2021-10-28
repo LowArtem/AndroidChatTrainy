@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.trialbot.trainyapplication.data.UserControllerRemote
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.EditUserUseCases
+import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ class ProfileViewModel(
 
     private val editUserUseCases = EditUserUseCases(chatApi, sharedPrefs)
     private val userControllerRemote = UserControllerRemote(chatApi)
+    private val loginStatus = LoginStatusUseCases(sharedPrefs)
 
     fun render() {
         viewModelScope.launch {
@@ -42,5 +44,28 @@ class ProfileViewModel(
         }
     }
 
-    // todo: сделать постоянную проверку доступности пользователя (не очень часто, раз эдак в 20-30 сек)
+    fun logout() {
+        loginStatus.saveLoginStatus(false)
+    }
+
+    fun addUserToChat() {
+
+    }
+
+    fun createChat() {
+
+    }
+
+    fun editPassword() {
+
+    }
+
+    fun editAvatar() {
+
+    }
+
+    fun sendMessageToUser() {
+
+    }
+
 }
