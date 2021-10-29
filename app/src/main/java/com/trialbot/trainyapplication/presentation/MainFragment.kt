@@ -1,17 +1,17 @@
 package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -32,6 +32,8 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var adapter: MessageAdapter
+
+    private val args: MainFragmentArgs by navArgs()
 
     private val viewModel: MainViewModel by viewModels {
         val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
@@ -72,16 +74,14 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
             messageTextTV.setOnEditorActionListener(this@MainFragment)
         }
 
-        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
         requireActivity().actionBar?.setDisplayUseLogoEnabled(true)
+        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
 
-        val username: String = intent.getStringExtra("username") ?: "Chat"
-        var avatarId: Int = intent.getIntExtra("avatarId", R.drawable.ic_avatar_default)
+        var avatarId: Int = args.iconId
         if (avatarId == -1) avatarId = R.drawable.ic_avatar_default
 
         viewModel.setUserIconId(avatarId)
 
-        requireActivity().actionBar?.title = "  $username"
         requireActivity().actionBar?.setLogo(avatarId)
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
@@ -126,6 +126,10 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
         viewModel.render()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.action_exit -> {
@@ -142,10 +146,15 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
 
     private fun actionLogoutHandler() {
         viewModel.logOut()
-        val intent = Intent(this, LoginFragment::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-        finish()
+
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToLoginFragment(), navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
     }
 
     private fun actionExitHandler() {
@@ -154,7 +163,7 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
             setMessage("Are you sure, you want to exit?")
 
             setPositiveButton("Yes") { _, _ ->
-                super.onBackPressed()
+                findNavController().popBackStack()
             }
 
             setNegativeButton("Cancel") { _, _ -> }
@@ -184,25 +193,23 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
     }
 
     override fun openProfile(user: UserMessage, viewStatus: ProfileViewStatus) {
-        val intent = Intent(this, ProfileFragment::class.java)
-
-        when (viewStatus) {
+        val viewStatusStr: String = when (viewStatus) {
             is ProfileViewStatus.Guest -> {
-                intent.putExtra("viewStatus", "guest")
+                "guest"
             }
             is ProfileViewStatus.Owner -> {
-                intent.putExtra("viewStatus", "owner")
+                "owner"
             }
         }
 
-        intent.putExtra("user_id", user.id)
-        intent.putExtra("user_username", user.username)
-        intent.putExtra("user_icon", user.icon)
-        startActivity(intent)
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = MainFragment()
+        val direction = MainFragmentDirections.actionMainFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
+        findNavController().navigate(direction, navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
     }
 }

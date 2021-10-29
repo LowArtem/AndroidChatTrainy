@@ -1,13 +1,14 @@
 package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
-import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
@@ -31,13 +32,19 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setHasOptionsMenu(true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentLoginBinding.bind(view)
 
         requireActivity().actionBar?.setLogo(R.drawable.ic_logo)
-        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
         requireActivity().actionBar?.setDisplayUseLogoEnabled(true)
+        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
 
         viewModel.render((requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
 
@@ -64,7 +71,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         loginBtn.isEnabled = false
                         registerBtn.isEnabled = false
                     }
-                    Snackbar.make(binding.mainLayout, it.errorText, Snackbar.LENGTH_INDEFINITE).show()
+                    Snackbar.make(binding.loginLayout, it.errorText, Snackbar.LENGTH_LONG).show()
                 }
                 is LoginState.UserNotFound -> {
                     with(binding) {
@@ -73,7 +80,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         registerBtn.isEnabled = true
                     }
                     Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity -> user not found in DB")
-                    Snackbar.make(binding.mainLayout, it.message, Snackbar.LENGTH_INDEFINITE).show()
+                    Snackbar.make(binding.loginLayout, it.message, Snackbar.LENGTH_LONG).show()
                 }
             }
         })
@@ -99,24 +106,29 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         viewModel.saveUserLoginStatus()
-        super.onDestroy()
+        super.onDestroyView()
     }
 
     private fun startMainActivity() {
         viewModel.setUserOnline()
-        val intent = Intent(this, MainFragment::class.java)
 
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
-            intent.putExtra("username", viewModel.username)
-            intent.putExtra("avatarId", viewModel.avatarId)
+            val direction = LoginFragmentDirections.actionLoginFragmentToMainFragment(viewModel.username!!, viewModel.avatarId)
+            findNavController().navigate(direction, navOptions {
+                anim {
+                    enter = R.anim.enter
+                    exit = R.anim.exit
+                    popEnter = R.anim.pop_enter
+                    popExit = R.anim.pop_exit
+                }
+            })
         }
         else {
-            Log.e(MyApp.DEBUG_LOG_TAG, "LoginActivity.startMainActivity() -> viewModel.username is null or empty")
+            Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity.startMainActivity() -> viewModel.username is null or empty")
+            viewModel.setOutsideError("Username is empty")
         }
-        startActivity(intent)
-        finish()
     }
 
     // Проверка корректности ввода пользователем username и password
@@ -142,10 +154,5 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
             return false
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = LoginFragment()
     }
 }

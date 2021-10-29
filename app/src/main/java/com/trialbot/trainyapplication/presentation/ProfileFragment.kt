@@ -1,11 +1,13 @@
 package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
@@ -17,6 +19,8 @@ import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private lateinit var binding: FragmentProfileBinding
+
+    private val args: ProfileFragmentArgs by navArgs()
 
     private val viewModel: ProfileViewModel by viewModels {
         val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
@@ -34,14 +38,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         binding = FragmentProfileBinding.bind(view)
 
-        requireActivity().actionBar?.setDisplayHomeAsUpEnabled(true)
-        requireActivity().actionBar?.title = "User profile"
+        val userId: Long = args.userId
+        val username: String = args.username
+        val userIcon: Int = args.userIcon
 
-        val userId: Long = intent.getLongExtra("user_id", -1)
-        val username: String = intent.getStringExtra("user_username") ?: "Username"
-        val userIcon: Int = intent.getIntExtra("user_icon", -1)
-
-        val viewStatus: String = intent.getStringExtra("viewStatus") ?: "guest"
+        val viewStatus: String = args.viewStatus
         viewModel.render(viewStatus, userId, username, userIcon)
 
         viewModel.state.observe(viewLifecycleOwner, {
@@ -142,7 +143,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
                         errorLayout.visibility = View.VISIBLE
 
-                        Snackbar.make(binding.mainLayout, it.errorText, Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(binding.profileLayout, it.errorText, Snackbar.LENGTH_LONG).show()
                     }
                 }
             }
@@ -150,20 +151,14 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         binding.logoutBtn.setOnClickListener {
             viewModel.logout()
-            val intent = Intent(this@ProfileFragment, LoginFragment::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-            finish()
+            findNavController().navigate(ProfileFragmentDirections.actionProfileFragmentToLoginFragment(), navOptions {
+                anim {
+                    enter = R.anim.enter
+                    exit = R.anim.exit
+                    popEnter = R.anim.pop_enter
+                    popExit = R.anim.pop_exit
+                }
+            })
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = ProfileFragment()
     }
 }
