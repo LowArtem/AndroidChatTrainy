@@ -129,6 +129,10 @@ class LoginViewModel(
         loginStatus.saveLoginStatus(isLoginSuccessful)
     }
 
+    fun setOutsideError(errorMessage: String) {
+        _state.postValue(LoginState.Error(errorMessage))
+    }
+
     private fun getUserLoginStatus(): Boolean {
         return if (loginStatus.getLoginStatus()) {
             getLocalUserData()

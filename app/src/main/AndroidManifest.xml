@@ -15,27 +15,16 @@
         android:theme="@style/Theme.TrainyApplication"
         android:usesCleartextTraffic="true">
 
-        <!-- Login Activity -->
+        <!-- Base Activity -->
         <activity
-            android:name=".presentation.LoginActivity"
-            android:exported="true"
-            android:noHistory="true">
+            android:name=".presentation.BaseActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Main Activity -->
-        <activity
-            android:name=".presentation.MainActivity"
-            android:exported="true" />
-
-        <!-- Profile Activity -->
-        <activity
-            android:name=".presentation.ProfileActivity"
-            android:exported="false" />
-
     </application>
 
 </manifest>

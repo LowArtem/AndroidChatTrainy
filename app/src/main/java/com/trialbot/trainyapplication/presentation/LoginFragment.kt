@@ -1,49 +1,50 @@
 package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
-import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
-import com.trialbot.trainyapplication.databinding.ActivityLoginBinding
+import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
 
 
-class LoginActivity : AppCompatActivity() {
+class LoginFragment : Fragment(R.layout.fragment_login) {
 
-    private lateinit var binding: ActivityLoginBinding
+    private lateinit var binding: FragmentLoginBinding
 
     private val viewModel: LoginViewModel by viewModels {
-        val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
+        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
             throw Exception("Shared Preferences is null")
 
         LoginViewModel.LoginViewModelFactory(
-            chatApi = (application as MyApp).api,
+            chatApi = (requireActivity().application as MyApp).api,
             sharedPrefs = prefs
         )
     }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        supportActionBar?.setLogo(R.drawable.ic_logo)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayUseLogoEnabled(true)
+        setHasOptionsMenu(true)
+    }
 
-        viewModel.render((applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentLoginBinding.bind(view)
 
-        viewModel.state.observe(this, {
+        viewModel.render((requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
+
+        viewModel.state.observe(viewLifecycleOwner, {
             when(it) {
                 is LoginState.Loading -> {
                     with(binding) {
@@ -66,7 +67,7 @@ class LoginActivity : AppCompatActivity() {
                         loginBtn.isEnabled = false
                         registerBtn.isEnabled = false
                     }
-                    Snackbar.make(binding.mainLayout, it.errorText, Snackbar.LENGTH_INDEFINITE).show()
+                    Snackbar.make(binding.loginLayout, it.errorText, Snackbar.LENGTH_LONG).show()
                 }
                 is LoginState.UserNotFound -> {
                     with(binding) {
@@ -75,7 +76,7 @@ class LoginActivity : AppCompatActivity() {
                         registerBtn.isEnabled = true
                     }
                     Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity -> user not found in DB")
-                    Snackbar.make(binding.mainLayout, it.message, Snackbar.LENGTH_INDEFINITE).show()
+                    Snackbar.make(binding.loginLayout, it.message, Snackbar.LENGTH_LONG).show()
                 }
             }
         })
@@ -101,24 +102,29 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         viewModel.saveUserLoginStatus()
-        super.onDestroy()
+        super.onDestroyView()
     }
 
     private fun startMainActivity() {
         viewModel.setUserOnline()
-        val intent = Intent(this, MainActivity::class.java)
 
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
-            intent.putExtra("username", viewModel.username)
-            intent.putExtra("avatarId", viewModel.avatarId)
+            val direction = LoginFragmentDirections.actionLoginFragmentToMainFragment(viewModel.username!!, viewModel.avatarId)
+            findNavController().navigate(direction, navOptions {
+                anim {
+                    enter = R.anim.enter
+                    exit = R.anim.exit
+                    popEnter = R.anim.pop_enter
+                    popExit = R.anim.pop_exit
+                }
+            })
         }
         else {
-            Log.e(MyApp.DEBUG_LOG_TAG, "LoginActivity.startMainActivity() -> viewModel.username is null or empty")
+            Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity.startMainActivity() -> viewModel.username is null or empty")
+            viewModel.setOutsideError("Username is empty")
         }
-        startActivity(intent)
-        finish()
     }
 
     // Проверка корректности ввода пользователем username и password

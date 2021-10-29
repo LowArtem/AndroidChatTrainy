@@ -1,61 +1,70 @@
 package com.trialbot.trainyapplication.presentation
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.data.model.UserMessage
-import com.trialbot.trainyapplication.databinding.ActivityMainBinding
+import com.trialbot.trainyapplication.databinding.FragmentMainBinding
+import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
+import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
 
-class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, MessageAdapterClickNavigation {
 
-    private lateinit var binding: ActivityMainBinding
+
+
+class MainFragment : Fragment(R.layout.fragment_main),
+    TextView.OnEditorActionListener, MessageAdapterClickNavigation, HasCustomTitle, HasCustomAppbarIcon {
+
+    private lateinit var binding: FragmentMainBinding
     private lateinit var adapter: MessageAdapter
 
+    private val args: MainFragmentArgs by navArgs()
+
     private val viewModel: MainViewModel by viewModels {
-        val prefs = getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
+        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
         throw Exception("Shared Preferences is null")
 
         MainViewModel.MainViewModelFactory(
-            chatApi = (application as MyApp).api,
+            chatApi = (requireActivity().application as MyApp).api,
             sharedPrefs = prefs
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentMainBinding.bind(view)
 
-        adapter = MessageAdapter(viewModel.getCurrentUserId(), applicationContext.resources, this)
+        adapter = MessageAdapter(viewModel.getCurrentUserId(), requireContext().resources, this)
 
         with (binding)
         {
-            setContentView(root)
-
-            val layoutManager = LinearLayoutManager(this@MainActivity)
+            val layoutManager = LinearLayoutManager(context)
             messagesRV.layoutManager = layoutManager
             messagesRV.adapter = adapter
-            messagesRV.addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
+            messagesRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
             messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
                 (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
@@ -65,32 +74,25 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, Messa
                 sendMessage()
             }
 
-            messageTextTV.setOnEditorActionListener(this@MainActivity)
+            messageTextTV.setOnEditorActionListener(this@MainFragment)
         }
 
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayUseLogoEnabled(true)
-
-        val username: String = intent.getStringExtra("username") ?: "Chat"
-        var avatarId: Int = intent.getIntExtra("avatarId", R.drawable.ic_avatar_default)
+        var avatarId: Int = args.iconId
         if (avatarId == -1) avatarId = R.drawable.ic_avatar_default
 
         viewModel.setUserIconId(avatarId)
 
-        supportActionBar?.title = "  $username"
-        supportActionBar?.setLogo(avatarId)
-
-        viewModel.state.observe(this, { newValue ->
+        viewModel.state.observe(viewLifecycleOwner, { newValue ->
             when(newValue) {
                 is MessageState.Loading -> {
                     with(binding) {
                         loadingPanel.visibility = View.VISIBLE
                         textEmpty.visibility = View.GONE
                     }
-                    Toast.makeText(this, "Loading", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Loading", Toast.LENGTH_SHORT).show()
                 }
                 is MessageState.Empty -> {
-                    Toast.makeText(this, "Empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Empty", Toast.LENGTH_SHORT).show()
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.VISIBLE
@@ -102,7 +104,7 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, Messa
                         textEmpty.visibility = View.GONE
                     }
                     adapter.updateMessages(newValue.messages)
-                    viewModel.messages.observe(this, {
+                    viewModel.messages.observe(viewLifecycleOwner, {
                         adapter.updateMessages(it)
                     })
                 }
@@ -122,10 +124,8 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, Messa
         viewModel.render()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val myMenuInflater = menuInflater
-        myMenuInflater.inflate(R.menu.menu, menu)
-        return true
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -144,19 +144,24 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, Messa
 
     private fun actionLogoutHandler() {
         viewModel.logOut()
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-        finish()
+
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToLoginFragment(), navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
     }
 
     private fun actionExitHandler() {
-        AlertDialog.Builder(this).apply {
+        AlertDialog.Builder(requireContext()).apply {
             setTitle("Confirmation")
             setMessage("Are you sure, you want to exit?")
 
             setPositiveButton("Yes") { _, _ ->
-                super.onBackPressed()
+                findNavController().popBackStack()
             }
 
             setNegativeButton("Cancel") { _, _ -> }
@@ -186,20 +191,31 @@ class MainActivity : AppCompatActivity(), TextView.OnEditorActionListener, Messa
     }
 
     override fun openProfile(user: UserMessage, viewStatus: ProfileViewStatus) {
-        val intent = Intent(this, ProfileActivity::class.java)
-
-        when (viewStatus) {
+        val viewStatusStr: String = when (viewStatus) {
             is ProfileViewStatus.Guest -> {
-                intent.putExtra("viewStatus", "guest")
+                "guest"
             }
             is ProfileViewStatus.Owner -> {
-                intent.putExtra("viewStatus", "owner")
+                "owner"
             }
         }
 
-        intent.putExtra("user_id", user.id)
-        intent.putExtra("user_username", user.username)
-        intent.putExtra("user_icon", user.icon)
-        startActivity(intent)
+        val direction = MainFragmentDirections.actionMainFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
+        findNavController().navigate(direction, navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
+    }
+
+    override fun getTitle(): String {
+        return "  ${args.username}"
+    }
+
+    override fun getIconRes(): Int {
+        return args.iconId
     }
 }
