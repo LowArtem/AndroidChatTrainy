@@ -19,4 +19,5 @@
     <string name="user_online_status_online">online</string>
     <string name="user_online_status_offline">offline</string>
     <string name="application_error">Application error</string>
+    <string name="user_profile_title">User Profile</string>
 </resources>

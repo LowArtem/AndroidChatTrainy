@@ -13,10 +13,12 @@ import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentProfileBinding
 import com.trialbot.trainyapplication.domain.UserAvatarUseCases
+import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
+import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
 
-class ProfileFragment : Fragment(R.layout.fragment_profile) {
+class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, HasCustomAppbarIcon {
 
     private lateinit var binding: FragmentProfileBinding
 
@@ -160,5 +162,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 }
             })
         }
+    }
+
+    override fun getTitle(): String {
+        return getString(R.string.user_profile_title)
+    }
+
+    override fun getIconRes(): Int? {
+        return null
     }
 }

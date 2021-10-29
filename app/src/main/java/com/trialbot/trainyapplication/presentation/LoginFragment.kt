@@ -42,10 +42,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentLoginBinding.bind(view)
 
-        requireActivity().actionBar?.setLogo(R.drawable.ic_logo)
-        requireActivity().actionBar?.setDisplayUseLogoEnabled(true)
-        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
-
         viewModel.render((requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
 
         viewModel.state.observe(viewLifecycleOwner, {

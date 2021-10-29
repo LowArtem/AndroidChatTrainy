@@ -19,6 +19,8 @@ import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.data.model.UserMessage
 import com.trialbot.trainyapplication.databinding.FragmentMainBinding
+import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
+import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
@@ -28,7 +30,8 @@ import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
 
 
 
-class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionListener, MessageAdapterClickNavigation {
+class MainFragment : Fragment(R.layout.fragment_main),
+    TextView.OnEditorActionListener, MessageAdapterClickNavigation, HasCustomTitle, HasCustomAppbarIcon {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var adapter: MessageAdapter
@@ -74,15 +77,10 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
             messageTextTV.setOnEditorActionListener(this@MainFragment)
         }
 
-        requireActivity().actionBar?.setDisplayUseLogoEnabled(true)
-        requireActivity().actionBar?.setDisplayShowHomeEnabled(true)
-
         var avatarId: Int = args.iconId
         if (avatarId == -1) avatarId = R.drawable.ic_avatar_default
 
         viewModel.setUserIconId(avatarId)
-
-        requireActivity().actionBar?.setLogo(avatarId)
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
             when(newValue) {
@@ -211,5 +209,13 @@ class MainFragment : Fragment(R.layout.fragment_main), TextView.OnEditorActionLi
                 popExit = R.anim.pop_exit
             }
         })
+    }
+
+    override fun getTitle(): String {
+        return "  ${args.username}"
+    }
+
+    override fun getIconRes(): Int {
+        return args.iconId
     }
 }
