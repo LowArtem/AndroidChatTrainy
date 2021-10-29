@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
@@ -39,7 +38,6 @@ class BaseActivity : AppCompatActivity() {
         val navHost = supportFragmentManager.findFragmentById(R.id.fragmentLayout) as NavHostFragment
         navController = navHost.navController
 
-        val appBarConfiguration = AppBarConfiguration.Builder(R.id.loginFragment, R.id.mainFragment).build()
         NavigationUI.setupActionBarWithNavController(this, navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
