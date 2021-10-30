@@ -8,19 +8,28 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
+import com.trialbot.trainyapplication.data.model.UserFull
 import com.trialbot.trainyapplication.databinding.FragmentProfileBinding
 import com.trialbot.trainyapplication.domain.UserAvatarUseCases
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.recycler.avatar.AvatarAdapter
+import com.trialbot.trainyapplication.presentation.recycler.avatar.AvatarAdapterClickAction
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
 
-class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, HasCustomAppbarIcon {
+
+
+class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickAction,
+    HasCustomTitle, HasCustomAppbarIcon {
 
     private lateinit var binding: FragmentProfileBinding
+    private lateinit var adapter: AvatarAdapter
 
     private val args: ProfileFragmentArgs by navArgs()
 
@@ -39,6 +48,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentProfileBinding.bind(view)
+
+        adapter = AvatarAdapter(requireContext().resources, this)
 
         val userId: Long = args.userId
         val username: String = args.username
@@ -62,6 +73,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
                         aboutTI.visibility = View.GONE
                         sendMessageBtn.visibility = View.GONE
                         errorLayout.visibility = View.GONE
+                        avatarsRV.visibility = View.GONE
+                        avatarCoverTransparent.visibility = View.GONE
 
                         loadingPanel.visibility = View.VISIBLE
                     }
@@ -81,6 +94,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
                         sendMessageBtn.visibility = View.VISIBLE
                         errorLayout.visibility = View.GONE
                         loadingPanel.visibility = View.GONE
+                        avatarsRV.visibility = View.GONE
+                        avatarCoverTransparent.visibility = View.GONE
 
                         if (it.user.isOnline)
                             statusTV.text = getString(R.string.user_online_status_online)
@@ -113,6 +128,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
                         sendMessageBtn.visibility = View.GONE
                         errorLayout.visibility = View.GONE
                         loadingPanel.visibility = View.GONE
+                        avatarsRV.visibility = View.GONE
+                        avatarCoverTransparent.visibility = View.GONE
 
                         statusTV.text = getString(R.string.user_online_status_online)
                         nameTV.text = it.user.username
@@ -129,6 +146,72 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
                         }
                     }
                 }
+                is ProfileState.AvatarChangingOpened -> {
+                    with(binding) {
+                        nameTV.visibility = View.VISIBLE
+                        avatarIV.visibility = View.VISIBLE
+                        statusTV.visibility = View.VISIBLE
+                        aboutTI.visibility = View.VISIBLE
+                        addToChatBtn.visibility = View.GONE
+                        createTheChatBtn.visibility = View.VISIBLE
+                        editAboutBtn.visibility = View.VISIBLE
+                        changePasswordLL.visibility = View.VISIBLE
+                        logoutBtn.visibility = View.VISIBLE
+                        aboutTI.isEnabled = true
+                        sendMessageBtn.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+
+                        avatarCoverTransparent.visibility = View.VISIBLE
+                        avatarsRV.visibility = View.VISIBLE
+
+                        val layoutManager = LinearLayoutManager(context)
+                        with(avatarsRV) {
+                            this.layoutManager = layoutManager
+                            this.adapter = this@ProfileFragment.adapter
+                            addItemDecoration(DividerItemDecoration(
+                                context,
+                                DividerItemDecoration.VERTICAL
+                            ))
+                        }
+
+                        avatarCoverTransparent.setOnClickListener {
+                            if (viewModel.user != null && viewModel.user is UserFull) {
+                                changeAvatar((viewModel.user as UserFull).icon)
+                            }
+                            else {
+                                viewModel.cancelChangeAvatar()
+                            }
+                        }
+
+                        adapter.setAvatarList(it.avatarList)
+                    }
+                }
+                is ProfileState.AvatarChangingClosing -> {
+                    with(binding) {
+                        nameTV.visibility = View.VISIBLE
+                        avatarIV.visibility = View.VISIBLE
+                        statusTV.visibility = View.VISIBLE
+                        aboutTI.visibility = View.VISIBLE
+                        addToChatBtn.visibility = View.GONE
+                        createTheChatBtn.visibility = View.VISIBLE
+                        editAboutBtn.visibility = View.VISIBLE
+                        changePasswordLL.visibility = View.VISIBLE
+                        logoutBtn.visibility = View.VISIBLE
+                        aboutTI.isEnabled = true
+                        sendMessageBtn.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+
+                        avatarsRV.visibility = View.GONE
+                        avatarCoverTransparent.visibility = View.GONE
+
+                        avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(
+                            id = it.newAvatarId,
+                            res = requireContext().resources
+                        ))
+                    }
+                }
                 is ProfileState.Error -> {
                     with(binding) {
                         nameTV.visibility = View.GONE
@@ -142,6 +225,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
                         aboutTI.visibility = View.GONE
                         sendMessageBtn.visibility = View.GONE
                         loadingPanel.visibility = View.GONE
+                        avatarsRV.visibility = View.GONE
+                        avatarCoverTransparent.visibility = View.GONE
 
                         errorLayout.visibility = View.VISIBLE
 
@@ -151,16 +236,20 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
             }
         })
 
-        binding.logoutBtn.setOnClickListener {
-            viewModel.logout()
-            findNavController().navigate(ProfileFragmentDirections.actionProfileFragmentToLoginFragment(), navOptions {
-                anim {
-                    enter = R.anim.enter
-                    exit = R.anim.exit
-                    popEnter = R.anim.pop_enter
-                    popExit = R.anim.pop_exit
-                }
-            })
+        with(binding) {
+            logoutBtn.setOnClickListener {
+                viewModel.logout()
+                findNavController().navigate(
+                    ProfileFragmentDirections.actionProfileFragmentToLoginFragment(),
+                    navOptions {
+                        anim {
+                            enter = R.anim.enter
+                            exit = R.anim.exit
+                            popEnter = R.anim.pop_enter
+                            popExit = R.anim.pop_exit
+                        }
+                    })
+            }
         }
     }
 
@@ -170,5 +259,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), HasCustomTitle, Has
 
     override fun getIconRes(): Int? {
         return null
+    }
+
+    override fun changeAvatar(avatarId: Int) {
+        viewModel.saveAvatar(avatarId)
     }
 }

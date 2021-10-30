@@ -63,8 +63,8 @@ class MessageAdapter(
         }
 
     class CommonMessageViewHolder(
-        val binding: ItemMessageBinding,
-        val clickNavigation: MessageAdapterClickNavigation
+        private val binding: ItemMessageBinding,
+        private val clickNavigation: MessageAdapterClickNavigation
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {

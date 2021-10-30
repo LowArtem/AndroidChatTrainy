@@ -20,4 +20,8 @@
     <string name="user_online_status_offline">offline</string>
     <string name="application_error">Application error</string>
     <string name="user_profile_title">User Profile</string>
+    <string name="create_a_chat_btn">Create a chat</string>
+    <string name="add_user_to_chat_btn">Add this user to chat</string>
+    <string name="about_hint">About</string>
+    <string name="log_out_btn">Log out</string>
 </resources>
