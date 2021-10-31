@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_logout"
-        android:title="Log out"
+        android:title="@string/log_out_hint"
         app:showAsAction="never"
         android:visible="true"/>
     <item
         android:id="@+id/action_exit"
-        android:title="Exit"
+        android:title="@string/exit_title"
         app:showAsAction="never"
         android:visible="true"/>
 </menu>

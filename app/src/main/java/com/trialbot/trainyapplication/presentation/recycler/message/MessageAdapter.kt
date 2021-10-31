@@ -29,7 +29,8 @@ class MessageDiffCallback(
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldMessages[oldItemPosition] == newMessages[newItemPosition]
+        return oldMessages[oldItemPosition] == newMessages[newItemPosition] &&
+                oldMessages[oldItemPosition].author.icon == newMessages[newItemPosition].author.icon
     }
 }
 
@@ -83,8 +84,8 @@ class MessageAdapter(
     }
 
     class MyMessageViewHolder(
-        val binding: ItemMyMessageBinding,
-        val clickNavigation: MessageAdapterClickNavigation
+        private val binding: ItemMyMessageBinding,
+        private val clickNavigation: MessageAdapterClickNavigation
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {

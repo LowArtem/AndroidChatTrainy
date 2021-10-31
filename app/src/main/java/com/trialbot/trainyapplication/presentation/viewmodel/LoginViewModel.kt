@@ -5,18 +5,15 @@ import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.*
 import com.trialbot.trainyapplication.MyApp
-import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
-import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.data.model.UserWithoutPassword
 import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
-import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.utils.default
 import com.trialbot.trainyapplication.utils.isInternetAvailable
 import com.trialbot.trainyapplication.utils.isServerAvailable
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 
 class LoginViewModel(
     chatApi: ChatApi,
@@ -40,10 +37,6 @@ class LoginViewModel(
 
     private val loginStatus = LoginStatusUseCases(sharedPrefs)
     private val authUseCases = AuthUseCases(sharedPrefs, chatApi)
-    private val startStopRemoteActions = StartStopRemoteActions(
-        AuthenticationControllerRemote(chatApi),
-        AuthenticationControllerLocal(sharedPrefs)
-    )
 
 
     var username: String? = null
@@ -109,19 +102,6 @@ class LoginViewModel(
             isLoginSuccessful = false
 
             _state.postValue(LoginState.UserNotFound("Invalid username or password. If you try to register, this username is unavailable"))
-        }
-    }
-
-    fun setUserOnline() {
-        // Обратить внимание на возможные утечки памяти
-        // этот scope не закрывается после закрытия ViewModel
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                startStopRemoteActions.appStarted(avatarId)
-            } catch (e: Exception) {
-                Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.setUserOnline -> ${e.localizedMessage}")
-                return@launch
-            }
         }
     }
 

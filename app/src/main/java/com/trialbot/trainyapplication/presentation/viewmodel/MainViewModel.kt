@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.viewmodel
 
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.lifecycle.*
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
@@ -54,12 +53,10 @@ class MainViewModel(
     private val messageUseCases = MessageUseCases(chatApi)
     private val localDataUseCases = LocalDataUseCases(sharedPrefs)
 
-    val messages: LiveData<List<MessageDTO>> = messageUseCases.messages
+    val messages: LiveData<List<MessageDTO>?> = messageUseCases.messages
 
-
-    private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
-
-    private var userId: Int = -1
+    private val messageObservingJob = Job()
+    private val messageObservingScope = CoroutineScope(messageObservingJob + Dispatchers.IO)
 
 
     // Main activity control function
@@ -81,34 +78,26 @@ class MainViewModel(
             Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.render() -> ${e.localizedMessage}")
             _state.postValue(MessageState.Error(e.localizedMessage?.toString() ?: "Message getting error"))
         }
-
-        startMessageObserving()
     }
 
 
-    private fun startMessageObserving() {
-        messageObservingScope.launch {
-            try {
-                while (true) {
-                    messageUseCases.updateMessages()
-                    delay(3000)
-                }
-            } catch (e1: CancellationException) {
-
-            } catch (e2: Exception) {
-                Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e2.localizedMessage}")
-
-                _state.postValue(
-                    MessageState.Error(
-                        e2.localizedMessage?.toString() ?: "Message getting error"
-                    )
-                )
+    suspend fun startMessageObserving() {
+        try {
+            while (true) {
+                messageUseCases.updateMessages()
+                delay(3000)
             }
-        }
-    }
+        } catch (e1: CancellationException) {
 
-    fun stopMessageObserving() {
-        messageObservingScope.cancel()
+        } catch (e2: Exception) {
+            Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e2.localizedMessage}")
+
+            _state.postValue(
+                MessageState.Error(
+                    e2.localizedMessage?.toString() ?: "Message getting error"
+                )
+            )
+        }
     }
 
     fun send(input: String)
@@ -137,18 +126,21 @@ class MainViewModel(
         loginStatus.saveLoginStatus(false)
     }
 
+    fun applicationStarting() {
+        viewModelScope.launch {
+            startStopRemoteActions.appStarted()
+        }
+    }
+
     fun applicationClosing() {
         viewModelScope.launch {
-            startStopRemoteActions.appClosed(userId)
+            startStopRemoteActions.appClosed()
         }
+        messageObservingScope.cancel()
         Thread.sleep(1000)
     }
 
     fun getCurrentUserId(): Long {
         return localDataUseCases.getLocalData()?.id ?: -1
-    }
-
-    fun setUserIconId(@DrawableRes id: Int) {
-        userId = id
     }
 }

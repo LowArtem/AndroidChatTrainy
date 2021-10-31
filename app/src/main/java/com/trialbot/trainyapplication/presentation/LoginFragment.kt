@@ -102,8 +102,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun startMainActivity() {
-        viewModel.setUserOnline()
-
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
             val direction = LoginFragmentDirections.actionLoginFragmentToMainFragment(viewModel.username!!, viewModel.avatarId)
             findNavController().navigate(direction, navOptions {

@@ -3,7 +3,9 @@ package com.trialbot.trainyapplication.presentation
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -210,6 +212,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                             id = it.newAvatarId,
                             res = requireContext().resources
                         ))
+
+                        setFragmentResult(
+                            TAG_AVATAR_ID_BUNDLE,
+                            bundleOf(TAG_AVATAR_ID_BUNDLE to it.newAvatarId)
+                        )
                     }
                 }
                 is ProfileState.Error -> {
@@ -263,5 +270,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
     override fun changeAvatar(avatarId: Int) {
         viewModel.saveAvatar(avatarId)
+    }
+
+    companion object {
+        const val TAG_AVATAR_ID_BUNDLE = "avatar_id_bundle"
     }
 }

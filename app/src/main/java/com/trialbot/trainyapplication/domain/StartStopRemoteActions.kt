@@ -13,12 +13,12 @@ class StartStopRemoteActions(
     private val authControllerRemote: AuthenticationControllerRemote,
     private val authControllerLocal: AuthenticationControllerLocal
 ) {
-    suspend fun appClosed(userIconId: Int) = withContext(Dispatchers.IO) {
+    suspend fun appClosed() = withContext(Dispatchers.IO) {
         val user = authControllerLocal.getCredentials()
         if (user != null) {
             authControllerRemote.updateUser(
                 id = user.id,
-                user = UserFull(user.id, userIconId, user.username, user.password, false, Calendar.getInstance().time)
+                user = UserFull(user.id, user.icon, user.username, user.password, false, Calendar.getInstance().time)
             )
         }
         else {
@@ -26,12 +26,12 @@ class StartStopRemoteActions(
         }
     }
 
-    suspend fun appStarted(userIconId: Int) = withContext(Dispatchers.IO) {
+    suspend fun appStarted() = withContext(Dispatchers.IO) {
         val user = authControllerLocal.getCredentials()
         if (user != null) {
             authControllerRemote.updateUser(
                 id = user.id,
-                user = UserFull(user.id, userIconId, user.username, user.password, true, Calendar.getInstance().time)
+                user = UserFull(user.id, user.icon, user.username, user.password, true, Calendar.getInstance().time)
             )
         }
         else {

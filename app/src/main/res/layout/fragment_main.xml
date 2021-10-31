@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:ems="10"
-            android:hint="Enter your text"
+            android:hint="@string/enter_your_text_hint"
             android:maxLines="6"
             android:imeOptions="actionSend"
             android:inputType="textMultiLine"

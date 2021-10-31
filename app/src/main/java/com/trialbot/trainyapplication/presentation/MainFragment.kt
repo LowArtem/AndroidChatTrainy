@@ -8,7 +8,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
@@ -26,8 +30,7 @@ import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapt
 import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
-
-
+import kotlinx.coroutines.launch
 
 
 class MainFragment : Fragment(R.layout.fragment_main),
@@ -80,7 +83,11 @@ class MainFragment : Fragment(R.layout.fragment_main),
         var avatarId: Int = args.iconId
         if (avatarId == -1) avatarId = R.drawable.ic_avatar_default
 
-        viewModel.setUserIconId(avatarId)
+        setFragmentResultListener(ProfileFragment.TAG_AVATAR_ID_BUNDLE) { _, bundle ->
+            avatarId = bundle.getInt(ProfileFragment.TAG_AVATAR_ID_BUNDLE)
+
+            (requireActivity() as BaseActivity).updateActionBarIcon(avatarId)
+        }
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
             when(newValue) {
@@ -89,7 +96,6 @@ class MainFragment : Fragment(R.layout.fragment_main),
                         loadingPanel.visibility = View.VISIBLE
                         textEmpty.visibility = View.GONE
                     }
-                    Toast.makeText(context, "Loading", Toast.LENGTH_SHORT).show()
                 }
                 is MessageState.Empty -> {
                     Toast.makeText(context, "Empty", Toast.LENGTH_SHORT).show()
@@ -105,7 +111,9 @@ class MainFragment : Fragment(R.layout.fragment_main),
                     }
                     adapter.updateMessages(newValue.messages)
                     viewModel.messages.observe(viewLifecycleOwner, {
-                        adapter.updateMessages(it)
+                        if (it != null) {
+                            adapter.updateMessages(it)
+                        }
                     })
                 }
                 is MessageState.Error -> {
@@ -117,11 +125,18 @@ class MainFragment : Fragment(R.layout.fragment_main),
                 }
             }
         })
+
+        viewModel.render()
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.startMessageObserving()
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.render()
+        viewModel.applicationStarting()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -161,7 +176,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
             setMessage("Are you sure, you want to exit?")
 
             setPositiveButton("Yes") { _, _ ->
-                findNavController().popBackStack()
+                requireActivity().onBackPressed()
             }
 
             setNegativeButton("Cancel") { _, _ -> }
@@ -179,7 +194,6 @@ class MainFragment : Fragment(R.layout.fragment_main),
 
     override fun onStop() {
         super.onStop()
-        viewModel.stopMessageObserving()
         viewModel.applicationClosing()
     }
 

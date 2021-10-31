@@ -3,6 +3,7 @@ package com.trialbot.trainyapplication.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -92,5 +93,9 @@ class BaseActivity : AppCompatActivity() {
         } else {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
+    }
+
+    fun updateActionBarIcon(@DrawableRes iconId: Int) {
+        supportActionBar?.setIcon(iconId)
     }
 }
