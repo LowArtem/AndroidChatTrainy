@@ -21,7 +21,7 @@ import java.util.*
 import kotlin.coroutines.cancellation.CancellationException
 
 
-class MainViewModel(
+class ChatViewModel(
     chatApi: ChatApi,
     sharedPrefs: SharedPreferences
 ) : ViewModel() {
@@ -33,7 +33,7 @@ class MainViewModel(
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MainViewModel(chatApi, sharedPrefs) as T
+            return ChatViewModel(chatApi, sharedPrefs) as T
         }
     }
 

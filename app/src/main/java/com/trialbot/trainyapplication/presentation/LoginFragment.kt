@@ -103,7 +103,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun startMainActivity() {
         if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
-            val direction = LoginFragmentDirections.actionLoginFragmentToMainFragment(viewModel.username!!, viewModel.avatarId)
+            val direction = LoginFragmentDirections.actionLoginFragmentToChatFragment(viewModel.username!!, viewModel.avatarId)
             findNavController().navigate(direction, navOptions {
                 anim {
                     enter = R.anim.enter

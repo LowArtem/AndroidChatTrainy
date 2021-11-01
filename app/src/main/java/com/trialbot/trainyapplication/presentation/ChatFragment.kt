@@ -22,30 +22,30 @@ import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.data.model.UserMessage
-import com.trialbot.trainyapplication.databinding.FragmentMainBinding
+import com.trialbot.trainyapplication.databinding.FragmentChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.state.MessageState
-import com.trialbot.trainyapplication.presentation.viewmodel.MainViewModel
+import com.trialbot.trainyapplication.presentation.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
 
 
-class MainFragment : Fragment(R.layout.fragment_main),
+class ChatFragment : Fragment(R.layout.fragment_chat),
     TextView.OnEditorActionListener, MessageAdapterClickNavigation, HasCustomTitle, HasCustomAppbarIcon {
 
-    private lateinit var binding: FragmentMainBinding
+    private lateinit var binding: FragmentChatBinding
     private lateinit var adapter: MessageAdapter
 
-    private val args: MainFragmentArgs by navArgs()
+    private val args: ChatFragmentArgs by navArgs()
 
-    private val viewModel: MainViewModel by viewModels {
+    private val viewModel: ChatViewModel by viewModels {
         val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
         throw Exception("Shared Preferences is null")
 
-        MainViewModel.MainViewModelFactory(
+        ChatViewModel.MainViewModelFactory(
             chatApi = (requireActivity().application as MyApp).api,
             sharedPrefs = prefs
         )
@@ -58,7 +58,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentMainBinding.bind(view)
+        binding = FragmentChatBinding.bind(view)
 
         adapter = MessageAdapter(viewModel.getCurrentUserId(), requireContext().resources, this)
 
@@ -77,7 +77,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
                 sendMessage()
             }
 
-            messageTextTV.setOnEditorActionListener(this@MainFragment)
+            messageTextTV.setOnEditorActionListener(this@ChatFragment)
         }
 
         var avatarId: Int = args.iconId
@@ -160,7 +160,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
     private fun actionLogoutHandler() {
         viewModel.logOut()
 
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToLoginFragment(), navOptions {
+        findNavController().navigate(ChatFragmentDirections.actionChatFragmentToLoginFragment(), navOptions {
             anim {
                 enter = R.anim.enter
                 exit = R.anim.exit
@@ -214,7 +214,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
             }
         }
 
-        val direction = MainFragmentDirections.actionMainFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
+        val direction = ChatFragmentDirections.actionChatFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
         findNavController().navigate(direction, navOptions {
             anim {
                 enter = R.anim.enter
