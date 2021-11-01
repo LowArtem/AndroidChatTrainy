@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.viewmodel
+package com.trialbot.trainyapplication.presentation.screen.chat
 
 import android.util.Log
 import androidx.lifecycle.LiveData

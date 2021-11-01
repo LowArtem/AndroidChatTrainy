@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.trialbot.trainyapplication.presentation.LoginFragment"
+        android:name="com.trialbot.trainyapplication.presentation.screen.login.LoginFragment"
         android:label="Chat"
         tools:layout="@layout/fragment_login">
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.trialbot.trainyapplication.presentation.ChatFragment"
+        android:name="com.trialbot.trainyapplication.presentation.screen.chat.ChatFragment"
         android:label="{username}"
         tools:layout="@layout/fragment_chat">
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.trialbot.trainyapplication.presentation.ProfileFragment"
+        android:name="com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment"
         android:label="User profile"
         tools:layout="@layout/fragment_profile" >
         <action

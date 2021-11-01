@@ -3,9 +3,9 @@ package com.trialbot.trainyapplication.di
 import android.app.Application
 import android.content.SharedPreferences
 import com.trialbot.trainyapplication.MyApp
-import com.trialbot.trainyapplication.presentation.viewmodel.ChatViewModel
-import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
-import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
+import com.trialbot.trainyapplication.presentation.screen.chat.ChatViewModel
+import com.trialbot.trainyapplication.presentation.screen.login.LoginViewModel
+import com.trialbot.trainyapplication.presentation.screen.profile.ProfileViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI

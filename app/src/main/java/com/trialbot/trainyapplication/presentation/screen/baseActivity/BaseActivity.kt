@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation
+package com.trialbot.trainyapplication.presentation.screen.baseActivity
 
 import android.os.Bundle
 import android.util.Log

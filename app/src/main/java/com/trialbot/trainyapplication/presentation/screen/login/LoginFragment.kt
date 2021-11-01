@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation
+package com.trialbot.trainyapplication.presentation.screen.login
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -13,7 +13,6 @@ import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.presentation.state.LoginState
-import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 

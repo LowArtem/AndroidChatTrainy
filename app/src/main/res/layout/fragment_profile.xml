@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    tools:context=".presentation.ProfileFragment">
+    tools:context=".presentation.screen.profile.ProfileFragment">
 
     <LinearLayout
         android:id="@+id/errorLayout"

@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.viewmodel
+package com.trialbot.trainyapplication.presentation.screen.login
 
 import android.net.ConnectivityManager
 import android.util.Log
