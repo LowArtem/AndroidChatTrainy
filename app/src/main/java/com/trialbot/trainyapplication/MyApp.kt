@@ -65,7 +65,7 @@ class MyApp: Application() {
         // AVD
         const val MY_BASE_URL = "https://10.0.2.2:5001/api/"
         // REAL PHONE
-//        const val MY_BASE_URL = "/api/"
+//        const val MY_BASE_URL = "https://5249-188-233-55-51.ngrok.io/api/"
         const val DEBUG_LOG_TAG = "AAAA"
         const val ERROR_LOG_TAG = "Application_Error"
         const val SHARED_PREFS_AUTH_TAG = "user_auth_info"

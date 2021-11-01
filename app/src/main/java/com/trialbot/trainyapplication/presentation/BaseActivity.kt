@@ -80,7 +80,13 @@ class BaseActivity : AppCompatActivity() {
             } else {
                 supportActionBar?.setDisplayUseLogoEnabled(true)
                 supportActionBar?.setDisplayShowHomeEnabled(true)
-                supportActionBar?.setIcon(fragment.getIconRes()!!)
+
+                if (fragment.getIconRes() == -1) {
+                    supportActionBar?.setIcon(R.drawable.ic_avatar_default)
+                }
+                else {
+                    supportActionBar?.setIcon(fragment.getIconRes()!!)
+                }
             }
         } else {
             supportActionBar?.setDisplayUseLogoEnabled(true)
@@ -96,6 +102,10 @@ class BaseActivity : AppCompatActivity() {
     }
 
     fun updateActionBarIcon(@DrawableRes iconId: Int) {
-        supportActionBar?.setIcon(iconId)
+        if (iconId == -1) {
+            supportActionBar?.setIcon(R.drawable.ic_avatar_default)
+        } else {
+            supportActionBar?.setIcon(iconId)
+        }
     }
 }
