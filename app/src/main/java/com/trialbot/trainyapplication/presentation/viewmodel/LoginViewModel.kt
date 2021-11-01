@@ -1,14 +1,16 @@
 package com.trialbot.trainyapplication.presentation.viewmodel
 
-import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.MyApp
-import com.trialbot.trainyapplication.data.model.UserWithoutPassword
-import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.AuthUseCases
+import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
+import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.utils.default
 import com.trialbot.trainyapplication.utils.isInternetAvailable
@@ -16,28 +18,13 @@ import com.trialbot.trainyapplication.utils.isServerAvailable
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    chatApi: ChatApi,
-    sharedPrefs: SharedPreferences
+    private val loginStatus: LoginStatusUseCases,
+    private val authUseCases: AuthUseCases,
+    private val localDataUseCases: LocalDataUseCases
 ) : ViewModel() {
-
-    class LoginViewModelFactory(
-        private val chatApi: ChatApi,
-        private val sharedPrefs: SharedPreferences
-    ) : ViewModelProvider.NewInstanceFactory() {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return LoginViewModel(chatApi, sharedPrefs) as T
-        }
-    }
 
     private val _state = MutableLiveData<LoginState>().default(LoginState.Loading)
     val state: LiveData<LoginState> = _state
-
-
-    private val loginStatus = LoginStatusUseCases(sharedPrefs)
-    private val authUseCases = AuthUseCases(sharedPrefs, chatApi)
-
 
     var username: String? = null
         private set
@@ -122,7 +109,7 @@ class LoginViewModel(
     }
 
     private fun getLocalUserData() {
-        val userLocal = authUseCases.localDataUseCases.getLocalData()
+        val userLocal = localDataUseCases.getLocalData()
         if (userLocal != null) {
             username = userLocal.username
             avatarId = userLocal.icon

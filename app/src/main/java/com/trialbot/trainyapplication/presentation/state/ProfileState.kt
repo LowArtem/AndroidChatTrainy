@@ -1,9 +1,9 @@
 package com.trialbot.trainyapplication.presentation.state
 
 import androidx.annotation.DrawableRes
-import com.trialbot.trainyapplication.data.model.UserFull
-import com.trialbot.trainyapplication.data.model.UserWithoutPassword
-import com.trialbot.trainyapplication.presentation.recycler.avatar.model.AvatarItem
+import com.trialbot.trainyapplication.domain.model.AvatarItem
+import com.trialbot.trainyapplication.domain.model.UserFull
+import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 
 sealed class ProfileState {
     object Loading : ProfileState()

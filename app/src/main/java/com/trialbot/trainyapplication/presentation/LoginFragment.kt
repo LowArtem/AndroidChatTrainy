@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
@@ -15,21 +14,14 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private lateinit var binding: FragmentLoginBinding
 
-    private val viewModel: LoginViewModel by viewModels {
-        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
-            throw Exception("Shared Preferences is null")
-
-        LoginViewModel.LoginViewModelFactory(
-            chatApi = (requireActivity().application as MyApp).api,
-            sharedPrefs = prefs
-        )
-    }
+    private val viewModel by viewModel<LoginViewModel>()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

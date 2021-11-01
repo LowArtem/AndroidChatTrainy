@@ -1,19 +1,18 @@
 package com.trialbot.trainyapplication.presentation.viewmodel
 
-import android.content.SharedPreferences
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.MyApp
-import com.trialbot.trainyapplication.data.AuthenticationControllerLocal
-import com.trialbot.trainyapplication.data.AuthenticationControllerRemote
-import com.trialbot.trainyapplication.data.model.MessageDTO
-import com.trialbot.trainyapplication.data.model.MessageWithAuthUser
-import com.trialbot.trainyapplication.data.model.UserAuthId
-import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.MessageUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
+import com.trialbot.trainyapplication.domain.model.MessageDTO
+import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
+import com.trialbot.trainyapplication.domain.model.UserAuthId
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
@@ -22,38 +21,16 @@ import kotlin.coroutines.cancellation.CancellationException
 
 
 class ChatViewModel(
-    chatApi: ChatApi,
-    sharedPrefs: SharedPreferences
+    private val loginStatus: LoginStatusUseCases,
+    private val messageUseCases: MessageUseCases,
+    private val localDataUseCases: LocalDataUseCases,
+    private val startStopRemoteActions: StartStopRemoteActions
 ) : ViewModel() {
-
-    class MainViewModelFactory(
-        private val chatApi: ChatApi,
-        private val sharedPrefs: SharedPreferences
-    ) : ViewModelProvider.NewInstanceFactory() {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ChatViewModel(chatApi, sharedPrefs) as T
-        }
-    }
-
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
 
-
-    private val loginStatus = LoginStatusUseCases(sharedPrefs)
-
-    private val authControllerLocal = AuthenticationControllerLocal(sharedPrefs)
-
-    private val startStopRemoteActions = StartStopRemoteActions(
-        AuthenticationControllerRemote(chatApi),
-        authControllerLocal
-    )
-
-    private val messageUseCases = MessageUseCases(chatApi)
-    private val localDataUseCases = LocalDataUseCases(sharedPrefs)
-
-    val messages: LiveData<List<MessageDTO>?> = messageUseCases.messages
+    // TODO: переделать через новую реализацию
+    val messages: LiveData<List<MessageDTO>?> = MutableLiveData<List<MessageDTO>?>()
 
     private val messageObservingJob = Job()
     private val messageObservingScope = CoroutineScope(messageObservingJob + Dispatchers.IO)
@@ -105,7 +82,7 @@ class ChatViewModel(
         try {
             if (input.isNotBlank()) {
                 viewModelScope.launch {
-                    val user = authControllerLocal.getCredentials()
+                    val user = localDataUseCases.getLocalData()
                         ?: throw Exception("User local auth not found")
                     messageUseCases.sendMessage(
                         MessageWithAuthUser(

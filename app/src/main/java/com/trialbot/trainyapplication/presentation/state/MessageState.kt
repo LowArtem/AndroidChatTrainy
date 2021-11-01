@@ -1,6 +1,6 @@
 package com.trialbot.trainyapplication.presentation.state
 
-import com.trialbot.trainyapplication.data.model.MessageDTO
+import com.trialbot.trainyapplication.domain.model.MessageDTO
 
 sealed class MessageState {
     object Loading : MessageState()

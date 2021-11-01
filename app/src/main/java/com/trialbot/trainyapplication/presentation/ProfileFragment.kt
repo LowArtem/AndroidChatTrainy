@@ -1,30 +1,27 @@
 package com.trialbot.trainyapplication.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
-import com.trialbot.trainyapplication.data.model.UserFull
 import com.trialbot.trainyapplication.databinding.FragmentProfileBinding
-import com.trialbot.trainyapplication.domain.UserAvatarUseCases
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.domain.model.UserFull
+import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import com.trialbot.trainyapplication.presentation.recycler.avatar.AvatarAdapter
 import com.trialbot.trainyapplication.presentation.recycler.avatar.AvatarAdapterClickAction
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
-
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickAction,
@@ -35,15 +32,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
     private val args: ProfileFragmentArgs by navArgs()
 
-    private val viewModel: ProfileViewModel by viewModels {
-        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
-        throw Exception("Shared Preferences is null")
-
-        ProfileViewModel.ProfileViewModelFactory(
-            chatApi = (requireActivity().application as MyApp).api,
-            sharedPrefs = prefs,
-        )
-    }
+    private val viewModel by viewModel<ProfileViewModel>()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -105,7 +94,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                             statusTV.text = getString(R.string.user_online_status_offline)
 
                         nameTV.text = it.user.username
-                        avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(it.user.icon, resources))
+                        avatarIV.setImageDrawable(DrawableController.getDrawableFromId(it.user.icon, resources))
 
                         sendMessageBtn.setOnClickListener {
                             viewModel.sendMessageToUser()
@@ -135,7 +124,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
                         statusTV.text = getString(R.string.user_online_status_online)
                         nameTV.text = it.user.username
-                        avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(it.user.icon, resources))
+                        avatarIV.setImageDrawable(DrawableController.getDrawableFromId(it.user.icon, resources))
 
                         avatarIV.setOnClickListener {
                             viewModel.editAvatar()
@@ -208,7 +197,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         avatarsRV.visibility = View.GONE
                         avatarCoverTransparent.visibility = View.GONE
 
-                        avatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(
+                        avatarIV.setImageDrawable(DrawableController.getDrawableFromId(
                             id = it.newAvatarId,
                             res = requireContext().resources
                         ))

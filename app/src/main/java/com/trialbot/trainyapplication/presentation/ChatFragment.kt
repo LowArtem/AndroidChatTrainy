@@ -1,6 +1,5 @@
 package com.trialbot.trainyapplication.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -9,7 +8,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,18 +17,18 @@ import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
-import com.trialbot.trainyapplication.data.model.UserMessage
 import com.trialbot.trainyapplication.databinding.FragmentChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.domain.model.UserMessage
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
 import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.presentation.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ChatFragment : Fragment(R.layout.fragment_chat),
@@ -41,15 +39,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat),
 
     private val args: ChatFragmentArgs by navArgs()
 
-    private val viewModel: ChatViewModel by viewModels {
-        val prefs = requireActivity().getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG, Context.MODE_PRIVATE) ?:
-        throw Exception("Shared Preferences is null")
-
-        ChatViewModel.MainViewModelFactory(
-            chatApi = (requireActivity().application as MyApp).api,
-            sharedPrefs = prefs
-        )
-    }
+    private val viewModel by viewModel<ChatViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

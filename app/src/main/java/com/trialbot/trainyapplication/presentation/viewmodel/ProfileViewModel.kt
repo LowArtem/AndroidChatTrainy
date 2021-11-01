@@ -1,47 +1,32 @@
 package com.trialbot.trainyapplication.presentation.viewmodel
 
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.*
 import com.trialbot.trainyapplication.MyApp
-import com.trialbot.trainyapplication.data.UserControllerRemote
-import com.trialbot.trainyapplication.data.model.User
-import com.trialbot.trainyapplication.data.model.UserFull
-import com.trialbot.trainyapplication.data.model.UserLocal
-import com.trialbot.trainyapplication.data.model.UserWithoutPassword
-import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.EditUserUseCases
-import com.trialbot.trainyapplication.domain.GetAvatarsUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
+import com.trialbot.trainyapplication.domain.UserStatusDataUseCases
+import com.trialbot.trainyapplication.domain.model.User
+import com.trialbot.trainyapplication.domain.model.UserFull
+import com.trialbot.trainyapplication.domain.model.UserLocal
+import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.presentation.drawable.AvatarController
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
 import java.util.*
 
 class ProfileViewModel(
-    chatApi: ChatApi,
-    sharedPrefs: SharedPreferences,
+    private val editUserUseCases: EditUserUseCases,
+    private val loginStatus: LoginStatusUseCases,
+    private val localDataUseCases: LocalDataUseCases,
+    private val userStatusDataUseCases: UserStatusDataUseCases
 ) : ViewModel() {
 
-    class ProfileViewModelFactory(
-        private val chatApi: ChatApi,
-        private val sharedPrefs: SharedPreferences,
-    ) : ViewModelProvider.NewInstanceFactory() {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ProfileViewModel(chatApi, sharedPrefs) as T
-        }
-    }
 
     private val _state = MutableLiveData<ProfileState>().default(ProfileState.Loading)
     val state: LiveData<ProfileState> = _state
-
-    private val editUserUseCases = EditUserUseCases(chatApi, sharedPrefs)
-    private val userControllerRemote = UserControllerRemote(chatApi)
-    private val loginStatus = LoginStatusUseCases(sharedPrefs)
-    private val localDataUseCases = LocalDataUseCases(sharedPrefs)
 
     private var _user: User? = null
     val user: User? = _user
@@ -54,14 +39,14 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
-            val userLastDate: Date? = userControllerRemote.getUserLastDate(userId)
+            val userLastDate: Date? = userStatusDataUseCases.getUserLastDate(userId)
             if (userLastDate == null) {
                 Log.e(MyApp.ERROR_LOG_TAG, "ProfileViewModel.render() -> user's last date is null")
                 _state.postValue(ProfileState.Error("Cannot detect this user"))
                 return@launch
             }
 
-            val userIsOnline: Boolean = userControllerRemote.getUserIsOnline(userId)
+            val userIsOnline: Boolean = userStatusDataUseCases.getUserIsOnline(userId)
 
             when(viewState) {
                 "guest" -> {
@@ -108,8 +93,7 @@ class ProfileViewModel(
     }
 
     fun editAvatar() {
-        val getAvatars = GetAvatarsUseCases()
-        _state.postValue(ProfileState.AvatarChangingOpened(getAvatars.getAvatars()))
+        _state.postValue(ProfileState.AvatarChangingOpened(AvatarController.getAvatars()))
     }
 
     fun sendMessageToUser() {

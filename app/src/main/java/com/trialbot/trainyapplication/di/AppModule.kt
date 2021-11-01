@@ -1,0 +1,51 @@
+package com.trialbot.trainyapplication.di
+
+import android.app.Application
+import android.content.SharedPreferences
+import com.trialbot.trainyapplication.MyApp
+import com.trialbot.trainyapplication.presentation.viewmodel.ChatViewModel
+import com.trialbot.trainyapplication.presentation.viewmodel.LoginViewModel
+import com.trialbot.trainyapplication.presentation.viewmodel.ProfileViewModel
+import org.koin.android.ext.koin.androidApplication
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.annotation.KoinReflectAPI
+import org.koin.dsl.module
+
+@OptIn(KoinReflectAPI::class)
+val appModule = module {
+
+    single{
+        getSharedPrefs(androidApplication())
+    }
+
+    viewModel {
+        ChatViewModel(
+            loginStatus = get(),
+            messageUseCases = get(),
+            localDataUseCases = get(),
+            startStopRemoteActions = get()
+        )
+    }
+
+    viewModel {
+        LoginViewModel(
+            loginStatus = get(),
+            authUseCases = get(),
+            localDataUseCases = get()
+        )
+    }
+
+    viewModel {
+        ProfileViewModel(
+            editUserUseCases = get(),
+            loginStatus = get(),
+            localDataUseCases = get(),
+            userStatusDataUseCases = get()
+        )
+    }
+}
+
+
+fun getSharedPrefs(androidApplication: Application): SharedPreferences {
+    return androidApplication.getSharedPreferences(MyApp.SHARED_PREFS_AUTH_TAG,  android.content.Context.MODE_PRIVATE)
+}
