@@ -4,6 +4,7 @@ import android.app.Application
 import com.trialbot.trainyapplication.data.di.dataModule
 import com.trialbot.trainyapplication.di.appModule
 import com.trialbot.trainyapplication.domain.di.domainModule
+import com.trialbot.trainyapplication.utils.AndroidLoggingHandler
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -19,6 +20,8 @@ class MyApp: Application() {
             androidContext(this@MyApp)
             modules(appModule, dataModule, domainModule)
         }
+
+        AndroidLoggingHandler.setup()
     }
 
     companion object {

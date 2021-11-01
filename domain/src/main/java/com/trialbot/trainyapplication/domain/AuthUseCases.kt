@@ -4,6 +4,7 @@ import com.trialbot.trainyapplication.domain.interfaces.AuthenticationController
 import com.trialbot.trainyapplication.domain.model.UserAuth
 import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.utils.logE
 
 class AuthUseCases(
     private val authControllerRemote: AuthenticationControllerRemote,
@@ -32,9 +33,7 @@ class AuthUseCases(
         user: UserLocal,
     ): Boolean {
         if (!localDataUseCases.saveLocalData(user)) {
-//            Log.e(
-//                MyApp.ERROR_LOG_TAG, "AuthUseCases.login() -> cannot locally save user auth data"
-//            )
+            logE("cannot locally save user auth data")
             return false
         }
         return true

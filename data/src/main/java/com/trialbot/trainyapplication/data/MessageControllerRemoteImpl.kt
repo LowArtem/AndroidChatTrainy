@@ -5,6 +5,7 @@ import com.trialbot.trainyapplication.domain.interfaces.MessageControllerRemote
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.domain.model.UserMessageWithoutIcon
+import com.trialbot.trainyapplication.domain.utils.logE
 
 class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControllerRemote {
 
@@ -12,7 +13,7 @@ class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControl
         return try {
             chatApi.getAllMessages()
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "MessageControllerRemote.getAllMessages() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             null
         }
     }
@@ -21,7 +22,7 @@ class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControl
         return try {
             chatApi.getMessagesByUser(user.id, user.username)
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "MessageControllerRemote.getMessagesByUser() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             null
         }
     }
@@ -31,7 +32,7 @@ class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControl
             chatApi.saveMessage(message)
             true
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "MessageControllerRemote.saveMessage() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }

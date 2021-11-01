@@ -1,7 +1,6 @@
 package com.trialbot.trainyapplication.presentation.screen.baseActivity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
@@ -11,10 +10,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.domain.utils.logD
 
 class BaseActivity : AppCompatActivity() {
 
@@ -42,7 +41,7 @@ class BaseActivity : AppCompatActivity() {
         NavigationUI.setupActionBarWithNavController(this, navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            Log.d(MyApp.DEBUG_LOG_TAG, "Changed destination to -> ${destination.label}")
+            logD("Changed destination to -> ${destination.label}")
         }
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentListener, true)
     }

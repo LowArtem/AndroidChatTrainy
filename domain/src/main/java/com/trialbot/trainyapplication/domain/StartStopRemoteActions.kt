@@ -3,6 +3,7 @@ package com.trialbot.trainyapplication.domain
 import com.trialbot.trainyapplication.domain.interfaces.AuthenticationControllerLocal
 import com.trialbot.trainyapplication.domain.interfaces.AuthenticationControllerRemote
 import com.trialbot.trainyapplication.domain.model.UserFull
+import com.trialbot.trainyapplication.domain.utils.logE
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,7 +23,7 @@ class StartStopRemoteActions(
             )
         }
         else {
-//            Log.e(MyApp.ERROR_LOG_TAG, "StartStopRemoteActions.appClosed() -> cannot get local saved credentials")
+            logE("cannot get local saved credentials")
         }
     }
 
@@ -35,7 +36,7 @@ class StartStopRemoteActions(
             )
         }
         else {
-//            Log.e(MyApp.ERROR_LOG_TAG, "StartStopRemoteActions.appStarted() -> cannot get local saved credentials")
+            logE("cannot get local saved credentials")
         }
     }
 }

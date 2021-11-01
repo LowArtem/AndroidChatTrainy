@@ -5,11 +5,9 @@ import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 
 /**
- * Need to make this class single
+ * Single class to save the messages
  */
 class MessageUseCases(private val messageControllerRemote: MessageControllerRemote) {
-
-    // TODO: подумать над логикой
 
     private var _messages: List<MessageDTO>? = null
 

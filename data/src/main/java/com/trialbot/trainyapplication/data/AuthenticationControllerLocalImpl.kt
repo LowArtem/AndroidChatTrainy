@@ -3,6 +3,7 @@ package com.trialbot.trainyapplication.data
 import android.content.SharedPreferences
 import com.trialbot.trainyapplication.domain.interfaces.AuthenticationControllerLocal
 import com.trialbot.trainyapplication.domain.model.UserLocal
+import com.trialbot.trainyapplication.domain.utils.logE
 
 
 class AuthenticationControllerLocalImpl(
@@ -20,7 +21,7 @@ class AuthenticationControllerLocalImpl(
             }
             true
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "AuthenticationControllerLocal.saveUserAuth() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }

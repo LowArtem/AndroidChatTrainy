@@ -3,15 +3,14 @@ package com.trialbot.trainyapplication.presentation.screen.login
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
+import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -60,7 +59,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         loginBtn.isEnabled = true
                         registerBtn.isEnabled = true
                     }
-                    Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity -> user not found in DB")
+                    logE("LoginActivity -> user not found in DB")
                     Snackbar.make(binding.loginLayout, it.message, Snackbar.LENGTH_LONG).show()
                 }
             }
@@ -105,7 +104,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             })
         }
         else {
-            Log.e(MyApp.ERROR_LOG_TAG, "LoginActivity.startMainActivity() -> viewModel.username is null or empty")
+            logE("viewModel.username is null or empty")
             viewModel.setOutsideError("Username is empty")
         }
     }

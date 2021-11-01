@@ -1,8 +1,6 @@
 package com.trialbot.trainyapplication.presentation.screen.profile
 
-import android.util.Log
 import androidx.lifecycle.*
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.domain.EditUserUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
@@ -11,6 +9,7 @@ import com.trialbot.trainyapplication.domain.model.User
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.drawable.AvatarController
 import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.utils.default
@@ -33,7 +32,7 @@ class ProfileViewModel(
 
     fun render(viewState: String, userId: Long, username: String, userIcon: Int) {
         if (username == "Username") {
-            Log.e(MyApp.ERROR_LOG_TAG, "ProfileViewModel.render() -> username is null")
+            logE("username is null")
             _state.postValue(ProfileState.Error("Cannot detect this user"))
             return
         }
@@ -41,7 +40,7 @@ class ProfileViewModel(
         viewModelScope.launch {
             val userLastDate: Date? = userStatusDataUseCases.getUserLastDate(userId)
             if (userLastDate == null) {
-                Log.e(MyApp.ERROR_LOG_TAG, "ProfileViewModel.render() -> user's last date is null")
+                logE("user's last date is null")
                 _state.postValue(ProfileState.Error("Cannot detect this user"))
                 return@launch
             }
@@ -57,7 +56,7 @@ class ProfileViewModel(
                 "owner" -> {
                     val userLocal: UserLocal? = localDataUseCases.getLocalData()
                     if (userLocal == null) {
-                        Log.e(MyApp.ERROR_LOG_TAG, "ProfileViewModel.render() -> user is null")
+                        logE("user is null")
                         _state.postValue(ProfileState.Error("Cannot define this user"))
                         return@launch
                     }
@@ -68,7 +67,7 @@ class ProfileViewModel(
                 }
                 else -> {
                     this@ProfileViewModel._user = null
-                    Log.e(MyApp.ERROR_LOG_TAG, "ProfileViewModel.render() -> unknown viewState (guest/owner)")
+                    logE("unknown viewState (guest/owner)")
                     _state.postValue(ProfileState.Error("Application error"))
                     return@launch
                 }
@@ -118,7 +117,7 @@ class ProfileViewModel(
                 }
             }
         } else {
-            Log.e(MyApp.ERROR_LOG_TAG, "ProfileViewModel.saveAvatar() -> wrong user type or null")
+            logE("wrong user type or null")
             _state.postValue(ProfileState.Error("Cannot define this user"))
         }
     }

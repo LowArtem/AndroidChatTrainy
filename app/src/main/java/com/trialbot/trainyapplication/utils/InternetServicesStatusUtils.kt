@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.trialbot.trainyapplication.MyApp
+import com.trialbot.trainyapplication.domain.utils.logE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -27,7 +28,7 @@ suspend fun isServerAvailable(connectivityManager: ConnectivityManager): Boolean
 
         return@withContext urlConnection.responseCode == HttpURLConnection.HTTP_OK
     } catch (e: Exception) {
-        Log.d(MyApp.DEBUG_LOG_TAG, e.localizedMessage!!)
+        logE(e.localizedMessage ?: "Some error")
         return@withContext false
     }
 }

@@ -1,16 +1,15 @@
 package com.trialbot.trainyapplication.presentation.screen.login
 
 import android.net.ConnectivityManager
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.utils.default
 import com.trialbot.trainyapplication.utils.isInternetAvailable
@@ -42,7 +41,7 @@ class LoginViewModel(
             isServerAvailable = isServerAvailable(connectivityManager)
         }
         else {
-            Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.render() -> internet unavailable")
+            logE("LoginViewModel.render() -> internet unavailable")
             _state.postValue(LoginState.Error("Internet connection is unavailable"))
         }
 
@@ -56,7 +55,7 @@ class LoginViewModel(
             }
         }
         else {
-            Log.e(MyApp.ERROR_LOG_TAG, "LoginViewModel.render() -> server unavailable")
+            logE("LoginViewModel.render() -> server unavailable")
             _state.postValue(LoginState.Error("Unable to connect to remote server"))
         }
     }

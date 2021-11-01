@@ -4,6 +4,7 @@ import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
 import com.trialbot.trainyapplication.domain.interfaces.UserControllerRemote
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserWithoutIcon
+import com.trialbot.trainyapplication.domain.utils.logE
 import java.util.*
 
 class UserControllerRemoteImpl(private val chatApi: ChatApi) : UserControllerRemote {
@@ -12,7 +13,7 @@ class UserControllerRemoteImpl(private val chatApi: ChatApi) : UserControllerRem
         return try {
             chatApi.getUserIsOnline(id)
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.getUserIsOnline() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }
@@ -21,7 +22,7 @@ class UserControllerRemoteImpl(private val chatApi: ChatApi) : UserControllerRem
         return try {
             chatApi.getUserLastDate(id)
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.getUserLastDate() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             null
         }
     }
@@ -31,7 +32,7 @@ class UserControllerRemoteImpl(private val chatApi: ChatApi) : UserControllerRem
             chatApi.updateUser(id, user)
             true
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.updateUser() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }
@@ -41,7 +42,7 @@ class UserControllerRemoteImpl(private val chatApi: ChatApi) : UserControllerRem
             chatApi.deleteUser(user)
             true
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "UserControllerRemote.deleteUser() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }

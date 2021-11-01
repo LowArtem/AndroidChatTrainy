@@ -6,6 +6,7 @@ import com.trialbot.trainyapplication.domain.model.UserAuth
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserWithoutIcon
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.utils.logE
 import java.util.*
 
 class AuthenticationControllerRemoteImpl(private val chatApi: ChatApi) : AuthenticationControllerRemote {
@@ -14,7 +15,7 @@ class AuthenticationControllerRemoteImpl(private val chatApi: ChatApi) : Authent
         return try {
             chatApi.getUserByUsernameAndPassword(userAuth.username, userAuth.password)
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "AuthenticationControllerRemote.getUserByAuthData() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             null
         }
     }
@@ -32,7 +33,7 @@ class AuthenticationControllerRemoteImpl(private val chatApi: ChatApi) : Authent
         return try {
             return chatApi.saveUser(user)
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "AuthenticationControllerRemote.createUser() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             null
         }
     }
@@ -43,7 +44,7 @@ class AuthenticationControllerRemoteImpl(private val chatApi: ChatApi) : Authent
 
             true
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "AuthenticationControllerRemote.updateUser() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }
@@ -61,7 +62,7 @@ class AuthenticationControllerRemoteImpl(private val chatApi: ChatApi) : Authent
             chatApi.deleteUser(user)
             true
         } catch (e: Exception) {
-//            Log.e(MyApp.ERROR_LOG_TAG, "AuthenticationControllerRemote.deleteUser() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             false
         }
     }

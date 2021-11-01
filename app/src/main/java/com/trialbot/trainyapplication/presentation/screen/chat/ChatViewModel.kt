@@ -1,11 +1,9 @@
 package com.trialbot.trainyapplication.presentation.screen.chat
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.MessageUseCases
@@ -13,6 +11,7 @@ import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.domain.model.UserAuthId
+import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
@@ -26,11 +25,12 @@ class ChatViewModel(
     private val localDataUseCases: LocalDataUseCases,
     private val startStopRemoteActions: StartStopRemoteActions
 ) : ViewModel() {
+
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
 
-    // TODO: переделать через новую реализацию
-    val messages: LiveData<List<MessageDTO>?> = MutableLiveData<List<MessageDTO>?>()
+    private val _messages = MutableLiveData<List<MessageDTO>?>()
+    val messages: LiveData<List<MessageDTO>?> = _messages
 
     private val messageObservingJob = Job()
     private val messageObservingScope = CoroutineScope(messageObservingJob + Dispatchers.IO)
@@ -41,18 +41,21 @@ class ChatViewModel(
         try {
             messageObservingScope.launch {
                 val initMessagesJob = viewModelScope.launch {
-                    messageUseCases.updateMessages()
+                    val gotMessages = messageUseCases.updateMessages()
+                    if (gotMessages != null) {
+                        _messages.postValue(gotMessages)
+                    }
                 }
                 initMessagesJob.join()
-                if (messages.value == null || messages.value!!.isEmpty()) {
+                if (_messages.value == null || _messages.value!!.isEmpty()) {
                     _state.postValue(MessageState.Empty)
                 }
                 else {
-                    _state.postValue(MessageState.Success(messages.value!!))
+                    _state.postValue(MessageState.Success(_messages.value!!))
                 }
             }
         } catch (e: Exception) {
-            Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.render() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             _state.postValue(MessageState.Error(e.localizedMessage?.toString() ?: "Message getting error"))
         }
     }
@@ -61,13 +64,16 @@ class ChatViewModel(
     suspend fun startMessageObserving() {
         try {
             while (true) {
-                messageUseCases.updateMessages()
+                val gotMessages = messageUseCases.updateMessages()
+                if (gotMessages != null) {
+                    _messages.postValue(gotMessages)
+                }
                 delay(3000)
             }
         } catch (e1: CancellationException) {
 
         } catch (e2: Exception) {
-            Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.startMessageObserving() -> ${e2.localizedMessage}")
+            logE(e2.localizedMessage ?: "Some error")
 
             _state.postValue(
                 MessageState.Error(
@@ -94,7 +100,7 @@ class ChatViewModel(
                 }
             }
         } catch (e: Exception) {
-            Log.e(MyApp.ERROR_LOG_TAG, "MainViewModel.send() -> ${e.localizedMessage}")
+            logE(e.localizedMessage ?: "Some error")
             _state.postValue(MessageState.Error(e.localizedMessage?.toString() ?: "Message sending error"))
         }
     }
