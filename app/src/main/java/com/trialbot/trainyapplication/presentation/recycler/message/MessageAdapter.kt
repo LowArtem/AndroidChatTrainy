@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.trialbot.trainyapplication.data.model.MessageDTO
-import com.trialbot.trainyapplication.data.model.UserMessage
 import com.trialbot.trainyapplication.databinding.ItemMessageBinding
 import com.trialbot.trainyapplication.databinding.ItemMyMessageBinding
-import com.trialbot.trainyapplication.domain.UserAvatarUseCases
+import com.trialbot.trainyapplication.domain.model.MessageDTO
+import com.trialbot.trainyapplication.domain.model.UserMessage
+import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,7 +69,7 @@ class MessageAdapter(
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
-                authorAvatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(item.author.icon, resources))
+                authorAvatarIV.setImageDrawable(DrawableController.getDrawableFromId(item.author.icon, resources))
                 authorNameTV.text = item.author.username
                 messageTextTV.text = item.text
 
@@ -89,7 +89,7 @@ class MessageAdapter(
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
-                authorAvatarIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(item.author.icon, resources))
+                authorAvatarIV.setImageDrawable(DrawableController.getDrawableFromId(item.author.icon, resources))
                 authorNameTV.text = item.author.username
                 messageTextTV.text = item.text
 

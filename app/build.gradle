@@ -38,23 +38,23 @@ android {
 dependencies {
     def lifecycle_version = "2.4.0"
     def fragment_version = "1.3.6"
-    def retrofit_version = "2.9.0"
     def coroutines_version = "1.5.2"
     def recyclerview_version = "1.2.1"
     def nav_version = "2.3.5"
-
-    // На будущее
     def koin_version = "3.1.3"
 
+    //AndroidX
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation 'androidx.annotation:annotation:1.2.0'
 
+    implementation project(path: ":domain")
+    implementation project(path: ":data")
+
     //Kotlin Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version")
-
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
@@ -62,18 +62,17 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
     // Fragment
     implementation("androidx.fragment:fragment-ktx:$fragment_version")
-    // Retrofit (network)
-    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
-    implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:$recyclerview_version")
     // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
-
+    // Koin
+    implementation("io.insert-koin:koin-core:$koin_version")
+    implementation("io.insert-koin:koin-android:$koin_version")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    testImplementation("io.insert-koin:koin-test:$koin_version")
 }

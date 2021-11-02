@@ -1,64 +1,27 @@
 package com.trialbot.trainyapplication
 
 import android.app.Application
-import com.google.gson.GsonBuilder
-import com.trialbot.trainyapplication.data.remote.chatServer.ChatApi
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
+import com.trialbot.trainyapplication.data.di.dataModule
+import com.trialbot.trainyapplication.di.appModule
+import com.trialbot.trainyapplication.domain.di.domainModule
+import com.trialbot.trainyapplication.utils.AndroidLoggingHandler
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 
 class MyApp: Application() {
-    lateinit var api: ChatApi
-        private set
-
     override fun onCreate() {
         super.onCreate()
 
-        configureRetrofit()
-    }
-
-    private fun configureRetrofit() {
-        val client = OkHttpClient.Builder().apply {
-            addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            if (BuildConfig.DEBUG)
-                ignoreAllSSLErrors()
-        }.build()
-
-        val gson = GsonBuilder()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-            .create()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(MY_BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-
-        api = retrofit.create(ChatApi::class.java)
-    }
-
-    private fun OkHttpClient.Builder.ignoreAllSSLErrors(): OkHttpClient.Builder {
-        val naiveTrustManager = object : X509TrustManager {
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-            override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-            override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+        startKoin {
+            androidLogger()
+            properties(mapOf("base_url" to MY_BASE_URL))
+            androidContext(this@MyApp)
+            modules(appModule, dataModule, domainModule)
         }
 
-        val insecureSocketFactory = SSLContext.getInstance("SSL").apply {
-            val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
-            init(null, trustAllCerts, SecureRandom())
-        }.socketFactory
-
-        sslSocketFactory(insecureSocketFactory, naiveTrustManager)
-        hostnameVerifier { _, _ -> true }
-        return this
+        AndroidLoggingHandler.setup()
     }
 
     companion object {

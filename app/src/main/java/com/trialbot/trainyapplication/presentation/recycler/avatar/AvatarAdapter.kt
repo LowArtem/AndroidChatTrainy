@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.databinding.ItemAvatarBinding
-import com.trialbot.trainyapplication.domain.UserAvatarUseCases
-import com.trialbot.trainyapplication.presentation.recycler.avatar.model.AvatarItem
+import com.trialbot.trainyapplication.domain.model.AvatarItem
+import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 
 interface AvatarAdapterClickAction {
     fun changeAvatar(@DrawableRes avatarId: Int)
@@ -25,7 +25,7 @@ class AvatarAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(@DrawableRes avatarItem: Int, avatarName: String, resources: Resources) {
             with(this.binding) {
-                avatarImageIV.setImageDrawable(UserAvatarUseCases.getDrawableFromId(avatarItem, resources))
+                avatarImageIV.setImageDrawable(DrawableController.getDrawableFromId(avatarItem, resources))
                 avatarNameTV.text = avatarName
             }
         }

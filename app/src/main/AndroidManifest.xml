@@ -17,7 +17,7 @@
 
         <!-- Base Activity -->
         <activity
-            android:name=".presentation.BaseActivity"
+            android:name=".presentation.screen.baseActivity.BaseActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
