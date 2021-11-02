@@ -27,7 +27,6 @@ import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapt
 import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseActivity
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
-import com.trialbot.trainyapplication.presentation.state.MessageState
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

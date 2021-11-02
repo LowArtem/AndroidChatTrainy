@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.state
+package com.trialbot.trainyapplication.presentation.screen.login
 
 
 sealed class LoginState {

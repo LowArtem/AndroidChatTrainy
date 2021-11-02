@@ -11,7 +11,6 @@ import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.drawable.AvatarController
-import com.trialbot.trainyapplication.presentation.state.ProfileState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
 import java.util.*

@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.state
+package com.trialbot.trainyapplication.presentation.screen.profile
 
 import androidx.annotation.DrawableRes
 import com.trialbot.trainyapplication.domain.model.AvatarItem

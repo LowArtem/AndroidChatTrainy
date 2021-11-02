@@ -12,7 +12,6 @@ import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.domain.model.UserAuthId
 import com.trialbot.trainyapplication.domain.utils.logE
-import com.trialbot.trainyapplication.presentation.state.MessageState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
 import java.util.*

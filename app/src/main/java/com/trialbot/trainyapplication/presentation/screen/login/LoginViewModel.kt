@@ -10,7 +10,6 @@ import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.domain.utils.logE
-import com.trialbot.trainyapplication.presentation.state.LoginState
 import com.trialbot.trainyapplication.utils.default
 import com.trialbot.trainyapplication.utils.isInternetAvailable
 import com.trialbot.trainyapplication.utils.isServerAvailable

@@ -11,7 +11,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.domain.utils.logE
-import com.trialbot.trainyapplication.presentation.state.LoginState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
