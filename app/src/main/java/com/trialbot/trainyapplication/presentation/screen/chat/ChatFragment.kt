@@ -117,6 +117,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat),
         })
 
         viewModel.render()
+
+        // Observing messages
         viewLifecycleOwner.lifecycleScope.launch{
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.startMessageObserving()

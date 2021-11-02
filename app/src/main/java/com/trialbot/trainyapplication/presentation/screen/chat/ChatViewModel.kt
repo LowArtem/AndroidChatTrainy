@@ -28,29 +28,28 @@ class ChatViewModel(
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
 
-    private val _messages = MutableLiveData<List<MessageDTO>?>()
-    val messages: LiveData<List<MessageDTO>?> = _messages
+    private val messagesCash = ArrayList<MessageDTO>()
 
-    private val messageObservingJob = Job()
-    private val messageObservingScope = CoroutineScope(messageObservingJob + Dispatchers.IO)
+    private val _messages = MutableLiveData<List<MessageDTO>>()
+    val messages: LiveData<List<MessageDTO>> = _messages
+
+    private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
 
 
     // Main activity control function
     fun render() {
         try {
             messageObservingScope.launch {
-                val initMessagesJob = viewModelScope.launch {
-                    val gotMessages = messageUseCases.updateMessages()
-                    if (gotMessages != null) {
-                        _messages.postValue(gotMessages)
+                val gotMessages = messageUseCases.updateMessages()
+                if (isContentChanged(gotMessages)) {
+                    _messages.postValue(gotMessages)
+
+                    if (gotMessages.isEmpty()) {
+                        _state.postValue(MessageState.Empty)
                     }
-                }
-                initMessagesJob.join()
-                if (_messages.value == null || _messages.value!!.isEmpty()) {
-                    _state.postValue(MessageState.Empty)
-                }
-                else {
-                    _state.postValue(MessageState.Success(_messages.value!!))
+                    else {
+                        _state.postValue(MessageState.Success(gotMessages))
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -64,20 +63,17 @@ class ChatViewModel(
         try {
             while (true) {
                 val gotMessages = messageUseCases.updateMessages()
-                if (gotMessages != null) {
+                if (isContentChanged(gotMessages)) {
                     _messages.postValue(gotMessages)
                 }
                 delay(3000)
             }
-        } catch (e1: CancellationException) {
-
-        } catch (e2: Exception) {
+        } catch (e1: CancellationException) {}
+        catch (e2: Exception) {
             logE(e2.localizedMessage ?: "Some error")
 
             _state.postValue(
-                MessageState.Error(
-                    e2.localizedMessage?.toString() ?: "Message getting error"
-                )
+                MessageState.Error("Message getting error")
             )
         }
     }
@@ -125,4 +121,26 @@ class ChatViewModel(
     fun getCurrentUserId(): Long {
         return localDataUseCases.getLocalData()?.id ?: -1
     }
+
+
+
+    private fun isContentChanged(newMessages: List<MessageDTO>): Boolean {
+        if (messagesCash.isNullOrEmpty() && !newMessages.isNullOrEmpty()) {
+            return true
+        }
+
+        if (newMessages.isNullOrEmpty() && !messagesCash.isNullOrEmpty()) return true
+        if (newMessages.isNullOrEmpty() && messagesCash.isNullOrEmpty()) return false
+
+        return areMessagesEqual(messagesCash.last(), newMessages.last())
+    }
+
+    private fun areMessagesEqual(message1: MessageDTO, message2: MessageDTO): Boolean {
+        return message1.text == message2.text &&
+                message1.pubDate == message2.pubDate &&
+                message1.author.id == message2.author.id &&
+                message1.author.username == message2.author.username &&
+                message1.author.icon == message2.author.icon
+    }
+
 }
