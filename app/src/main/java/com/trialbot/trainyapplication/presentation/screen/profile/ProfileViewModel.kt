@@ -86,8 +86,10 @@ class ProfileViewModel(
 
     }
 
-    fun editPassword() {
-
+    fun confirmNewPassword(newPassword: String, handler: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            handler(editUserUseCases.changePassword(_user as UserFull, newPassword))
+        }
     }
 
     fun editAvatar() {
@@ -123,5 +125,12 @@ class ProfileViewModel(
 
     fun cancelChangeAvatar() {
         _state.postValue(ProfileState.AvatarChangingClosing((_user as UserFull).icon))
+    }
+
+    fun checkCurrentPassword(password: String): Boolean {
+        if (_user is UserFull) {
+            return (_user as UserFull).password == password
+        }
+        return false
     }
 }

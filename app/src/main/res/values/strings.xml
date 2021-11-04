@@ -28,4 +28,8 @@
     <string name="current_password_hint">Enter your current password</string>
     <string name="log_out_hint">Log out</string>
     <string name="exit_title">Exit</string>
+    <string name="enter_the_new_password_hint">Enter the new password</string>
+    <string name="retype_your_new_password_hint">Retype your new password</string>
+    <string name="confirm_new_password_btn">Confirm new password</string>
+    <string name="wrong_password">Wrong password</string>
 </resources>
