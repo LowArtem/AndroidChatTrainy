@@ -9,9 +9,9 @@ import com.trialbot.trainyapplication.domain.utils.logE
 
 class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControllerRemote {
 
-    override suspend fun getAllMessages(): List<MessageDTO>? {
+    override suspend fun getAllMessages(chatId: Long): List<MessageDTO>? {
         return try {
-            chatApi.getAllMessages()
+            chatApi.getAllMessages(chatId)
         } catch (e: Exception) {
             logE(e.localizedMessage ?: "Some error")
             null
@@ -27,9 +27,32 @@ class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControl
         }
     }
 
-    override suspend fun saveMessage(message: MessageWithAuthUser): Boolean {
+    override suspend fun getMessagesPage(
+        chatId: Long,
+        messageCount: Int,
+        startIndex: Int
+    ): List<MessageDTO>? {
         return try {
-            chatApi.saveMessage(message)
+            chatApi.getMessagesPage(chatId, messageCount, startIndex)
+        } catch (e: Exception) {
+            logE(e.localizedMessage ?: "Some error")
+            null
+        }
+    }
+
+    override suspend fun saveMessage(chatId: Long, message: MessageWithAuthUser): Boolean {
+        return try {
+            chatApi.saveMessage(chatId, message)
+            true
+        } catch (e: Exception) {
+            logE(e.localizedMessage ?: "Some error")
+            false
+        }
+    }
+
+    override suspend fun deleteMessage(chatId: Long, messageId: Long): Boolean {
+        return try {
+            chatApi.deleteMessage(chatId, messageId)
             true
         } catch (e: Exception) {
             logE(e.localizedMessage ?: "Some error")

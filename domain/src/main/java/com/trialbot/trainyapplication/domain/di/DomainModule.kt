@@ -44,7 +44,7 @@ val domainModule = module {
     }
 
     factory {
-        MessageUseCases(
+        MessageSendingUseCases(
             messageControllerRemote = get()
         )
     }

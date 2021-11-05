@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
-import com.trialbot.trainyapplication.domain.MessageUseCases
+import com.trialbot.trainyapplication.domain.MessageSendingUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
@@ -20,7 +20,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class ChatViewModel(
     private val loginStatus: LoginStatusUseCases,
-    private val messageUseCases: MessageUseCases,
+    private val messageSendingUseCases: MessageSendingUseCases,
     private val localDataUseCases: LocalDataUseCases,
     private val startStopRemoteActions: StartStopRemoteActions
 ) : ViewModel() {
@@ -40,7 +40,7 @@ class ChatViewModel(
     fun render() {
         try {
             messageObservingScope.launch {
-                val gotMessages = messageUseCases.updateMessages()
+                val gotMessages = messageSendingUseCases.getNewMessages()
                 if (isContentChanged(gotMessages)) {
                     _messages.postValue(gotMessages)
 
@@ -62,7 +62,7 @@ class ChatViewModel(
     suspend fun startMessageObserving() {
         try {
             while (true) {
-                val gotMessages = messageUseCases.updateMessages()
+                val gotMessages = messageSendingUseCases.getNewMessages()
                 if (isContentChanged(gotMessages)) {
                     _messages.postValue(gotMessages)
                 }
@@ -85,7 +85,7 @@ class ChatViewModel(
                 viewModelScope.launch {
                     val user = localDataUseCases.getLocalData()
                         ?: throw Exception("User local auth not found")
-                    messageUseCases.sendMessage(
+                    messageSendingUseCases.sendMessage(
                         MessageWithAuthUser(
                             input,
                             UserAuthId(user.id, user.username, user.password),

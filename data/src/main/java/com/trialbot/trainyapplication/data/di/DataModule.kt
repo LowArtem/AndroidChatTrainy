@@ -68,6 +68,12 @@ val dataModule = module {
             chatApi = get()
         )
     }
+
+    single<ChatControllerRemote> {
+        ChatControllerRemoteImpl(
+            chatApi = get()
+        )
+    }
 }
 
 

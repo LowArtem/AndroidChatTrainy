@@ -5,11 +5,11 @@ import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 
 
-class MessageUseCases(private val messageControllerRemote: MessageControllerRemote) {
+class MessageSendingUseCases(private val messageControllerRemote: MessageControllerRemote) {
 
-    suspend fun sendMessage(message: MessageWithAuthUser): Boolean {
-        val isSuccessful = messageControllerRemote.saveMessage(message)
-        updateMessages()
+    suspend fun sendMessage(chatId: Long, message: MessageWithAuthUser): Boolean {
+        val isSuccessful = messageControllerRemote.saveMessage(chatId, message)
+        getNewMessages(chatId)
 
         return isSuccessful
     }
@@ -18,8 +18,8 @@ class MessageUseCases(private val messageControllerRemote: MessageControllerRemo
      * Returns the new list of messages.
      * If list is the same, returns null.
      */
-    suspend fun updateMessages(): List<MessageDTO> {
-        return when (val gotMessages = messageControllerRemote.getAllMessages()) {
+    suspend fun getNewMessages(chatId: Long): List<MessageDTO> {
+        return when (val gotMessages = messageControllerRemote.getAllMessages(chatId)) {
             null -> {
                 emptyList()
             }
