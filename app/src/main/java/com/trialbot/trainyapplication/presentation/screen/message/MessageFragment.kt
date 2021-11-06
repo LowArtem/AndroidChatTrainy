@@ -22,10 +22,10 @@ import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserMessage
-import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapter
-import com.trialbot.trainyapplication.presentation.recycler.message.MessageAdapterClickNavigation
-import com.trialbot.trainyapplication.presentation.recycler.message.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseActivity
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -116,7 +116,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             }
         })
 
-        viewModel.render()
+        viewModel.render(args.chatId)
 
         // Observing messages
         viewLifecycleOwner.lifecycleScope.launch{
@@ -142,7 +142,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                 true
             }
             R.id.action_logout -> {
-                actionLogoutHandler()
+//                actionLogoutHandler()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -154,14 +154,14 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
         // TODO: нет здесь больше логаута, я думаю, вообще из меню убрать логаут, это есть в профиле, там ему самое место
 
-        findNavController().navigate(MessageFragmentDirections.actionChatFragmentToLoginFragment(), navOptions {
-            anim {
-                enter = R.anim.enter
-                exit = R.anim.exit
-                popEnter = R.anim.pop_enter
-                popExit = R.anim.pop_exit
-            }
-        })
+//        findNavController().navigate(MessageFragmentDirections.actionChatFragmentToLoginFragment(), navOptions {
+//            anim {
+//                enter = R.anim.enter
+//                exit = R.anim.exit
+//                popEnter = R.anim.pop_enter
+//                popExit = R.anim.pop_exit
+//            }
+//        })
     }
 
     private fun actionExitHandler() {

@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.recycler.avatar
+package com.trialbot.trainyapplication.presentation.screen.profile.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater

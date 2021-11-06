@@ -27,9 +27,9 @@
         android:textColor="@color/blue_800"
         android:textSize="14sp"
         android:textAlignment="textEnd"
-        app:layout_constraintEnd_toStartOf="@+id/authorAvatarIV"
+        app:layout_constraintEnd_toStartOf="@id/authorAvatarIV"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/authorAvatarIV"
+        app:layout_constraintTop_toTopOf="@id/authorAvatarIV"
         tools:text="John Smith" />
 
     <TextView
@@ -40,7 +40,7 @@
         android:layout_marginStart="10dp"
         app:layout_constraintTop_toBottomOf="@id/authorNameTV"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/authorAvatarIV"
+        app:layout_constraintEnd_toStartOf="@id/authorAvatarIV"
 
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacus sapien, porttitor ut metus in, efficitur ornare tellus. Phasellus vel semper ante. Nam a eleifend elit. Aliquam erat volutpat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Maecenas ultricies lacus sed lorem vestibulum, quis iaculis enim iaculis. Quisque semper lectus sollicitudin elementum scelerisque. Mauris convallis magna sit amet tellus aliquam, placerat mattis lacus dapibus. Curabitur at massa porttitor elit semper hendrerit. Etiam sit amet ante non mauris ultricies feugiat vitae a lacus. Nullam pretium rutrum nisi, id facilisis mauris faucibus ut. Nunc pharetra nisi eu ligula scelerisque mollis. Vestibulum vel tellus sit amet risus luctus scelerisque quis eu tellus. Phasellus imperdiet rutrum odio non tincidunt. Aenean ornare dapibus ullamcorper. Vivamus lobortis vel purus a aliquam. Suspendisse nec sem ante. Etam volutpat rutrum suscipit. Integer egestas, ante et cursus feugiat vivamus."
         />

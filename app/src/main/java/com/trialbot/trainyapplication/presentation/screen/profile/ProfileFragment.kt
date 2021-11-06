@@ -20,8 +20,8 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
-import com.trialbot.trainyapplication.presentation.recycler.avatar.AvatarAdapter
-import com.trialbot.trainyapplication.presentation.recycler.avatar.AvatarAdapterClickAction
+import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapter
+import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 

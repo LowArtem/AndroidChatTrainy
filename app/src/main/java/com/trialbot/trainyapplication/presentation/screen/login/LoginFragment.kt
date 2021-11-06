@@ -91,8 +91,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun startMainActivity() {
-        if (viewModel.username != null && viewModel.username!!.isNotBlank()) {
-            val direction = LoginFragmentDirections.actionLoginFragmentToChatFragment(viewModel.username!!, viewModel.avatarId)
+        if (viewModel.username != null && viewModel.username!!.isNotBlank() && viewModel.userId != -1L) {
+            val direction = LoginFragmentDirections.actionLoginFragmentToChatFragment(
+                viewModel.username!!,
+                viewModel.avatarId,
+                viewModel.userId
+            )
             findNavController().navigate(direction, navOptions {
                 anim {
                     enter = R.anim.enter
@@ -103,7 +107,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             })
         }
         else {
-            logE("viewModel.username is null or empty")
+            logE("viewModel.username or userId is null or empty")
             viewModel.setOutsideError("Username is empty")
         }
     }

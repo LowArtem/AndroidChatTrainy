@@ -72,9 +72,8 @@
         <action
             android:id="@+id/action_chatFragment_to_messageFragment"
             app:destination="@id/messageFragment" />
-        <action
-            android:id="@+id/action_chatFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/loginFragment" />
+        <argument
+            android:name="userId"
+            app:argType="long" />
     </fragment>
 </navigation>

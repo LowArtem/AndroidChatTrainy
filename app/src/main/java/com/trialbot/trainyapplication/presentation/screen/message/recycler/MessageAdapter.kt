@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.recycler.message
+package com.trialbot.trainyapplication.presentation.screen.message.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater

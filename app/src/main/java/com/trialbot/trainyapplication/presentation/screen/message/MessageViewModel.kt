@@ -35,12 +35,16 @@ class MessageViewModel(
 
     private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
 
+    private var chatId: Long? = null
+
 
     // Main activity control function
-    fun render() {
+    fun render(chatId: Long) {
+        this.chatId = chatId
+
         try {
             messageObservingScope.launch {
-                val gotMessages = messageSendingUseCases.getNewMessages()
+                val gotMessages = messageSendingUseCases.getNewMessages(chatId)
                 if (isContentChanged(gotMessages)) {
                     _messages.postValue(gotMessages)
 
@@ -62,7 +66,9 @@ class MessageViewModel(
     suspend fun startMessageObserving() {
         try {
             while (true) {
-                val gotMessages = messageSendingUseCases.getNewMessages()
+                if (chatId == null) delay(3000)
+
+                val gotMessages = messageSendingUseCases.getNewMessages(chatId!!)
                 if (isContentChanged(gotMessages)) {
                     _messages.postValue(gotMessages)
                 }
@@ -85,7 +91,11 @@ class MessageViewModel(
                 viewModelScope.launch {
                     val user = localDataUseCases.getLocalData()
                         ?: throw Exception("User local auth not found")
+
+                    if (chatId == null) throw NullPointerException("ChatId was null when sending")
+
                     messageSendingUseCases.sendMessage(
+                        chatId!!,
                         MessageWithAuthUser(
                             input,
                             UserAuthId(user.id, user.username, user.password),

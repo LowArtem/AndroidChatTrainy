@@ -15,7 +15,8 @@
     <string name="password_button_hint">Password</string>
     <string name="username_button_hint">Username</string>
     <string name="loading_panel_text">Loading...</string>
-    <string name="message_list_is_empty_text">Message list is empty. Write something.</string>
+    <string name="message_list_is_empty_text">Message list is empty. Write something!</string>
+    <string name="chat_list_is_empty_text">Chat list is empty. Start conversation!</string>
     <string name="user_online_status_online">online</string>
     <string name="user_online_status_offline">offline</string>
     <string name="application_error">Application error</string>

@@ -30,6 +30,9 @@ class LoginViewModel(
     var avatarId: Int = -1
         private set
 
+    var userId: Long = -1
+        private set
+
     private var isLoginSuccessful: Boolean = false
 
 
@@ -78,11 +81,13 @@ class LoginViewModel(
         if (user != null) {
             avatarId = user.icon
             username = user.username
+            userId = user.id
             isLoginSuccessful = true
 
             _state.postValue(LoginState.Success(username!!, avatarId))
         } else {
             avatarId = -1
+            userId = -1
             username = null
             isLoginSuccessful = false
 
@@ -111,6 +116,7 @@ class LoginViewModel(
         if (userLocal != null) {
             username = userLocal.username
             avatarId = userLocal.icon
+            userId = userLocal.id
         }
     }
 }
