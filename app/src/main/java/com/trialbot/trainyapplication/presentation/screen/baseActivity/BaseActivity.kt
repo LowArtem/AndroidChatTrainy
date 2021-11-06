@@ -19,7 +19,7 @@ class BaseActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
 
-    private val topLevelDestinations = setOf(R.id.loginFragment, R.id.chatFragment)
+    private val topLevelDestinations = setOf(R.id.loginFragment, R.id.messageFragment)
     private var currentFragment: Fragment? = null
 
     private val fragmentListener = object : FragmentManager.FragmentLifecycleCallbacks() {

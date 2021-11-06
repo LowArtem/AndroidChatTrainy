@@ -1,4 +1,4 @@
-package com.trialbot.trainyapplication.presentation.screen.chat
+package com.trialbot.trainyapplication.presentation.screen.message
 
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 

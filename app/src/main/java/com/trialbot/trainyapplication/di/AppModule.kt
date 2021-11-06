@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.presentation.screen.chat.ChatViewModel
 import com.trialbot.trainyapplication.presentation.screen.login.LoginViewModel
+import com.trialbot.trainyapplication.presentation.screen.message.MessageViewModel
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -19,9 +20,9 @@ val appModule = module {
     }
 
     viewModel {
-        ChatViewModel(
+        MessageViewModel(
             loginStatus = get(),
-            messageUseCases = get(),
+            messageSendingUseCases = get(),
             localDataUseCases = get(),
             startStopRemoteActions = get()
         )
@@ -41,6 +42,13 @@ val appModule = module {
             loginStatus = get(),
             localDataUseCases = get(),
             userStatusDataUseCases = get()
+        )
+    }
+
+    viewModel {
+        ChatViewModel(
+            chatEditingUseCases = get(),
+            chatGettingUseCases = get()
         )
     }
 }
