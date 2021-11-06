@@ -6,19 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <View
-        android:id="@+id/topLine"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@color/black"
-        app:layout_constraintTop_toTopOf="parent"/>
-
     <ImageView
         android:id="@+id/chatIconIV"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
@@ -26,7 +17,7 @@
         android:src="@drawable/ic_default_chat"
         app:layout_constraintEnd_toStartOf="@id/chatNameTV"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topLine" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/chatNameTV"
@@ -34,20 +25,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:lines="1"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/chatIconIV"
         app:layout_constraintTop_toTopOf="@id/chatIconIV"
         app:layout_constraintBottom_toBottomOf="@id/chatIconIV"
         tools:text="My chat name" />
-
-    <View
-        android:id="@+id/bottomLine"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/chatIconIV"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

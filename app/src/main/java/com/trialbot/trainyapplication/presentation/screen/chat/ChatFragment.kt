@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
@@ -28,12 +29,13 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentChatBinding.bind(view)
 
-        adapter = ChatAdapter(requireContext().resources, this)
+        adapter = ChatAdapter(requireContext().resources, this, args.username)
 
         with(binding.chatsRV) {
             val layoutManager = LinearLayoutManager(requireContext())
             this.layoutManager = layoutManager
             this.adapter = this@ChatFragment.adapter
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
 
         viewModel.state.observe(viewLifecycleOwner, { state ->

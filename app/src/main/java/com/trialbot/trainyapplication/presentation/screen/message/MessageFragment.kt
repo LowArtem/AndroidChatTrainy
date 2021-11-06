@@ -5,7 +5,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
@@ -40,11 +39,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
     private val args: MessageFragmentArgs by navArgs()
 
     private val viewModel by viewModel<MessageViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -133,49 +127,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
-            R.id.action_exit -> {
-                actionExitHandler()
-                true
-            }
-            R.id.action_logout -> {
-//                actionLogoutHandler()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun actionLogoutHandler() {
-        viewModel.logOut()
-
-        // TODO: нет здесь больше логаута, я думаю, вообще из меню убрать логаут, это есть в профиле, там ему самое место
-
-//        findNavController().navigate(MessageFragmentDirections.actionChatFragmentToLoginFragment(), navOptions {
-//            anim {
-//                enter = R.anim.enter
-//                exit = R.anim.exit
-//                popEnter = R.anim.pop_enter
-//                popExit = R.anim.pop_exit
-//            }
-//        })
-    }
-
-    private fun actionExitHandler() {
-        AlertDialog.Builder(requireContext()).apply {
-            setTitle("Confirmation")
-            setMessage("Are you sure, you want to exit?")
-
-            setPositiveButton("Yes") { _, _ ->
-                requireActivity().onBackPressed()
-            }
-
-            setNegativeButton("Cancel") { _, _ -> }
-            setCancelable(true)
-        }.create().show()
     }
 
     override fun onEditorAction(p0: TextView?, actionId: Int, p2: KeyEvent?): Boolean {

@@ -19,6 +19,6 @@ class ChatEditingUseCases(private val chatControllerRemote: ChatControllerRemote
         if (dialogId == -1L) return null
 
         val dialog = chatControllerRemote.getChat(dialogId) ?: return null
-        return ChatInfo(dialogId, dialog.name, dialog.icon, true)
+        return ChatInfo(dialogId, dialog.name, dialog.icon, dialog.secondIconId, true)
     }
 }

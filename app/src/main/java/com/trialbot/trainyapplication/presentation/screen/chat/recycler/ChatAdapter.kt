@@ -12,6 +12,9 @@ import com.trialbot.trainyapplication.domain.model.ChatInfo
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 
 
+const val DIALOG_DIVIDER: String = "\$@\$-%@%"
+
+
 class ChatDiffCallback(
     private val oldChats: List<ChatInfo>,
     private val newChats: List<ChatInfo>
@@ -40,7 +43,8 @@ interface ChatAdapterClickAction {
 
 class ChatAdapter(
     private val resources: Resources,
-    private val clickAction: ChatAdapterClickAction
+    private val clickAction: ChatAdapterClickAction,
+    private val username: String
 ) : RecyclerView.Adapter<BaseViewHolder<ChatInfo>>() {
 
     private var chats: MutableList<ChatInfo> = mutableListOf()
@@ -54,25 +58,43 @@ class ChatAdapter(
 
     class ChatsViewHolder(
         private val binding: ItemChatBinding,
+        private val username: String,
     ) : BaseViewHolder<ChatInfo>(binding.root) {
         override fun bind(item: ChatInfo, resources: Resources) {
             with(this.binding) {
-                if (item.icon == -1) {
-                    chatIconIV.setImageDrawable(
-                        DrawableController.getDrawableFromId(
-                            R.drawable.ic_default_chat,
+                if (item.isDialog) {
+                    val names = item.name.split(DIALOG_DIVIDER)
+                    if (username == names[0]) {
+                        chatNameTV.text = names[1]
+                        chatIconIV.setImageDrawable(DrawableController.getDrawableFromId(
+                            item.secondIconId,
                             resources
-                        )
-                    )
-                } else {
-                    chatIconIV.setImageDrawable(
-                        DrawableController.getDrawableFromId(
+                        ))
+                    } else {
+                        chatNameTV.text = names[0]
+                        chatIconIV.setImageDrawable(DrawableController.getDrawableFromId(
                             item.icon,
                             resources
+                        ))
+                    }
+                } else {
+                    if (item.icon == -1) {
+                        chatIconIV.setImageDrawable(
+                            DrawableController.getDrawableFromId(
+                                R.drawable.ic_default_chat,
+                                resources
+                            )
                         )
-                    )
+                    } else {
+                        chatIconIV.setImageDrawable(
+                            DrawableController.getDrawableFromId(
+                                item.icon,
+                                resources
+                            )
+                        )
+                    }
+                    chatNameTV.text = item.name
                 }
-                chatNameTV.text = item.name
             }
         }
     }
@@ -80,7 +102,7 @@ class ChatAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<ChatInfo> {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemChatBinding.inflate(inflater, parent, false)
-        return ChatsViewHolder(binding)
+        return ChatsViewHolder(binding, this.username)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<ChatInfo>, position: Int) {
