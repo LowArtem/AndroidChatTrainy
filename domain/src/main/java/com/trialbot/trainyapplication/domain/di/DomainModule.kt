@@ -48,4 +48,16 @@ val domainModule = module {
             messageControllerRemote = get()
         )
     }
+
+    factory {
+        ChatEditingUseCases(
+            chatControllerRemote = get()
+        )
+    }
+
+    factory {
+        ChatGettingUseCases(
+            chatControllerRemote = get()
+        )
+    }
 }
