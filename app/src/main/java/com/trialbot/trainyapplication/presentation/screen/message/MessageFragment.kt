@@ -21,7 +21,6 @@ import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserMessage
-import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseActivity
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
@@ -69,8 +68,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
         setFragmentResultListener(ProfileFragment.TAG_AVATAR_ID_BUNDLE) { _, bundle ->
             avatarId = bundle.getInt(ProfileFragment.TAG_AVATAR_ID_BUNDLE)
-
-            (requireActivity() as BaseActivity).updateActionBarIcon(avatarId)
         }
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
