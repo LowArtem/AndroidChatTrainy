@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -75,8 +77,16 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
         viewModel.render(args.userId)
     }
 
-    override fun openChat(chatId: Long) {
-        TODO("Not yet implemented")
+    override fun openChat(chatId: Long, chatName: String, chatIconId: Int) {
+        val direction = ChatFragmentDirections.actionChatFragmentToMessageFragment(chatName, chatIconId, chatId)
+        findNavController().navigate(direction, navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
     }
 
     override fun getTitle(): String {

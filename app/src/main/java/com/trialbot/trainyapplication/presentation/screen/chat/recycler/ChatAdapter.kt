@@ -38,7 +38,7 @@ abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewI
 }
 
 interface ChatAdapterClickAction {
-    fun openChat(chatId: Long)
+    fun openChat(chatId: Long, chatName: String, chatIconId: Int)
 }
 
 class ChatAdapter(
@@ -62,39 +62,11 @@ class ChatAdapter(
     ) : BaseViewHolder<ChatInfo>(binding.root) {
         override fun bind(item: ChatInfo, resources: Resources) {
             with(this.binding) {
-                if (item.isDialog) {
-                    val names = item.name.split(DIALOG_DIVIDER)
-                    if (username == names[0]) {
-                        chatNameTV.text = names[1]
-                        chatIconIV.setImageDrawable(DrawableController.getDrawableFromId(
-                            item.secondIconId,
-                            resources
-                        ))
-                    } else {
-                        chatNameTV.text = names[0]
-                        chatIconIV.setImageDrawable(DrawableController.getDrawableFromId(
-                            item.icon,
-                            resources
-                        ))
-                    }
-                } else {
-                    if (item.icon == -1) {
-                        chatIconIV.setImageDrawable(
-                            DrawableController.getDrawableFromId(
-                                R.drawable.ic_default_chat,
-                                resources
-                            )
-                        )
-                    } else {
-                        chatIconIV.setImageDrawable(
-                            DrawableController.getDrawableFromId(
-                                item.icon,
-                                resources
-                            )
-                        )
-                    }
-                    chatNameTV.text = item.name
-                }
+                chatNameTV.text = getChatName(username, item)
+                chatIconIV.setImageDrawable(DrawableController.getDrawableFromId(
+                    getChatIcon(username, item),
+                    resources
+                ))
             }
         }
     }
@@ -108,7 +80,11 @@ class ChatAdapter(
     override fun onBindViewHolder(holder: BaseViewHolder<ChatInfo>, position: Int) {
         holder.bind(chats[position], resources)
         holder.itemView.setOnClickListener {
-            clickAction.openChat(chats[position].id)
+            clickAction.openChat(
+                chats[position].id,
+                getChatName(username, chats[position]),
+                getChatIcon(username, chats[position])
+            )
         }
     }
 
@@ -116,5 +92,28 @@ class ChatAdapter(
 
     fun updateChats(newChats: List<ChatInfo>) {
         chats = newChats.toMutableList()
+    }
+}
+
+private fun getChatIcon(username: String, chat: ChatInfo): Int {
+    return if (chat.isDialog) {
+        val names = chat.name.split(DIALOG_DIVIDER)
+        if (username == names[0]) chat.secondIconId else chat.icon
+    } else {
+        if (chat.icon == -1) R.drawable.ic_default_chat else chat.icon
+    }
+}
+
+private fun getChatName(username: String, chat: ChatInfo): String {
+    return if (chat.isDialog) {
+        val names = chat.name.split(DIALOG_DIVIDER)
+        if (username == names[0]) {
+            names[1]
+
+        } else {
+            names[0]
+        }
+    } else {
+        chat.name
     }
 }

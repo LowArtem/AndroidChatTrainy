@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
-import com.trialbot.trainyapplication.domain.LoginStatusUseCases
 import com.trialbot.trainyapplication.domain.MessageSendingUseCases
 import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.domain.model.MessageDTO
@@ -19,7 +18,6 @@ import kotlin.coroutines.cancellation.CancellationException
 
 
 class MessageViewModel(
-    private val loginStatus: LoginStatusUseCases,
     private val messageSendingUseCases: MessageSendingUseCases,
     private val localDataUseCases: LocalDataUseCases,
     private val startStopRemoteActions: StartStopRemoteActions
@@ -28,7 +26,7 @@ class MessageViewModel(
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
 
-    private val messagesCash = ArrayList<MessageDTO>()
+    private var messagesCash: List<MessageDTO> = emptyList()
 
     private val _messages = MutableLiveData<List<MessageDTO>>()
     val messages: LiveData<List<MessageDTO>> = _messages
@@ -45,15 +43,13 @@ class MessageViewModel(
         try {
             messageObservingScope.launch {
                 val gotMessages = messageSendingUseCases.getNewMessages(chatId)
-                if (isContentChanged(gotMessages)) {
-                    _messages.postValue(gotMessages)
+                _messages.postValue(gotMessages)
 
-                    if (gotMessages.isEmpty()) {
-                        _state.postValue(MessageState.Empty)
-                    }
-                    else {
-                        _state.postValue(MessageState.Success(gotMessages))
-                    }
+                if (gotMessages.isEmpty()) {
+                    _state.postValue(MessageState.Empty)
+                }
+                else {
+                    _state.postValue(MessageState.Success(gotMessages))
                 }
             }
         } catch (e: Exception) {
@@ -110,10 +106,6 @@ class MessageViewModel(
         }
     }
 
-    fun logOut() {
-        loginStatus.saveLoginStatus(false)
-    }
-
     fun applicationStarting() {
         viewModelScope.launch {
             startStopRemoteActions.appStarted()
@@ -136,13 +128,21 @@ class MessageViewModel(
 
     private fun isContentChanged(newMessages: List<MessageDTO>): Boolean {
         if (messagesCash.isNullOrEmpty() && !newMessages.isNullOrEmpty()) {
+            messagesCash = newMessages
             return true
         }
 
-        if (newMessages.isNullOrEmpty() && !messagesCash.isNullOrEmpty()) return true
+        if (newMessages.isNullOrEmpty() && !messagesCash.isNullOrEmpty()) {
+            messagesCash = newMessages
+            return true
+        }
         if (newMessages.isNullOrEmpty() && messagesCash.isNullOrEmpty()) return false
 
-        return areMessagesEqual(messagesCash.last(), newMessages.last())
+        val result = !areMessagesEqual(messagesCash.last(), newMessages.last())
+        return if (result) {
+            messagesCash = newMessages
+            true
+        } else false
     }
 
     private fun areMessagesEqual(message1: MessageDTO, message2: MessageDTO): Boolean {

@@ -21,7 +21,6 @@ val appModule = module {
 
     viewModel {
         MessageViewModel(
-            loginStatus = get(),
             messageSendingUseCases = get(),
             localDataUseCases = get(),
             startStopRemoteActions = get()

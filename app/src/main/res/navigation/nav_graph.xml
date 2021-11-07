@@ -20,16 +20,15 @@
     <fragment
         android:id="@+id/messageFragment"
         android:name="com.trialbot.trainyapplication.presentation.screen.message.MessageFragment"
-        android:label="{username}"
         tools:layout="@layout/fragment_message">
         <action
             android:id="@+id/action_chatFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
         <argument
-            android:name="username"
+            android:name="chatName"
             app:argType="string" />
         <argument
-            android:name="iconId"
+            android:name="chatIconId"
             app:argType="integer" />
         <argument
             android:name="chatId"
@@ -69,11 +68,11 @@
         <argument
             android:name="iconId"
             app:argType="integer" />
-        <action
-            android:id="@+id/action_chatFragment_to_messageFragment"
-            app:destination="@id/messageFragment" />
         <argument
             android:name="userId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_chatFragment_to_messageFragment"
+            app:destination="@id/messageFragment" />
     </fragment>
 </navigation>

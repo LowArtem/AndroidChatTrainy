@@ -64,7 +64,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             messageTextTV.setOnEditorActionListener(this@MessageFragment)
         }
 
-        var avatarId: Int = args.iconId
+        var avatarId: Int = args.chatIconId
         if (avatarId == -1) avatarId = R.drawable.ic_avatar_default
 
         setFragmentResultListener(ProfileFragment.TAG_AVATAR_ID_BUNDLE) { _, bundle ->
@@ -151,12 +151,9 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
     override fun openProfile(user: UserMessage, viewStatus: ProfileViewStatus) {
         val viewStatusStr: String = when (viewStatus) {
-            is ProfileViewStatus.Guest -> {
-                "guest"
-            }
-            is ProfileViewStatus.Owner -> {
-                "owner"
-            }
+            is ProfileViewStatus.Guest -> "guest"
+            is ProfileViewStatus.Owner -> "owner"
+            else -> "guest"
         }
 
         val direction = MessageFragmentDirections.actionChatFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
@@ -171,10 +168,10 @@ class MessageFragment : Fragment(R.layout.fragment_message),
     }
 
     override fun getTitle(): String {
-        return "  ${args.username}"
+        return "  ${args.chatName}"
     }
 
     override fun getIconRes(): Int {
-        return args.iconId
+        return args.chatIconId
     }
 }
