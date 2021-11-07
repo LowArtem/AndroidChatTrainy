@@ -38,6 +38,7 @@
         android:layout_height="wrap_content"
         android:maxLines="20"
         android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintTop_toBottomOf="@id/authorNameTV"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/authorAvatarIV"

@@ -4,9 +4,9 @@ data class ChatDetails(
     val name: String,
     val about: String,
     val icon: Int,
-    val secondIconId: Int,
-    val secondDialogMemberId: Long,
+    val secondIcon: Int,
     val creatorId: Long,
+    val secondDialogMemberId: Long,
 )
 
 data class ChatCreating(
@@ -20,7 +20,7 @@ data class ChatInfo(
     val id: Long,
     val name: String,
     val icon: Int,
-    val secondIconId: Int,
+    val secondIcon: Int,
     val isDialog: Boolean
 )
 

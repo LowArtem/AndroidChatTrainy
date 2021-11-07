@@ -98,7 +98,7 @@ class ChatAdapter(
 private fun getChatIcon(username: String, chat: ChatInfo): Int {
     return if (chat.isDialog) {
         val names = chat.name.split(DIALOG_DIVIDER)
-        if (username == names[0]) chat.secondIconId else chat.icon
+        if (username == names[0]) chat.secondIcon else chat.icon
     } else {
         if (chat.icon == -1) R.drawable.ic_default_chat else chat.icon
     }

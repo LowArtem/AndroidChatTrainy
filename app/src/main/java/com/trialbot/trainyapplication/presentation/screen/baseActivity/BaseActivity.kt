@@ -25,6 +25,8 @@ class BaseActivity : AppCompatActivity() {
     private val topLevelDestinations = setOf(R.id.loginFragment, R.id.chatFragment)
     private var currentFragment: Fragment? = null
 
+    private var isRestart = false
+
     private val fragmentListener = object : FragmentManager.FragmentLifecycleCallbacks() {
         override fun onFragmentViewCreated(fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?) {
             super.onFragmentViewCreated(fm, f, v, savedInstanceState)
@@ -45,18 +47,24 @@ class BaseActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             logD("Changed destination to -> ${destination.label}")
+            if (destination.label == "Chat") {
+                viewModel.applicationStarted()
+            }
         }
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentListener, true)
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.applicationStarted()
+        if (isRestart) {
+            viewModel.applicationStarted()
+        }
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.applicationClosing()
+        isRestart = true
     }
 
     override fun onSupportNavigateUp(): Boolean {

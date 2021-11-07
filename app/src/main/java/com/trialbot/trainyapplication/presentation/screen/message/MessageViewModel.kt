@@ -112,6 +112,10 @@ class MessageViewModel(
         return localDataUseCases.getLocalData()?.id ?: -1
     }
 
+    fun messagesAreNoLongerEmpty(messages: List<MessageDTO>) {
+        _state.postValue(MessageState.Success(messages))
+    }
+
 
 
     private fun isContentChanged(newMessages: List<MessageDTO>): Boolean {

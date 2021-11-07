@@ -20,7 +20,7 @@ class ChatEditingUseCases(private val chatControllerRemote: ChatControllerRemote
         if (dialogId == -1L) return null
 
         val dialog = chatControllerRemote.getChat(dialogId) ?: return null
-        return ChatInfo(dialogId, dialog.name, dialog.icon, dialog.secondIconId, true)
+        return ChatInfo(dialogId, dialog.name, dialog.icon, dialog.secondIcon, true)
     }
 
     suspend fun updateChatIcon(chatId: Long, iconId: Int): Boolean {

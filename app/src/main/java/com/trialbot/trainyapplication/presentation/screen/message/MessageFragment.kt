@@ -20,6 +20,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
@@ -84,6 +85,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.VISIBLE
                     }
+                    viewModel.messages.observe(viewLifecycleOwner, emptyObserver())
                 }
                 is MessageState.Success -> {
                     with(binding) {
@@ -116,6 +118,15 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             }
         }
     }
+
+    private fun emptyObserver(): (t: List<MessageDTO>) -> Unit =
+        {
+            if (it != null) {
+                adapter.updateMessages(it)
+                viewModel.messagesAreNoLongerEmpty(it)
+                viewModel.messages.removeObserver(emptyObserver())
+            }
+        }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu, menu)
