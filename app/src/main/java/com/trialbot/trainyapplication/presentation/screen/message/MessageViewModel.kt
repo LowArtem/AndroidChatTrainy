@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.MessageSendingUseCases
-import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.domain.model.UserAuthId
@@ -20,7 +19,6 @@ import kotlin.coroutines.cancellation.CancellationException
 class MessageViewModel(
     private val messageSendingUseCases: MessageSendingUseCases,
     private val localDataUseCases: LocalDataUseCases,
-    private val startStopRemoteActions: StartStopRemoteActions
 ) : ViewModel() {
 
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
@@ -106,18 +104,8 @@ class MessageViewModel(
         }
     }
 
-    fun applicationStarting() {
-        viewModelScope.launch {
-            startStopRemoteActions.appStarted()
-        }
-    }
-
     fun applicationClosing() {
-        viewModelScope.launch {
-            startStopRemoteActions.appClosed()
-        }
         messageObservingScope.cancel()
-        Thread.sleep(1000)
     }
 
     fun getCurrentUserId(): Long {

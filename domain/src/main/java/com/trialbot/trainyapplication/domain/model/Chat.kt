@@ -29,6 +29,5 @@ data class ChatUpdating(
     val name: String,
     val about: String,
     val icon: Int,
-    val creatorId: Long,
-    val adminIds: List<Long>
+    val creatorId: Long
 )

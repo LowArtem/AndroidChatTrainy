@@ -3,6 +3,7 @@ package com.trialbot.trainyapplication.di
 import android.app.Application
 import android.content.SharedPreferences
 import com.trialbot.trainyapplication.MyApp
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseViewModel
 import com.trialbot.trainyapplication.presentation.screen.chat.ChatViewModel
 import com.trialbot.trainyapplication.presentation.screen.login.LoginViewModel
 import com.trialbot.trainyapplication.presentation.screen.message.MessageViewModel
@@ -20,10 +21,15 @@ val appModule = module {
     }
 
     viewModel {
+        BaseViewModel(
+            startStopRemoteActions = get()
+        )
+    }
+
+    viewModel {
         MessageViewModel(
             messageSendingUseCases = get(),
             localDataUseCases = get(),
-            startStopRemoteActions = get()
         )
     }
 

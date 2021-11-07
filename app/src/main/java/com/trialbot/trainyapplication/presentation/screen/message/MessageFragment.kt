@@ -120,11 +120,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.applicationStarting()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu, menu)
     }
@@ -153,7 +148,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         val viewStatusStr: String = when (viewStatus) {
             is ProfileViewStatus.Guest -> "guest"
             is ProfileViewStatus.Owner -> "owner"
-            else -> "guest"
         }
 
         val direction = MessageFragmentDirections.actionChatFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)

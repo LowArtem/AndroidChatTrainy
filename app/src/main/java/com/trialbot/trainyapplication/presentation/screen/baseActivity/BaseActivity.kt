@@ -14,10 +14,13 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.utils.logD
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class BaseActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
+
+    private val viewModel by viewModel<BaseViewModel>()
 
     private val topLevelDestinations = setOf(R.id.loginFragment, R.id.chatFragment)
     private var currentFragment: Fragment? = null
@@ -44,6 +47,16 @@ class BaseActivity : AppCompatActivity() {
             logD("Changed destination to -> ${destination.label}")
         }
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentListener, true)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.applicationStarted()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.applicationClosing()
     }
 
     override fun onSupportNavigateUp(): Boolean {
