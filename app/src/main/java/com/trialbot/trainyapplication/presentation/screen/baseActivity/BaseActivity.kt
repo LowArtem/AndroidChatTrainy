@@ -21,6 +21,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.contract.HasDisplayHomeDisabled
 import com.trialbot.trainyapplication.domain.utils.logD
+import com.trialbot.trainyapplication.presentation.screen.chat.ChatFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class BaseActivity : AppCompatActivity() {
@@ -34,8 +35,11 @@ class BaseActivity : AppCompatActivity() {
 
     private var currentFragment: Fragment? = null
     private var currentDestination: NavDestination? = null
-
     private var isRestart = false
+
+    private var user_id: Long = -1
+    private var user_username: String = ""
+    private var user_icon: Int = -1
 
     private val fragmentListener = object : FragmentManager.FragmentLifecycleCallbacks() {
         override fun onFragmentViewCreated(fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?) {
@@ -43,6 +47,9 @@ class BaseActivity : AppCompatActivity() {
             if (f is NavHostFragment) return
             currentFragment = f
             updateUi()
+            if (f is ChatFragment) {
+                getUserData()
+            }
         }
     }
 
@@ -65,25 +72,39 @@ class BaseActivity : AppCompatActivity() {
             }
         }
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentListener, true)
+
+
+        binding.navView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.profileFragment -> {
+                    (currentFragment as ChatFragment).openProfile(user_icon)
+                    binding.root.closeDrawer(GravityCompat.START)
+                    true
+                }
+                else -> {
+                    true
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            if (topLevelDestinations.contains(currentDestination?.id)) {
-                if (binding.root.isDrawerOpen(GravityCompat.START)) {
-                    binding.root.closeDrawer(GravityCompat.START)
+        when(item.itemId) {
+            android.R.id.home -> {
+                if (topLevelDestinations.contains(currentDestination?.id)) {
+                    if (binding.root.isDrawerOpen(GravityCompat.START)) {
+                        binding.root.closeDrawer(GravityCompat.START)
+                    } else {
+                        binding.root.openDrawer(GravityCompat.START)
+                    }
                 } else {
-                    binding.root.openDrawer(GravityCompat.START)
+                    navController.navigateUp()
                 }
-            }
-            else {
-                navController.navigateUp()
-            }
 
-            return true
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
-
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onStart() {
@@ -153,13 +174,21 @@ class BaseActivity : AppCompatActivity() {
         }
     }
 
+    private fun getUserData() {
+        val fragment = currentFragment as ChatFragment
+        user_id = fragment.args.userId
+        user_username = fragment.args.username
+    }
+
     fun updateDrawerIcon(@DrawableRes iconId: Int) {
         val image = binding.navView.getHeaderView(0).findViewById(R.id.avatarIV) as ImageView
 
         if (iconId == -1) {
             image.setImageResource(R.drawable.ic_avatar_default)
+            user_icon = R.drawable.ic_avatar_default
         } else {
             image.setImageResource(iconId)
+            user_icon = iconId
         }
     }
 

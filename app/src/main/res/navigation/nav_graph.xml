@@ -75,5 +75,8 @@
         <action
             android:id="@+id/action_chatFragment_to_messageFragment"
             app:destination="@id/messageFragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_profileFragment2"
+            app:destination="@id/profileFragment" />
     </fragment>
 </navigation>

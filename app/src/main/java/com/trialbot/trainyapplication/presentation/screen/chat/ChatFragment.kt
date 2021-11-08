@@ -20,6 +20,7 @@ import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseActiv
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapter
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
 import com.trialbot.trainyapplication.presentation.screen.message.MessageFragment
+import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, HasCustomTitle, HasCustomAppbarIcon {
@@ -27,7 +28,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
     private lateinit var binding: FragmentChatBinding
     private lateinit var adapter: ChatAdapter
 
-    private val args: ChatFragmentArgs by navArgs()
+    val args: ChatFragmentArgs by navArgs()
 
     private val viewModel by viewModel<ChatViewModel>()
 
@@ -48,6 +49,11 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
 
         setFragmentResultListener(MessageFragment.USER_AVATAR_ICON_TAG) { _, bundle ->
             drawerImageId = bundle.getInt(MessageFragment.USER_AVATAR_ICON_TAG)
+            (requireActivity() as BaseActivity).updateDrawerIcon(drawerImageId)
+            isIconChanged = true
+        }
+        setFragmentResultListener(ProfileFragment.TAG_AVATAR_ID_BUNDLE) { _, bundle ->
+            drawerImageId = bundle.getInt(ProfileFragment.TAG_AVATAR_ID_BUNDLE)
             (requireActivity() as BaseActivity).updateDrawerIcon(drawerImageId)
             isIconChanged = true
         }
@@ -135,5 +141,22 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
 
     override fun getIconRes(): Int? {
         return null
+    }
+
+    fun openProfile(userIcon: Int) {
+        val direction = ChatFragmentDirections.actionChatFragmentToProfileFragment2(
+            viewStatus = "owner",
+            userId = args.userId,
+            username = args.username,
+            userIcon = userIcon
+        )
+        findNavController().navigate(direction, navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
     }
 }

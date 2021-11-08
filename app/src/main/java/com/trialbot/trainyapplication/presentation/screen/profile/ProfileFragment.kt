@@ -46,8 +46,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
         val userId: Long = args.userId
         val username: String = args.username
         val userIcon: Int = args.userIcon
-
         val viewStatus: String = args.viewStatus
+
         viewModel.render(viewStatus, userId, username, userIcon)
 
         viewModel.state.observe(viewLifecycleOwner, {
