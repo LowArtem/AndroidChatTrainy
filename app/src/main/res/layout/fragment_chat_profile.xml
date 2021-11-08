@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/profileLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        tools:context=".presentation.screen.profile.ProfileFragment">
+
+        <LinearLayout
+            android:id="@+id/errorLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:layout_gravity="center"
+                style="@style/ErrorSmile"/>
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:fontFamily="casual"
+                android:text="@string/application_error"/>
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loadingPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/textLoading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/loading_panel_text"
+                android:textAlignment="center"
+                android:textSize="28sp"
+                app:layout_constraintBottom_toTopOf="@id/progressLoading"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <ProgressBar
+                android:id="@+id/progressLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/avatarNameCL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/chatIconIV"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="6dp"
+                android:src="@drawable/ic_default_chat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/chatNameTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="26dp"
+                android:layout_marginTop="6dp"
+                android:text="Chat name"
+                android:textSize="22sp"
+                app:layout_constraintStart_toEndOf="@id/chatIconIV"
+                app:layout_constraintTop_toTopOf="@id/chatIconIV" />
+
+            <TextView
+                android:id="@+id/membersCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="0 members"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@+id/chatNameTV"
+                app:layout_constraintTop_toBottomOf="@id/chatNameTV" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/aboutLL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/avatarNameCL"
+            android:layout_marginTop="40dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/aboutTI"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="0.8"
+                android:hint="@string/about_hint"
+                android:inputType="text"/>
+
+            <ImageButton
+                android:id="@+id/editAboutBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="0.2"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_edit"
+                android:background="?android:attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/addAdminBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add admin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/aboutLL"
+            android:layout_marginTop="40dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"/>
+
+        <Button
+            android:id="@+id/deleteAdminBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete admin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addAdminBtn"
+            android:layout_marginTop="3dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"/>
+
+
+
+        <Button
+            android:id="@+id/deleteChatBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/delete_chat_btn"
+            android:theme="@style/WarningButtonsTheme"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:id="@+id/chatCoverTransparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent_black"
+            android:visibility="gone"
+            android:elevation="20dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/avatarsRV"
+            android:layout_width="250dp"
+            android:layout_height="500dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="gone"
+            android:elevation="23dp"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

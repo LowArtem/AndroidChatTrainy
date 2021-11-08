@@ -5,7 +5,6 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
@@ -43,4 +42,6 @@
     <string name="search_user_hint">Search user</string>
     <string name="chat_has_not_created_alert_text">The chat has not been created. Chat name might be unavailable, try again please or contact technical support</string>
     <string name="chat_has_created_alert_text">Chat has successfully created</string>
+    <string name="delete_chat_btn">Delete chat</string>
+    <string name="chat_details_title">Chat details</string>
 </resources>

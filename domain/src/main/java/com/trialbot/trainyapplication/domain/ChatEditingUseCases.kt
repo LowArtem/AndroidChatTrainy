@@ -57,4 +57,8 @@ class ChatEditingUseCases(private val chatControllerRemote: ChatControllerRemote
         return chatControllerRemote.deleteMember(chatId, userId)
         // Можно подумать над настройкой для чата (вступать только по приглашению)
     }
+
+    suspend fun deleteChat(chatId: Long, currentUserId: Long): Boolean {
+        return chatControllerRemote.deleteChat(chatId, currentUserId)
+    }
 }

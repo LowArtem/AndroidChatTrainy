@@ -10,6 +10,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentCreateChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.utils.hideKeyboard
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -63,6 +64,7 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
 
             createChatBtn.setOnClickListener {
                 if (chatCreatingNameET.text.isNotBlank()) {
+                    hideKeyboard(requireActivity())
                     viewModel.createChat(
                         name = chatCreatingNameET.text.toString(),
                         icon = chatIcon,

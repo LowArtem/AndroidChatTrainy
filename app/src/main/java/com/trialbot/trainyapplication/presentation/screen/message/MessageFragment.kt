@@ -24,6 +24,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
+import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
@@ -47,6 +48,8 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         binding = FragmentMessageBinding.bind(view)
 
         adapter = MessageAdapter(viewModel.getCurrentUserId(), requireContext().resources, this)
+
+        setHasOptionsMenu(true)
 
         with (binding)
         {
@@ -116,6 +119,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         })
 
         viewModel.render(args.chatId)
+        viewModel.getUserType()
 
         // Observing messages
         viewLifecycleOwner.lifecycleScope.launch{
@@ -135,7 +139,19 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu, menu)
+        inflater.inflate(R.menu.message_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.openChat -> {
+                openChat()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     override fun onEditorAction(p0: TextView?, actionId: Int, p2: KeyEvent?): Boolean {
@@ -165,6 +181,22 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         }
 
         val direction = MessageFragmentDirections.actionChatFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
+        findNavController().navigate(direction, navOptions {
+            anim {
+                enter = R.anim.enter
+                exit = R.anim.exit
+                popEnter = R.anim.pop_enter
+                popExit = R.anim.pop_exit
+            }
+        })
+    }
+
+    private fun openChat() {
+        val direction = MessageFragmentDirections.actionMessageFragmentToChatProfileFragment(
+            userType = viewModel.userType.value ?: UserType.Member.toString(),
+            userId = viewModel.getCurrentUserId(),
+            chatId = viewModel.chatId!!
+        )
         findNavController().navigate(direction, navOptions {
             anim {
                 enter = R.anim.enter

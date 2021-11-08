@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseViewModel
 import com.trialbot.trainyapplication.presentation.screen.chat.ChatViewModel
+import com.trialbot.trainyapplication.presentation.screen.chatProfile.ChatProfileViewModel
 import com.trialbot.trainyapplication.presentation.screen.createChat.CreateChatViewModel
 import com.trialbot.trainyapplication.presentation.screen.login.LoginViewModel
 import com.trialbot.trainyapplication.presentation.screen.message.MessageViewModel
@@ -31,6 +32,7 @@ val appModule = module {
         MessageViewModel(
             messageSendingUseCases = get(),
             localDataUseCases = get(),
+            chatGettingUseCases = get()
         )
     }
 
@@ -61,6 +63,14 @@ val appModule = module {
     viewModel {
         CreateChatViewModel(
             chatEditingUseCases = get()
+        )
+    }
+
+    viewModel {
+        ChatProfileViewModel(
+            chatEditingUseCases = get(),
+            chatGettingUseCases = get(),
+            localDataUseCases = get()
         )
     }
 }

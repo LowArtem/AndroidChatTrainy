@@ -4,12 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.trialbot.trainyapplication.domain.ChatGettingUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.MessageSendingUseCases
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.domain.model.UserAuthId
 import com.trialbot.trainyapplication.domain.utils.logE
+import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
 import java.util.*
@@ -19,6 +21,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class MessageViewModel(
     private val messageSendingUseCases: MessageSendingUseCases,
     private val localDataUseCases: LocalDataUseCases,
+    private val chatGettingUseCases: ChatGettingUseCases
 ) : ViewModel() {
 
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
@@ -31,7 +34,11 @@ class MessageViewModel(
 
     private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
 
-    private var chatId: Long? = null
+    var chatId: Long? = null
+        private set
+
+    private val _userType = MutableLiveData<String?>().default(null)
+    val userType: LiveData<String?> = _userType
 
 
     // Main activity control function
@@ -143,6 +150,22 @@ class MessageViewModel(
                 message1.author.id == message2.author.id &&
                 message1.author.username == message2.author.username &&
                 message1.author.icon == message2.author.icon
+    }
+
+    fun getUserType() {
+        viewModelScope.launch {
+            when {
+                chatGettingUseCases.checkIsCreator(chatId!!, getCurrentUserId()) == true -> {
+                    _userType.postValue(UserType.Creator.toString())
+                }
+                chatGettingUseCases.checkIsAdmin(chatId!!, getCurrentUserId()) == true -> {
+                    _userType.postValue(UserType.Admin.toString())
+                }
+                else -> {
+                    _userType.postValue(UserType.Member.toString())
+                }
+            }
+        }
     }
 
 }

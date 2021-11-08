@@ -34,6 +34,9 @@
         <argument
             android:name="chatId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_messageFragment_to_chatProfileFragment"
+            app:destination="@id/chatProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -90,5 +93,23 @@
         <argument
             android:name="currentUserId"
             app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatProfileFragment"
+        android:name="com.trialbot.trainyapplication.presentation.screen.chatProfile.ChatProfileFragment"
+        android:label="fragment_chat_profile"
+        tools:layout="@layout/fragment_chat_profile" >
+        <argument
+            android:name="userType"
+            app:argType="string" />
+        <argument
+            android:name="userId"
+            app:argType="long" />
+        <argument
+            android:name="chatId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_chatProfileFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
     </fragment>
 </navigation>

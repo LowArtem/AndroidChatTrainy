@@ -32,8 +32,8 @@ class ChatGettingUseCases(private val chatControllerRemote: ChatControllerRemote
         return (chat.creatorId == userId || chat.secondDialogMemberId == userId)
     }
 
-    suspend fun getChatMembers(chatId: Long): List<UserWithoutPassword>? {
-        return chatControllerRemote.getChatMembers(chatId)
+    suspend fun getChatMembers(chatId: Long): List<UserWithoutPassword> {
+        return chatControllerRemote.getChatMembers(chatId) ?: emptyList()
     }
 
     suspend fun findChatsByName(name: String): List<ChatInfo>? {
