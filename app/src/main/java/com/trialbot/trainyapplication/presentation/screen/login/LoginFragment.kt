@@ -1,20 +1,23 @@
 package com.trialbot.trainyapplication.presentation.screen.login
 
+import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
+import com.trialbot.trainyapplication.domain.contract.HasDisplayHomeDisabled
 import com.trialbot.trainyapplication.domain.utils.logE
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class LoginFragment : Fragment(R.layout.fragment_login) {
+class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled {
 
     private lateinit var binding: FragmentLoginBinding
 
@@ -67,6 +70,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         with (binding) {
             loginBtn.setOnClickListener {
                 if (checkInput()) {
+                    hideKeyboard(requireActivity())
                     viewModel.login(
                         usernameEntered = usernameEdit.text.toString(),
                         passwordEntered = passwordEdit.text.toString(),
@@ -76,6 +80,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
             registerBtn.setOnClickListener {
                 if (checkInput()) {
+                    hideKeyboard(requireActivity())
                     viewModel.register(
                         usernameEntered = usernameEdit.text.toString(),
                         passwordEntered = passwordEdit.text.toString(),
@@ -134,6 +139,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             }
 
             return false
+        }
+    }
+
+    private fun hideKeyboard(activity: Activity) {
+        val inputMethodManager =
+            activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+        // Check if no view has focus
+        val currentFocusedView = activity.currentFocus
+        currentFocusedView?.let {
+            inputMethodManager.hideSoftInputFromWindow(
+                currentFocusedView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
         }
     }
 }

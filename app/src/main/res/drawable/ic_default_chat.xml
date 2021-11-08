@@ -3,13 +3,13 @@
 
     <item
         android:drawable="@drawable/ic_default_chat_circle"
-        android:width="50dp"
-        android:height="50dp"/>
+        android:width="45dp"
+        android:height="45dp"/>
 
     <item
         android:drawable="@drawable/ic_default_chat_raw"
-        android:width="40dp"
-        android:height="40dp"
+        android:width="35dp"
+        android:height="35dp"
         android:top="6dp"
         android:left="4dp"/>
 </layer-list>

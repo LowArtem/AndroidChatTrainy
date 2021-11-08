@@ -5,7 +5,9 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -69,6 +71,10 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
         setFragmentResultListener(ProfileFragment.TAG_AVATAR_ID_BUNDLE) { _, bundle ->
             avatarId = bundle.getInt(ProfileFragment.TAG_AVATAR_ID_BUNDLE)
+            setFragmentResult(
+                USER_AVATAR_ICON_TAG,
+                bundleOf(USER_AVATAR_ICON_TAG to avatarId)
+            )
         }
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
@@ -175,5 +181,9 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
     override fun getIconRes(): Int {
         return args.chatIconId
+    }
+
+    companion object {
+        const val USER_AVATAR_ICON_TAG = "user_avatar_icon_tag"
     }
 }

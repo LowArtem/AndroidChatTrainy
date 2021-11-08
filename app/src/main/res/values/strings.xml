@@ -33,4 +33,6 @@
     <string name="retype_your_new_password_hint">Retype your new password</string>
     <string name="confirm_new_password_btn">Confirm new password</string>
     <string name="wrong_password">Wrong password</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

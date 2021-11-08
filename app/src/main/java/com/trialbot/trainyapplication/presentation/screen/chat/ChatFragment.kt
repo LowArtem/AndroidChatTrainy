@@ -4,18 +4,22 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseActivity
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapter
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
+import com.trialbot.trainyapplication.presentation.screen.message.MessageFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, HasCustomTitle, HasCustomAppbarIcon {
@@ -27,17 +31,49 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
 
     private val viewModel by viewModel<ChatViewModel>()
 
+    private var drawerTitle: String = ""
+    private var drawerImageId: Int = -1
+    private var isIconChanged = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentChatBinding.bind(view)
 
         adapter = ChatAdapter(requireContext().resources, this, args.username)
 
+        if (!isIconChanged) {
+            drawerTitle = args.username
+            drawerImageId = args.iconId
+        }
+
+        setFragmentResultListener(MessageFragment.USER_AVATAR_ICON_TAG) { _, bundle ->
+            drawerImageId = bundle.getInt(MessageFragment.USER_AVATAR_ICON_TAG)
+            (requireActivity() as BaseActivity).updateDrawerIcon(drawerImageId)
+            isIconChanged = true
+        }
+
+        (requireActivity() as BaseActivity).updateDrawerIcon(drawerImageId)
+        (requireActivity() as BaseActivity).updateDrawerTitle(drawerTitle)
+
         with(binding.chatsRV) {
             val layoutManager = LinearLayoutManager(requireContext())
             this.layoutManager = layoutManager
             this.adapter = this@ChatFragment.adapter
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+            // Нужно проверить работоспособность (прячет float button при скроллинге)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0 || dy < 0 && binding.createChatFloating.isShown)
+                        binding.createChatFloating.hide()
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE)
+                        binding.createChatFloating.show()
+                    super.onScrollStateChanged(recyclerView, newState)
+                }
+            })
         }
 
         viewModel.state.observe(viewLifecycleOwner, { state ->
@@ -59,6 +95,10 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
+
+                        createChatFloating.setOnClickListener {
+                            // переход на фрагмент с созданием чата
+                        }
                     }
                     adapter.updateChats(state.chats)
 
@@ -90,10 +130,10 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
     }
 
     override fun getTitle(): String {
-        return "  ${args.username}"
+        return "Chat"
     }
 
-    override fun getIconRes(): Int {
-        return args.iconId
+    override fun getIconRes(): Int? {
+        return null
     }
 }
