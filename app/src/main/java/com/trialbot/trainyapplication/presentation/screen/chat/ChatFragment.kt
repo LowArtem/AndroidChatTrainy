@@ -103,7 +103,15 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
                         textEmpty.visibility = View.GONE
 
                         createChatFloating.setOnClickListener {
-                            // переход на фрагмент с созданием чата
+                            val direction = ChatFragmentDirections.actionChatFragmentToCreateChatFragment(args.userId)
+                            findNavController().navigate(direction, navOptions {
+                                anim {
+                                    enter = R.anim.enter
+                                    exit = R.anim.exit
+                                    popEnter = R.anim.pop_enter
+                                    popExit = R.anim.pop_exit
+                                }
+                            })
                         }
                     }
                     adapter.updateChats(state.chats)

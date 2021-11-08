@@ -78,5 +78,17 @@
         <action
             android:id="@+id/action_chatFragment_to_profileFragment2"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_createChatFragment"
+            app:destination="@id/createChatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createChatFragment"
+        android:name="com.trialbot.trainyapplication.presentation.screen.createChat.CreateChatFragment"
+        android:label="fragment_create_chat"
+        tools:layout="@layout/fragment_create_chat" >
+        <argument
+            android:name="currentUserId"
+            app:argType="long" />
     </fragment>
 </navigation>

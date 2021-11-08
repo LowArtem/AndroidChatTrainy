@@ -35,4 +35,10 @@
     <string name="wrong_password">Wrong password</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="chat_creating_label">Chat creating</string>
+    <string name="enter_chat_name_hint">Enter chat\'s name</string>
+    <string name="about_optional_hint">About (optional)</string>
+    <string name="create_btn">Create</string>
+    <string name="start_the_dialog_label">Start the dialog</string>
+    <string name="search_user_hint">Search user</string>
 </resources>
