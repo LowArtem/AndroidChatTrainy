@@ -341,8 +341,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
                 setCancelable(true)
             }.create().show()
-        }
-        else {
+        } else {
             AlertDialog.Builder(requireContext()).apply {
                 setTitle("The change was failed")
                 setMessage("The password has not been changed. Try again or contact technical support")

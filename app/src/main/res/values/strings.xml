@@ -41,4 +41,6 @@
     <string name="create_btn">Create</string>
     <string name="start_the_dialog_label">Start the dialog</string>
     <string name="search_user_hint">Search user</string>
+    <string name="chat_has_not_created_alert_text">The chat has not been created. Chat name might be unavailable, try again please or contact technical support</string>
+    <string name="chat_has_created_alert_text">Chat has successfully created</string>
 </resources>

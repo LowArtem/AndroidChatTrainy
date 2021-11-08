@@ -2,17 +2,16 @@ package com.trialbot.trainyapplication.domain
 
 import com.trialbot.trainyapplication.domain.interfaces.ChatControllerRemote
 import com.trialbot.trainyapplication.domain.model.ChatCreating
-import com.trialbot.trainyapplication.domain.model.ChatDetails
 import com.trialbot.trainyapplication.domain.model.ChatInfo
 import com.trialbot.trainyapplication.domain.model.ChatUpdating
 
 class ChatEditingUseCases(private val chatControllerRemote: ChatControllerRemote) {
 
-    suspend fun createChat(newChat: ChatCreating): ChatDetails? {
+    suspend fun createChat(newChat: ChatCreating): Long? {
         val chatId = chatControllerRemote.createChat(newChat)
         if (chatId == -1L) return null
 
-        return chatControllerRemote.getChat(chatId)
+        return chatId
     }
 
     suspend fun createDialog(creatorId: Long, secondUserId: Long): ChatInfo? {
