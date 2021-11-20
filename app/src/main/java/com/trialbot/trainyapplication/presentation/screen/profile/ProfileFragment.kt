@@ -19,6 +19,7 @@ import com.trialbot.trainyapplication.databinding.FragmentProfileBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserFull
+import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapter
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
@@ -104,6 +105,19 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         }
                         addToChatBtn.setOnClickListener {
                             viewModel.addUserToChat()
+                            val direction = ProfileFragmentDirections.actionProfileFragmentToChooseChatFragment(
+                                currentUserId = args.currentUserId,
+                                addedUserId = (viewModel.user as UserWithoutPassword).id,
+                                currentUsername = args.currentUsername!!
+                            )
+                            findNavController().navigate(direction, navOptions {
+                                anim {
+                                    enter = R.anim.enter
+                                    exit = R.anim.exit
+                                    popEnter = R.anim.pop_enter
+                                    popExit = R.anim.pop_exit
+                                }
+                            })
                         }
                     }
                 }

@@ -63,6 +63,15 @@
         <action
             android:id="@+id/action_profileFragment_to_chooseChatFragment"
             app:destination="@id/chooseChatFragment" />
+        <argument
+            android:name="currentUserId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="currentUsername"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="null" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"

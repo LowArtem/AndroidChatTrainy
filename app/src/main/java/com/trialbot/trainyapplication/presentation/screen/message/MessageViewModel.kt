@@ -10,6 +10,7 @@ import com.trialbot.trainyapplication.domain.MessageSendingUseCases
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
 import com.trialbot.trainyapplication.domain.model.UserAuthId
+import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
 import com.trialbot.trainyapplication.utils.default
@@ -37,6 +38,9 @@ class MessageViewModel(
     var chatId: Long? = null
         private set
 
+    var currentUser: UserLocal? = null
+        private set
+
     private val _userType = MutableLiveData<String?>().default(null)
     val userType: LiveData<String?> = _userType
 
@@ -46,6 +50,9 @@ class MessageViewModel(
         this.chatId = chatId
 
         try {
+            currentUser = localDataUseCases.getLocalData()
+                ?: throw Exception("User local auth not found")
+
             messageObservingScope.launch {
                 val gotMessages = messageSendingUseCases.getNewMessages(chatId)
                 _messages.postValue(gotMessages)
@@ -90,16 +97,13 @@ class MessageViewModel(
         try {
             if (input.isNotBlank()) {
                 viewModelScope.launch {
-                    val user = localDataUseCases.getLocalData()
-                        ?: throw Exception("User local auth not found")
-
                     if (chatId == null) throw NullPointerException("ChatId was null when sending")
 
                     messageSendingUseCases.sendMessage(
                         chatId!!,
                         MessageWithAuthUser(
                             input,
-                            UserAuthId(user.id, user.username, user.password),
+                            UserAuthId(currentUser!!.id, currentUser!!.username, currentUser!!.password),
                             Calendar.getInstance().time
                         )
                     )

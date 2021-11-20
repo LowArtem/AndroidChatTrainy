@@ -180,7 +180,14 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             is ProfileViewStatus.Owner -> "owner"
         }
 
-        val direction = MessageFragmentDirections.actionChatFragmentToProfileFragment(viewStatusStr, user.id, user.username, user.icon)
+        val direction = MessageFragmentDirections.actionChatFragmentToProfileFragment(
+            viewStatus = viewStatusStr,
+            userId = user.id,
+            username = user.username,
+            userIcon = user.icon,
+            currentUsername = viewModel.currentUser!!.username,
+            currentUserId = viewModel.currentUser!!.id
+        )
         findNavController().navigate(direction, navOptions {
             anim {
                 enter = R.anim.enter

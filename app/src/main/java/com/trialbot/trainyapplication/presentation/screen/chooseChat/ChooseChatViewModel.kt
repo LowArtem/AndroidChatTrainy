@@ -26,7 +26,9 @@ class ChooseChatViewModel(
             if (chats == null) {
                 _state.postValue(ChooseChatState.Success(emptyList()))
             } else {
-                _state.postValue(ChooseChatState.Success(chats))
+                _state.postValue(ChooseChatState.Success(chats.filter {
+                    !it.isDialog
+                }))
             }
         }
     }

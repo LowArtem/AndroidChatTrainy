@@ -8,6 +8,36 @@
     tools:context=".presentation.screen.chooseChat.ChooseChatFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/donePanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/greenCircle"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/green_circle"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageView
+            android:id="@+id/doneAnimatedVector"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/av_done"
+            app:layout_constraintStart_toStartOf="@id/greenCircle"
+            app:layout_constraintEnd_toEndOf="@id/greenCircle"
+            app:layout_constraintTop_toTopOf="@id/greenCircle"
+            app:layout_constraintBottom_toBottomOf="@id/greenCircle"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/loadingPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

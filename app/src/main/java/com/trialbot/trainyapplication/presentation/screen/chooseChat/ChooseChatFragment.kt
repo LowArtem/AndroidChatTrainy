@@ -1,20 +1,25 @@
 package com.trialbot.trainyapplication.presentation.screen.chooseChat
 
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChooseChatBinding
+import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapter
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterClickAction {
+class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterClickAction, HasCustomTitle {
 
     private lateinit var binding: FragmentChooseChatBinding
     private val viewModel by viewModel<ChooseChatViewModel>()
@@ -63,12 +68,20 @@ class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterC
 
             // В случае успеха было бы классно добавить красивую анимацию галочки
 
-            if (result == false) {
+            if (result == true) {
+                Toast.makeText(requireContext(), "User was successfully added", Toast.LENGTH_SHORT).show()
+                afterAddingUser(true)
+            } else if (result == false) {
                 AlertDialog.Builder(requireContext()).apply {
                     setTitle("The adding was failed")
                     setMessage("User has not been added to chat. Maybe you don't have rights to add users")
 
-                    setNeutralButton("Ok") { _, _ -> }
+                    setNeutralButton("Ok") { _, _ ->
+                        afterAddingUser(false)
+                    }
+                    setOnCancelListener {
+                        afterAddingUser(false)
+                    }
 
                     setCancelable(true)
                 }.create().show()
@@ -76,8 +89,25 @@ class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterC
         })
     }
 
+    private fun afterAddingUser(isSuccess: Boolean) {
+        if (isSuccess) {
+            with(binding) {
+                donePanel.visibility = View.VISIBLE
+                if (doneAnimatedVector.drawable is AnimatedVectorDrawable)
+                    (doneAnimatedVector.drawable as AnimatedVectorDrawable).start()
+                else if (doneAnimatedVector.drawable is AnimatedVectorDrawableCompat)
+                    (doneAnimatedVector.drawable as AnimatedVectorDrawableCompat).start()
+            }
+        }
+        findNavController().navigateUp()
+    }
+
     // Добавить юзера в выбранный чат
     override fun clickChat(chatId: Long, chatName: String, chatIconId: Int) {
         viewModel.addUserToChat(chatId, args.currentUserId, args.addedUserId)
+    }
+
+    override fun getTitle(): String {
+        return "Add this user to"
     }
 }
