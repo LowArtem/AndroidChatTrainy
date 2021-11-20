@@ -1,10 +1,7 @@
 package com.trialbot.trainyapplication.presentation.screen.profile
 
 import androidx.lifecycle.*
-import com.trialbot.trainyapplication.domain.EditUserUseCases
-import com.trialbot.trainyapplication.domain.LocalDataUseCases
-import com.trialbot.trainyapplication.domain.LoginStatusUseCases
-import com.trialbot.trainyapplication.domain.UserStatusDataUseCases
+import com.trialbot.trainyapplication.domain.*
 import com.trialbot.trainyapplication.domain.model.User
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserLocal
@@ -19,15 +16,16 @@ class ProfileViewModel(
     private val editUserUseCases: EditUserUseCases,
     private val loginStatus: LoginStatusUseCases,
     private val localDataUseCases: LocalDataUseCases,
-    private val userStatusDataUseCases: UserStatusDataUseCases
+    private val userStatusDataUseCases: UserStatusDataUseCases,
+    private val startStopRemoteActions: StartStopRemoteActions
 ) : ViewModel() {
 
 
     private val _state = MutableLiveData<ProfileState>().default(ProfileState.Loading)
     val state: LiveData<ProfileState> = _state
 
-    private var _user: User? = null
-    val user: User? = _user
+    var user: User? = null
+        private set
 
     fun render(viewState: String, userId: Long, username: String, userIcon: Int) {
         if (username == "Username") {
@@ -49,7 +47,7 @@ class ProfileViewModel(
             when(viewState) {
                 "guest" -> {
                     val userGuest = UserWithoutPassword(userId, userIcon, username, userIsOnline, userLastDate)
-                    this@ProfileViewModel._user = userGuest
+                    this@ProfileViewModel.user = userGuest
                     _state.postValue(ProfileState.ReadOnly(userGuest))
                 }
                 "owner" -> {
@@ -61,11 +59,11 @@ class ProfileViewModel(
                     }
                     val user = UserFull(userId, userIcon, username, userLocal.password, true, userLastDate)
 
-                    this@ProfileViewModel._user = user
+                    this@ProfileViewModel.user = user
                     _state.postValue(ProfileState.ReadWrite(user))
                 }
                 else -> {
-                    this@ProfileViewModel._user = null
+                    this@ProfileViewModel.user = null
                     logE("unknown viewState (guest/owner)")
                     _state.postValue(ProfileState.Error("Application error"))
                     return@launch
@@ -75,6 +73,9 @@ class ProfileViewModel(
     }
 
     fun logout() {
+        viewModelScope.launch {
+            startStopRemoteActions.appClosed()
+        }
         loginStatus.saveLoginStatus(false)
     }
 
@@ -88,7 +89,11 @@ class ProfileViewModel(
 
     fun confirmNewPassword(newPassword: String, handler: (Boolean) -> Unit) {
         viewModelScope.launch {
-            handler(editUserUseCases.changePassword(_user as UserFull, newPassword))
+            val changePasswordResult = editUserUseCases.changePassword(user as UserFull, newPassword)
+            if (changePasswordResult) {
+                user = (user as UserFull).copy(password = newPassword)
+            }
+            handler(changePasswordResult)
         }
     }
 
@@ -101,20 +106,20 @@ class ProfileViewModel(
     }
 
     fun saveAvatar(avatarId: Int) {
-        if (_user is UserFull) {
+        if (user is UserFull) {
             viewModelScope.launch {
-                if (editUserUseCases.changeIcon(_user as UserFull, avatarId)) {
+                if (editUserUseCases.changeIcon(user as UserFull, avatarId)) {
                     _state.postValue(ProfileState.AvatarChangingClosing(avatarId))
-                    _user = UserFull(
-                        (_user as UserFull).id,
+                    user = UserFull(
+                        (user as UserFull).id,
                         avatarId,
-                        (_user as UserFull).username,
-                        (_user as UserFull).password,
-                        (_user as UserFull).isOnline,
-                        (_user as UserFull).lastDate
+                        (user as UserFull).username,
+                        (user as UserFull).password,
+                        (user as UserFull).isOnline,
+                        (user as UserFull).lastDate
                     )
                 } else {
-                    _state.postValue(ProfileState.AvatarChangingClosing((_user as UserFull).icon))
+                    _state.postValue(ProfileState.AvatarChangingClosing((user as UserFull).icon))
                 }
             }
         } else {
@@ -124,12 +129,12 @@ class ProfileViewModel(
     }
 
     fun cancelChangeAvatar() {
-        _state.postValue(ProfileState.AvatarChangingClosing((_user as UserFull).icon))
+        _state.postValue(ProfileState.AvatarChangingClosing((user as UserFull).icon))
     }
 
     fun checkCurrentPassword(password: String): Boolean {
-        if (_user is UserFull) {
-            return (_user as UserFull).password == password
+        if (user is UserFull) {
+            return (user as UserFull).password == password
         }
         return false
     }

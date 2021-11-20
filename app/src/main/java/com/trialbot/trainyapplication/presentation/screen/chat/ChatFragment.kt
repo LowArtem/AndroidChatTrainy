@@ -67,7 +67,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
             this.adapter = this@ChatFragment.adapter
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
-            // Нужно проверить работоспособность (прячет float button при скроллинге)
+            // TODO: Нужно проверить работоспособность (прячет float button при скроллинге)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0 || dy < 0 && binding.createChatFloating.isShown)
@@ -131,7 +131,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
         viewModel.render(args.userId)
     }
 
-    override fun openChat(chatId: Long, chatName: String, chatIconId: Int) {
+    override fun clickChat(chatId: Long, chatName: String, chatIconId: Int) {
         val direction = ChatFragmentDirections.actionChatFragmentToMessageFragment(chatName, chatIconId, chatId)
         findNavController().navigate(direction, navOptions {
             anim {

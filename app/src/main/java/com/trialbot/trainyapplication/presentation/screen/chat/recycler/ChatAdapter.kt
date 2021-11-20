@@ -38,7 +38,7 @@ abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewI
 }
 
 interface ChatAdapterClickAction {
-    fun openChat(chatId: Long, chatName: String, chatIconId: Int)
+    fun clickChat(chatId: Long, chatName: String, chatIconId: Int)
 }
 
 class ChatAdapter(
@@ -80,7 +80,7 @@ class ChatAdapter(
     override fun onBindViewHolder(holder: BaseViewHolder<ChatInfo>, position: Int) {
         holder.bind(chats[position], resources)
         holder.itemView.setOnClickListener {
-            clickAction.openChat(
+            clickAction.clickChat(
                 chats[position].id,
                 getChatName(username, chats[position]),
                 getChatIcon(username, chats[position])

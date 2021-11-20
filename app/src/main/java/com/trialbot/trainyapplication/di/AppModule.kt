@@ -6,6 +6,7 @@ import com.trialbot.trainyapplication.MyApp
 import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseViewModel
 import com.trialbot.trainyapplication.presentation.screen.chat.ChatViewModel
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.ChatProfileViewModel
+import com.trialbot.trainyapplication.presentation.screen.chooseChat.ChooseChatViewModel
 import com.trialbot.trainyapplication.presentation.screen.createChat.CreateChatViewModel
 import com.trialbot.trainyapplication.presentation.screen.login.LoginViewModel
 import com.trialbot.trainyapplication.presentation.screen.message.MessageViewModel
@@ -49,7 +50,8 @@ val appModule = module {
             editUserUseCases = get(),
             loginStatus = get(),
             localDataUseCases = get(),
-            userStatusDataUseCases = get()
+            userStatusDataUseCases = get(),
+            startStopRemoteActions = get()
         )
     }
 
@@ -71,6 +73,13 @@ val appModule = module {
             chatEditingUseCases = get(),
             chatGettingUseCases = get(),
             localDataUseCases = get()
+        )
+    }
+
+    viewModel {
+        ChooseChatViewModel(
+            chatGettingUseCases = get(),
+            chatEditingUseCases = get()
         )
     }
 }
