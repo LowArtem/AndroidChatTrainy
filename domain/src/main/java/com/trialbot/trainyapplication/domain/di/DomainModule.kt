@@ -57,7 +57,8 @@ val domainModule = module {
 
     factory {
         ChatGettingUseCases(
-            chatControllerRemote = get()
+            chatControllerRemote = get(),
+            localDataUseCases = get()
         )
     }
 }

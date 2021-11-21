@@ -4,8 +4,13 @@ import com.trialbot.trainyapplication.domain.interfaces.ChatControllerRemote
 import com.trialbot.trainyapplication.domain.model.ChatDetails
 import com.trialbot.trainyapplication.domain.model.ChatInfo
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.utils.DIALOG_DIVIDER
+import com.trialbot.trainyapplication.domain.utils.logE
 
-class ChatGettingUseCases(private val chatControllerRemote: ChatControllerRemote) {
+class ChatGettingUseCases(
+    private val chatControllerRemote: ChatControllerRemote,
+    private val localDataUseCases: LocalDataUseCases
+) {
     suspend fun getAllChatsByUser(userId: Long): List<ChatInfo>? {
         return chatControllerRemote.getAllChatsByUser(userId)
     }
@@ -41,5 +46,19 @@ class ChatGettingUseCases(private val chatControllerRemote: ChatControllerRemote
         if (foundedChats != null && foundedChats.isEmpty()) return null
 
         return foundedChats
+    }
+
+    suspend fun getDialogName(chatId: Long): String? {
+        try {
+            val chat = chatControllerRemote.getChat(chatId) ?: return null
+            val currentUser = localDataUseCases.getLocalData() ?: return null
+            val dialogNames = chat.name.split(DIALOG_DIVIDER)
+
+            return if (currentUser.username == dialogNames[0]) dialogNames[1] else dialogNames[0]
+
+        } catch (e: Exception) {
+            logE(e.localizedMessage)
+            return null
+        }
     }
 }

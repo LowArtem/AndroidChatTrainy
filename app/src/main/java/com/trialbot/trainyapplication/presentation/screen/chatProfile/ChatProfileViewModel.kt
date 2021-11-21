@@ -32,6 +32,7 @@ class ChatProfileViewModel(
         private set
     private var userType: UserType = UserType.Member
     private var chatMembers: List<UserWithoutPassword>? = null
+    private var isDialog: Boolean = false
 
     fun render(userType: String, userId: Long, chatId: Long) {
         viewModelScope.launch {
@@ -50,25 +51,36 @@ class ChatProfileViewModel(
             this@ChatProfileViewModel.userId = userId
             this@ChatProfileViewModel.userType = UserType.fromString(userType)
             this@ChatProfileViewModel.chatMembers = chatGettingUseCases.getChatMembers(chatId)
+            this@ChatProfileViewModel.isDialog = currentChat!!.secondDialogMemberId != -1L
+
 
             when(this@ChatProfileViewModel.userType) {
                 UserType.Admin -> {
                     _state.postValue(ChatProfileState.Admin(
-                        chatName = currentChat!!.name,
+                        chatName = if (isDialog) {
+                            chatGettingUseCases.getDialogName(chatId) ?: currentChat!!.name
+                        } else currentChat!!.name,
+
                         chatIcon = currentChat!!.icon,
                         chatMembersCount = this@ChatProfileViewModel.chatMembers!!.count()
                     ))
                 }
                 UserType.Creator -> {
                     _state.postValue(ChatProfileState.Creator(
-                        chatName = currentChat!!.name,
+                        chatName = if (isDialog) {
+                            chatGettingUseCases.getDialogName(chatId) ?: currentChat!!.name
+                        } else currentChat!!.name,
+
                         chatIcon = currentChat!!.icon,
                         chatMembersCount = this@ChatProfileViewModel.chatMembers!!.count()
                     ))
                 }
                 UserType.Member -> {
                     _state.postValue(ChatProfileState.Member(
-                        chatName = currentChat!!.name,
+                        chatName = if (isDialog) {
+                            chatGettingUseCases.getDialogName(chatId) ?: currentChat!!.name
+                        } else currentChat!!.name,
+
                         chatIcon = currentChat!!.icon,
                         chatMembersCount = this@ChatProfileViewModel.chatMembers!!.count()
                     ))

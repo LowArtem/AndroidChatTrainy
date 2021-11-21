@@ -14,12 +14,14 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChooseChatBinding
+import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapter
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterClickAction, HasCustomTitle {
+class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterClickAction,
+    HasCustomTitle, HasCustomAppbarIcon {
 
     private lateinit var binding: FragmentChooseChatBinding
     private val viewModel by viewModel<ChooseChatViewModel>()
@@ -65,9 +67,6 @@ class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterC
         viewModel.render(args.currentUserId)
 
         viewModel.isChatAdded.observe(viewLifecycleOwner, { result ->
-
-            // В случае успеха было бы классно добавить красивую анимацию галочки
-
             if (result == true) {
                 Toast.makeText(requireContext(), "User was successfully added", Toast.LENGTH_SHORT).show()
                 afterAddingUser(true)
@@ -109,5 +108,9 @@ class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterC
 
     override fun getTitle(): String {
         return "Add this user to"
+    }
+
+    override fun getIconRes(): Int? {
+        return null
     }
 }
