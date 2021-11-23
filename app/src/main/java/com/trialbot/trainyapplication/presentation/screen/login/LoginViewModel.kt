@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
+import com.trialbot.trainyapplication.domain.StartStopRemoteActions
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.utils.default
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 class LoginViewModel(
     private val loginStatus: LoginStatusUseCases,
     private val authUseCases: AuthUseCases,
-    private val localDataUseCases: LocalDataUseCases
+    private val localDataUseCases: LocalDataUseCases,
+    private val startStopRemoteActions: StartStopRemoteActions
 ) : ViewModel() {
 
     private val _state = MutableLiveData<LoginState>().default(LoginState.Loading)
@@ -92,6 +94,12 @@ class LoginViewModel(
             isLoginSuccessful = false
 
             _state.postValue(LoginState.UserNotFound("Invalid username or password. If you try to register, this username is unavailable"))
+        }
+    }
+
+    fun applicationStarted() {
+        viewModelScope.launch {
+            startStopRemoteActions.appStarted()
         }
     }
 

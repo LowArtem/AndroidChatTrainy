@@ -104,7 +104,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                             viewModel.sendMessageToUser()
                         }
                         addToChatBtn.setOnClickListener {
-                            viewModel.addUserToChat()
                             val direction = ProfileFragmentDirections.actionProfileFragmentToChooseChatFragment(
                                 currentUserId = args.currentUserId,
                                 addedUserId = (viewModel.user as UserWithoutPassword).id,
@@ -383,7 +382,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
             return true
         }
-
 
         return false
     }

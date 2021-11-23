@@ -79,10 +79,6 @@ class ProfileViewModel(
         loginStatus.saveLoginStatus(false)
     }
 
-    fun addUserToChat() {
-
-    }
-
     fun createChat() {
 
     }

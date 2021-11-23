@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.trialbot.trainyapplication.presentation.screen.login.LoginFragment"
-        android:label="Chat"
+        android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_chatFragment"
@@ -76,7 +76,7 @@
     <fragment
         android:id="@+id/chatFragment"
         android:name="com.trialbot.trainyapplication.presentation.screen.chat.ChatFragment"
-        android:label="fragment_chat"
+        android:label="Chat"
         tools:layout="@layout/fragment_chat" >
         <argument
             android:name="username"
@@ -100,7 +100,7 @@
     <fragment
         android:id="@+id/createChatFragment"
         android:name="com.trialbot.trainyapplication.presentation.screen.createChat.CreateChatFragment"
-        android:label="fragment_create_chat"
+        android:label="CreateChat"
         tools:layout="@layout/fragment_create_chat" >
         <argument
             android:name="currentUserId"
@@ -109,7 +109,7 @@
     <fragment
         android:id="@+id/chatProfileFragment"
         android:name="com.trialbot.trainyapplication.presentation.screen.chatProfile.ChatProfileFragment"
-        android:label="fragment_chat_profile"
+        android:label="ChatProfile"
         tools:layout="@layout/fragment_chat_profile" >
         <argument
             android:name="userType"
@@ -127,7 +127,7 @@
     <fragment
         android:id="@+id/chooseChatFragment"
         android:name="com.trialbot.trainyapplication.presentation.screen.chooseChat.ChooseChatFragment"
-        android:label="fragment_choose_chat"
+        android:label="ChooseChat"
         tools:layout="@layout/fragment_choose_chat" >
         <argument
             android:name="currentUserId"

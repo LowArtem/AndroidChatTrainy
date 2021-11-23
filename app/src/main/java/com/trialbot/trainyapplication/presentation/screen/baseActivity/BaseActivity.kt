@@ -67,9 +67,6 @@ class BaseActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             logD("Changed destination to -> ${destination.label}")
             currentDestination = destination
-            if (destination.label == "Chat") {
-                viewModel.applicationStarted()
-            }
         }
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentListener, true)
 

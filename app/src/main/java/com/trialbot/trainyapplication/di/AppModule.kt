@@ -41,7 +41,8 @@ val appModule = module {
         LoginViewModel(
             loginStatus = get(),
             authUseCases = get(),
-            localDataUseCases = get()
+            localDataUseCases = get(),
+            startStopRemoteActions = get()
         )
     }
 

@@ -96,6 +96,7 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
 
     private fun startMainActivity() {
         if (viewModel.username != null && viewModel.username!!.isNotBlank() && viewModel.userId != -1L) {
+            viewModel.applicationStarted()
             val direction = LoginFragmentDirections.actionLoginFragmentToChatFragment(
                 viewModel.username!!,
                 viewModel.avatarId,
