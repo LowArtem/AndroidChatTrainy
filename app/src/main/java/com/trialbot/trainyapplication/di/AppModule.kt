@@ -65,7 +65,8 @@ val appModule = module {
 
     viewModel {
         CreateChatViewModel(
-            chatEditingUseCases = get()
+            chatEditingUseCases = get(),
+            findUsersUseCases = get()
         )
     }
 

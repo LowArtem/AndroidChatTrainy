@@ -61,4 +61,10 @@ val domainModule = module {
             localDataUseCases = get()
         )
     }
+
+    factory {
+        FindUsersUseCases(
+            userControllerRemote = get()
+        )
+    }
 }

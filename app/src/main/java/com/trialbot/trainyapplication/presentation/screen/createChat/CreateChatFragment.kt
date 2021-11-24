@@ -6,10 +6,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentCreateChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.screen.createChat.recycler.UserSearchAdapter
 import com.trialbot.trainyapplication.utils.hideKeyboard
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -17,6 +20,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomAppbarIcon, HasCustomTitle {
 
     private lateinit var binding: FragmentCreateChatBinding
+    private lateinit var adapter: UserSearchAdapter
+
     private val args: CreateChatFragmentArgs by navArgs()
     private val viewModel by viewModel<CreateChatViewModel>()
 
@@ -29,6 +34,13 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
         viewModel.init(args.currentUserId)
 
         with(binding) {
+
+            adapter = UserSearchAdapter(resources, viewModel)
+            foundedUsersRV.adapter = adapter
+            val layoutManager = LinearLayoutManager(requireContext())
+            foundedUsersRV.layoutManager = layoutManager
+            foundedUsersRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
 
             viewModel.isChatSuccessfullyCreated.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
@@ -62,6 +74,10 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
                 }
             })
 
+            viewModel.foundedUsers.observe(viewLifecycleOwner, { users ->
+                adapter.updateSearchedUsers(users)
+            })
+
             createChatBtn.setOnClickListener {
                 if (chatCreatingNameET.text.isNotBlank()) {
                     hideKeyboard(requireActivity())
@@ -70,6 +86,12 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
                         icon = chatIcon,
                         about = if (chatCreatingAboutET.text.isNotBlank()) chatCreatingNameET.text.toString() else null
                     )
+                }
+            }
+
+            userSearchBtn.setOnClickListener {
+                if (userSearchET.text.isNotBlank()) {
+                    viewModel.searchUsers(userSearchET.text.toString())
                 }
             }
         }

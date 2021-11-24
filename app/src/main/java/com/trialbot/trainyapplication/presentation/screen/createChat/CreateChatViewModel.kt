@@ -5,11 +5,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.domain.ChatEditingUseCases
+import com.trialbot.trainyapplication.domain.FindUsersUseCases
 import com.trialbot.trainyapplication.domain.model.ChatCreating
+import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.utils.logE
+import com.trialbot.trainyapplication.presentation.screen.createChat.recycler.UserSearchAdapterClickAction
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
 
-class CreateChatViewModel(private val chatEditingUseCases: ChatEditingUseCases) : ViewModel() {
+class CreateChatViewModel(
+    private val chatEditingUseCases: ChatEditingUseCases,
+    private val findUsersUseCases: FindUsersUseCases
+) : ViewModel(),
+    UserSearchAdapterClickAction {
     private var currentUserId: Long? = null
 
     private val _isChatSuccessfullyCreated =  MutableLiveData<Boolean?>().default(null)
@@ -17,6 +25,9 @@ class CreateChatViewModel(private val chatEditingUseCases: ChatEditingUseCases) 
 
     var chatCreatedId: Long? = null
         private set
+
+    private val _foundedUsers = MutableLiveData<List<UserWithoutPassword>>().default(emptyList())
+    val foundedUsers: LiveData<List<UserWithoutPassword>> = _foundedUsers
 
     fun init(currentUserId: Long) {
         this.currentUserId = currentUserId
@@ -42,5 +53,16 @@ class CreateChatViewModel(private val chatEditingUseCases: ChatEditingUseCases) 
                 }
             }
         }
+    }
+
+    fun searchUsers(query: String) {
+        viewModelScope.launch {
+            _foundedUsers.postValue(findUsersUseCases.findUsersByUsername(query))
+        }
+    }
+
+    override fun createChat(selectedUserId: Long) {
+        logE("Clicked")
+        // TODO: реализовать
     }
 }

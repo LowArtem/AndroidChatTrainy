@@ -10,10 +10,7 @@ import com.trialbot.trainyapplication.databinding.ItemMemberBinding
 import com.trialbot.trainyapplication.databinding.ItemMemberCreatorBinding
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
-
-abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewItem) {
-    abstract fun bind(item: T, resources: Resources)
-}
+import com.trialbot.trainyapplication.utils.BaseViewHolder
 
 interface MembersAdapterClickListener {
     fun deleteUserFromChat(userId: Long)

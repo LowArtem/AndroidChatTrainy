@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.screen.chat.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -10,6 +9,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ItemChatBinding
 import com.trialbot.trainyapplication.domain.model.ChatInfo
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
+import com.trialbot.trainyapplication.utils.BaseViewHolder
 
 
 const val DIALOG_DIVIDER: String = "\$@\$-%@%"
@@ -31,10 +31,6 @@ class ChatDiffCallback(
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldChats[oldItemPosition] == newChats[newItemPosition]
     }
-}
-
-abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewItem) {
-    abstract fun bind(item: T, resources: Resources)
 }
 
 interface ChatAdapterClickAction {

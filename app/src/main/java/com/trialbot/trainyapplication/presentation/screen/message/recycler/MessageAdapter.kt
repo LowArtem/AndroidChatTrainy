@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.screen.message.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -11,6 +10,7 @@ import com.trialbot.trainyapplication.databinding.ItemMyMessageBinding
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
+import com.trialbot.trainyapplication.utils.BaseViewHolder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,11 +32,6 @@ class MessageDiffCallback(
         return oldMessages[oldItemPosition] == newMessages[newItemPosition] &&
                 oldMessages[oldItemPosition].author.icon == newMessages[newItemPosition].author.icon
     }
-}
-
-
-abstract class BaseViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewItem) {
-    abstract fun bind(item: T, resources: Resources)
 }
 
 sealed class ProfileViewStatus {
