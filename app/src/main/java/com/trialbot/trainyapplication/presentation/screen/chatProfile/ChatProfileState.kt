@@ -7,19 +7,17 @@ sealed class ChatProfileState {
     data class Creator(
         val chatName: String,
         val chatIcon: Int,
-        val chatMembersCount: Int
+        val isDialog: Boolean
     ) : ChatProfileState()
 
     data class Admin(
         val chatName: String,
-        val chatIcon: Int,
-        val chatMembersCount: Int
+        val chatIcon: Int
     ) : ChatProfileState()
 
     data class Member(
         val chatName: String,
-        val chatIcon: Int,
-        val chatMembersCount: Int
+        val chatIcon: Int
     ) : ChatProfileState()
 
     data class Error(val errorText: String) : ChatProfileState()

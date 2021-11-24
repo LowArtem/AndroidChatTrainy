@@ -7,16 +7,21 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChatProfileBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomTitle, HasCustomAppbarIcon {
 
     private lateinit var binding: FragmentChatProfileBinding
+    private lateinit var adapter: MembersAdapter
+
     private val viewModel by viewModel<ChatProfileViewModel>()
     private val args: ChatProfileFragmentArgs by navArgs()
 
@@ -31,21 +36,75 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                 when (state) {
                     is ChatProfileState.Loading -> {
                         deleteChatBtn.visibility = View.GONE
+                        deleteAdminBtn.visibility = View.GONE
+                        addAdminBtn.visibility = View.GONE
+                        loadingPanel.visibility = View.VISIBLE
+                        errorLayout.visibility = View.GONE
                     }
                     is ChatProfileState.Creator -> {
                         deleteChatBtn.visibility = View.VISIBLE
-                        setChatData(state.chatName, state.chatIcon, state.chatMembersCount)
+
+                        if (state.isDialog) {
+                            deleteAdminBtn.visibility = View.GONE
+                            addAdminBtn.visibility = View.GONE
+                            aboutLL.visibility = View.GONE
+                            membersRV.visibility = View.GONE
+                        } else {
+                            deleteAdminBtn.visibility = View.VISIBLE
+                            addAdminBtn.visibility = View.VISIBLE
+                            aboutLL.visibility = View.VISIBLE
+                            membersRV.visibility = View.VISIBLE
+                        }
+
+                        loadingPanel.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+
+                        adapter = MembersAdapter(
+                            resources = resources,
+                            membersAdapterClickListener = viewModel,
+                            getMemberType = viewModel
+                        )
+
+                        setDefaultChatData(state.chatName, state.chatIcon)
                     }
                     is ChatProfileState.Admin -> {
                         deleteChatBtn.visibility = View.GONE
-                        setChatData(state.chatName, state.chatIcon, state.chatMembersCount)
+                        deleteAdminBtn.visibility = View.GONE
+                        addAdminBtn.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+
+                        adapter = MembersAdapter(
+                            resources = resources,
+                            membersAdapterClickListener = viewModel,
+                            getMemberType = viewModel
+                        )
+
+                        setDefaultChatData(state.chatName, state.chatIcon)
                     }
                     is ChatProfileState.Member -> {
                         deleteChatBtn.visibility = View.GONE
-                        setChatData(state.chatName, state.chatIcon, state.chatMembersCount)
+                        deleteAdminBtn.visibility = View.GONE
+                        addAdminBtn.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+                        errorLayout.visibility = View.GONE
+
+                        adapter = MembersAdapter(
+                            resources = resources,
+                            membersAdapterClickListener = viewModel,
+                            getMemberType = viewModel,
+                            isDeleteBtnVisible = false
+                        )
+
+                        setDefaultChatData(state.chatName, state.chatIcon)
                     }
                     is ChatProfileState.Error -> {
                         deleteChatBtn.visibility = View.GONE
+                        deleteAdminBtn.visibility = View.GONE
+                        addAdminBtn.visibility = View.GONE
+                        loadingPanel.visibility = View.GONE
+
+                        errorLayout.visibility = View.VISIBLE
                     }
                 }
             }
@@ -106,7 +165,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
         }
     }
 
-    private fun setChatData(chatName: String, chatIcon: Int, chatMembersCount: Int) {
+    private fun setDefaultChatData(chatName: String, chatIcon: Int) {
         with(binding) {
             chatNameTV.text = chatName
 
@@ -115,8 +174,26 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
             else
                 chatIconIV.setImageResource(R.drawable.ic_default_chat)
 
-            membersCount.text = if (chatMembersCount <= 1) "$chatMembersCount member" else "$chatMembersCount members"
+            // Adapter setting
+            val layoutManager = LinearLayoutManager(requireContext())
+            membersRV.layoutManager = layoutManager
+            membersRV.adapter = adapter
+            membersRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+            viewModel.chatMembers.observe(viewLifecycleOwner, { members ->
+                if (members != null) {
+                    adapter.updateMembers(members)
+                }
+            })
+
+            viewModel.membersCount.observe(viewLifecycleOwner, { count ->
+                updateMembersCount(count)
+            })
         }
+    }
+
+    private fun updateMembersCount(newCount: Int) {
+        binding.membersCount.text = if (newCount <= 1) "$newCount member" else "$newCount members"
     }
 
     override fun getIconRes(): Int? {
