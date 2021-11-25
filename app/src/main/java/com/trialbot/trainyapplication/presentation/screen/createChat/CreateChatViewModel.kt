@@ -8,7 +8,6 @@ import com.trialbot.trainyapplication.domain.ChatEditingUseCases
 import com.trialbot.trainyapplication.domain.FindUsersUseCases
 import com.trialbot.trainyapplication.domain.model.ChatCreating
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
-import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.createChat.recycler.UserSearchAdapterClickAction
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
@@ -36,7 +35,7 @@ class CreateChatViewModel(
     fun createChat(name: String, icon: Int = -1, about: String? = null) {
         if (currentUserId != null) {
             viewModelScope.launch {
-                val createdChat = chatEditingUseCases.createChat(
+                val createdChatId = chatEditingUseCases.createChat(
                     ChatCreating(
                         name = name,
                         about = about ?: "",
@@ -44,9 +43,9 @@ class CreateChatViewModel(
                         creatorId = currentUserId!!
                     )
                 )
-                if (createdChat != null) {
+                if (createdChatId != null) {
                     _isChatSuccessfullyCreated.postValue(true)
-                    chatCreatedId = createdChat
+                    chatCreatedId = createdChatId
                 } else {
                     _isChatSuccessfullyCreated.postValue(false)
                     chatCreatedId = null
@@ -61,8 +60,18 @@ class CreateChatViewModel(
         }
     }
 
-    override fun createChat(selectedUserId: Long) {
-        logE("Clicked")
-        // TODO: реализовать
+    override fun createDialog(selectedUserId: Long) {
+        if (currentUserId != null && currentUserId!! > 0 && selectedUserId > 0) {
+            viewModelScope.launch {
+                val createdDialogId = chatEditingUseCases.createDialog(currentUserId!!, selectedUserId)
+                if (createdDialogId != null) {
+                    _isChatSuccessfullyCreated.postValue(true)
+                    chatCreatedId = createdDialogId
+                } else {
+                    _isChatSuccessfullyCreated.postValue(false)
+                    chatCreatedId = null
+                }
+            }
+        }
     }
 }

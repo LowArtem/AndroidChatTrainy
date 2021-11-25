@@ -11,7 +11,7 @@ import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import com.trialbot.trainyapplication.utils.BaseViewHolder
 
 interface UserSearchAdapterClickAction {
-    fun createChat(selectedUserId: Long)
+    fun createDialog(selectedUserId: Long)
 }
 
 class UserSearchAdapter(
@@ -52,7 +52,7 @@ class UserSearchAdapter(
         holder.bind(searchedUsers[position], resources)
 
         holder.itemView.setOnClickListener {
-            userSearchAdapterClickAction.createChat(searchedUsers[position].id)
+            userSearchAdapterClickAction.createDialog(searchedUsers[position].id)
         }
     }
 

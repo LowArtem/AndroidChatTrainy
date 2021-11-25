@@ -70,7 +70,7 @@
     <style name="ErrorSmile">
         <item name="android:src">@drawable/ic_sad_smile_light</item>
     </style>
-    <style name="ItemAvatarTheme">
+    <style name="ClickableRecyclerItemTheme">
         <item name="android:background">@color/white</item>
         <item name="android:foreground">@drawable/ripple_dark</item>
     </style>

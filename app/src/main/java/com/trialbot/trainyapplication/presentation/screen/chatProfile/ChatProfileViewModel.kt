@@ -111,7 +111,8 @@ class ChatProfileViewModel(
     private fun getChatIcon(isDialog: Boolean): Int {
         if (isDialog) {
             val myIcon = currentUser?.icon ?: R.drawable.ic_avatar_default
-            return if (currentChat?.icon == myIcon) currentChat?.secondIcon ?: R.drawable.ic_avatar_default else myIcon
+            val icon = if (currentChat?.icon == myIcon) currentChat?.secondIcon ?: R.drawable.ic_avatar_default else currentChat?.icon ?: R.drawable.ic_avatar_default
+            return if (icon > 0) icon else R.drawable.ic_avatar_default
         } else {
             return currentChat?.icon ?: R.drawable.ic_default_chat
         }

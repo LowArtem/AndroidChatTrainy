@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.domain
 
 import com.trialbot.trainyapplication.domain.interfaces.ChatControllerRemote
 import com.trialbot.trainyapplication.domain.model.ChatCreating
-import com.trialbot.trainyapplication.domain.model.ChatInfo
 import com.trialbot.trainyapplication.domain.model.ChatUpdating
 
 class ChatEditingUseCases(private val chatControllerRemote: ChatControllerRemote) {
@@ -14,12 +13,11 @@ class ChatEditingUseCases(private val chatControllerRemote: ChatControllerRemote
         return chatId
     }
 
-    suspend fun createDialog(creatorId: Long, secondUserId: Long): ChatInfo? {
+    suspend fun createDialog(creatorId: Long, secondUserId: Long): Long? {
         val dialogId = chatControllerRemote.createDialog(creatorId, secondUserId)
         if (dialogId == -1L) return null
 
-        val dialog = chatControllerRemote.getChat(dialogId) ?: return null
-        return ChatInfo(dialogId, dialog.name, dialog.icon, dialog.secondIcon, true)
+        return dialogId
     }
 
     suspend fun updateChatIcon(chatId: Long, iconId: Int): Boolean {
