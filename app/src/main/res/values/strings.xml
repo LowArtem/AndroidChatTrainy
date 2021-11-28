@@ -44,7 +44,10 @@
     <string name="chat_has_created_alert_text">Chat has successfully created</string>
     <string name="delete_chat_btn">Delete chat</string>
     <string name="chat_details_title">Chat details</string>
-    <string name="add_admin_btn">Add admin</string>
-    <string name="delete_admin_btn">Delete admin</string>
+    <string name="add_admin_btn">Make admin</string>
+    <string name="delete_admin_btn">Unmake admin</string>
     <string name="delete_user_btn">Delete user</string>
+    <string name="delete_member_btn">Delete member</string>
+    <string name="leave_chat_btn">Leave chat</string>
+    <string name="chat_admin_tooltip">Chat administrator</string>
 </resources>

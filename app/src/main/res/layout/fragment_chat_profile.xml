@@ -152,52 +152,59 @@
                 android:src="@drawable/ic_edit" />
         </LinearLayout>
 
-
-        <Button
-            android:id="@+id/addAdminBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/add_admin_btn"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/aboutLL"
-            android:layout_marginTop="40dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"/>
-
-        <Button
-            android:id="@+id/deleteAdminBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/delete_admin_btn"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/addAdminBtn"
-            android:layout_marginTop="3dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"/>
-
-
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/barrier"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="deleteAdminBtn, aboutLL"/>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/membersRV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/barrier"
+            app:layout_constraintTop_toBottomOf="@id/aboutLL"
             android:layout_marginStart="6dp"
             android:layout_marginTop="6dp"
             android:layout_marginEnd="6dp"
             android:layout_marginBottom="20dp"/>
 
+        <LinearLayout
+            android:id="@+id/memberOptionsLL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/aboutLL"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="vertical"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:elevation="23dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
+            <Button
+                android:id="@+id/addAdminBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_admin_btn"
+                android:layout_marginTop="40dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"/>
+
+            <Button
+                android:id="@+id/deleteAdminBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/delete_admin_btn"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"/>
+
+            <Button
+                android:id="@+id/deleteMemberBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/delete_member_btn"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"/>
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/deleteChatBtn"

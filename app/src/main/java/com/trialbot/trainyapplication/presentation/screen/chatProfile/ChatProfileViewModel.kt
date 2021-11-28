@@ -15,6 +15,8 @@ import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.GetMemberType
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MemberType
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapterClickListener
+import com.trialbot.trainyapplication.utils.BooleanState
+import com.trialbot.trainyapplication.utils.MutableBooleanState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -26,12 +28,26 @@ class ChatProfileViewModel(
 ) : ViewModel(), MembersAdapterClickListener, GetMemberType {
 
     private val _state = MutableLiveData<ChatProfileState>().default(ChatProfileState.Loading)
-    private val _isChatDeleted = MutableLiveData<Boolean?>().default(null)
+    private val _selectedUserId = MutableLiveData<Long?>().default(null)
+
+    private val _isChatDeleted = MutableBooleanState().default(null)
+    private val _isAdminAdded = MutableBooleanState().default(null)
+    private val _isAdminDeleted = MutableBooleanState().default(null)
+    private val _isMemberDeleted = MutableBooleanState().default(null)
+    private val _isChatLeft = MutableBooleanState().default(null)
+
 
     val state: LiveData<ChatProfileState> = _state
-    val isChatDeleted: LiveData<Boolean?> = _isChatDeleted
+    val selectedUserId: LiveData<Long?> = _selectedUserId
 
-    var userId: Long = -1
+    val isChatDeleted: BooleanState = _isChatDeleted
+    val isAdminAdded: BooleanState = _isAdminAdded
+    val isAdminDeleted: BooleanState = _isAdminDeleted
+    val isMemberDeleted: BooleanState = _isMemberDeleted
+    val isChatLeft: BooleanState = _isChatLeft
+
+
+    var currentUserId: Long = -1
         private set
     var chatName: String? = null
         private set
@@ -63,7 +79,7 @@ class ChatProfileViewModel(
             }
 
             this@ChatProfileViewModel.chatId = chatId
-            this@ChatProfileViewModel.userId = userId
+            this@ChatProfileViewModel.currentUserId = userId
             this@ChatProfileViewModel.userType = UserType.fromString(userType)
 
             this@ChatProfileViewModel._chatMembers.postValue(chatGettingUseCases.getChatMembers(chatId))
@@ -118,9 +134,47 @@ class ChatProfileViewModel(
         }
     }
 
+    fun leaveChat() {
+        viewModelScope.launch {
+            _isChatLeft.postValue(chatEditingUseCases.removeMember(chatId ?: -1, currentUserId))
+        }
+    }
+
     fun deleteChat() {
         viewModelScope.launch {
-            _isChatDeleted.postValue(chatEditingUseCases.deleteChat(chatId ?: -1, userId))
+            _isChatDeleted.postValue(chatEditingUseCases.deleteChat(chatId ?: -1, currentUserId))
+        }
+    }
+
+    fun addAdmin() {
+        viewModelScope.launch {
+            val result = chatEditingUseCases.addAdmin(chatId ?: -1, selectedUserId.value ?: -1)
+            if (result) unselectMember()
+            _isAdminAdded.postValue(result)
+        }
+    }
+
+    fun deleteAdmin() {
+        viewModelScope.launch {
+            val result = chatEditingUseCases.removeAdmin(chatId ?: -1, selectedUserId.value ?: -1)
+            if (result) unselectMember()
+            _isAdminDeleted.postValue(result)
+        }
+    }
+
+    fun deleteMember() {
+        viewModelScope.launch {
+            if (chatEditingUseCases.removeMember(chatId ?: -1, selectedUserId.value ?: -1)) {
+                var oldMembers = chatMembers.value ?: emptyList()
+                if (oldMembers.isNotEmpty()) {
+                    oldMembers = chatGettingUseCases.getChatMembers(chatId ?: -1)
+                }
+                _chatMembers.postValue(oldMembers)
+                _membersCount.postValue(oldMembers.size)
+                unselectMember()
+                _isMemberDeleted.postValue(true)
+            }
+            else _isMemberDeleted.postValue(false)
         }
     }
 
@@ -128,17 +182,12 @@ class ChatProfileViewModel(
         return localDataUseCases.getLocalData()
     }
 
-    override fun deleteUserFromChat(userId: Long) {
-        viewModelScope.launch {
-            if (chatEditingUseCases.removeMember(chatId ?: -1, userId)) {
-                var oldMembers = chatMembers.value ?: emptyList()
-                if (oldMembers.isNotEmpty()) {
-                    oldMembers = chatGettingUseCases.getChatMembers(chatId ?: -1)
-                }
-                _chatMembers.postValue(oldMembers)
-                _membersCount.postValue(oldMembers.size)
-            }
-        }
+    override fun memberSelected(selectedUserId: Long) {
+        _selectedUserId.postValue(selectedUserId)
+    }
+
+    fun unselectMember() {
+        _selectedUserId.postValue(null)
     }
 
     override fun getMemberType(memberId: Long): MemberType {

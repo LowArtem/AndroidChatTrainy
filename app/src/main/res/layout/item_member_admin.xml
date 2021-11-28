@@ -4,7 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/memberIconIV"
@@ -31,6 +34,7 @@
         app:layout_constraintBottom_toBottomOf="@id/memberIconIV"
         app:drawableRightCompat="@drawable/ic_shield"
         android:drawablePadding="6dp"
+        android:tooltipText="@string/chat_admin_tooltip"
         tools:text="Test username" />
 
     <Space

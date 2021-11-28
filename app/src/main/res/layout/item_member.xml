@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/ClickableRecyclerItemTheme">
+    android:focusable="true"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/memberIconIV"
@@ -27,23 +29,12 @@
         android:lines="1"
         android:textSize="18sp"
         android:textAlignment="textStart"
-        app:layout_constraintEnd_toStartOf="@id/deleteUserBtn"
         app:layout_constraintStart_toEndOf="@id/memberIconIV"
         app:layout_constraintTop_toTopOf="@id/memberIconIV"
         app:layout_constraintBottom_toBottomOf="@id/memberIconIV"
-        tools:text="Test username" />
-
-    <ImageButton
-        android:id="@+id/deleteUserBtn"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/memberIconIV"
-        app:layout_constraintBottom_toBottomOf="@id/memberIconIV"
-        android:layout_marginEnd="16dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_delete"
-        app:tint="?attr/colorError" />
+        android:layout_marginEnd="10dp"
+        tools:text="Test username" />
 
     <Space
         android:layout_width="match_parent"

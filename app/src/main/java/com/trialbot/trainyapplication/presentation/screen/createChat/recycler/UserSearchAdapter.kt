@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.screen.createChat.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.databinding.ItemMemberBinding
@@ -33,8 +32,6 @@ class UserSearchAdapter(
             with(binding) {
                 memberIconIV.setImageDrawable(DrawableController.getDrawableFromId(item.icon, resources))
                 memberNameTV.text = item.username
-
-                deleteUserBtn.visibility = View.GONE
             }
         }
     }

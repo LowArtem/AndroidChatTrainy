@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.databinding.ItemMemberAdminBinding
@@ -13,7 +12,7 @@ import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import com.trialbot.trainyapplication.utils.BaseViewHolder
 
 interface MembersAdapterClickListener {
-    fun deleteUserFromChat(userId: Long)
+    fun memberSelected(selectedUserId: Long)
 }
 
 interface GetMemberType {
@@ -23,8 +22,7 @@ interface GetMemberType {
 class MembersAdapter(
     private val resources: Resources,
     private val membersAdapterClickListener: MembersAdapterClickListener,
-    private val getMemberType: GetMemberType,
-    private val isDeleteBtnVisible: Boolean = true
+    private val getMemberType: GetMemberType
 ): RecyclerView.Adapter<BaseViewHolder<UserWithoutPassword>>() {
 
     private var members: MutableList<UserWithoutPassword> = mutableListOf()
@@ -34,20 +32,15 @@ class MembersAdapter(
             notifyDataSetChanged()
         }
 
+    private var selectedPos = RecyclerView.NO_POSITION
+
     class MembersViewHolder(
-        private val binding: ItemMemberBinding,
-        private val membersAdapterClickListener: MembersAdapterClickListener,
-        private val isDeleteBtnVisible: Boolean
+        private val binding: ItemMemberBinding
     ): BaseViewHolder<UserWithoutPassword>(binding.root) {
         override fun bind(item: UserWithoutPassword, resources: Resources) {
             with(binding) {
                 memberIconIV.setImageDrawable(DrawableController.getDrawableFromId(item.icon, resources))
                 memberNameTV.text = item.username
-                deleteUserBtn.visibility = if (isDeleteBtnVisible) View.VISIBLE else View.GONE
-
-                deleteUserBtn.setOnClickListener {
-                    membersAdapterClickListener.deleteUserFromChat(item.id)
-                }
             }
         }
 
@@ -62,7 +55,6 @@ class MembersAdapter(
                 memberNameTV.text = item.username
             }
         }
-
     }
 
     class CreatorsViewHolder(
@@ -85,7 +77,7 @@ class MembersAdapter(
         when (viewType) {
             TYPE_MEMBER -> {
                 val binding = ItemMemberBinding.inflate(inflater, parent, false)
-                return MembersViewHolder(binding, membersAdapterClickListener, isDeleteBtnVisible)
+                return MembersViewHolder(binding)
             }
             TYPE_ADMIN -> {
                 val binding = ItemMemberAdminBinding.inflate(inflater, parent, false)
@@ -97,7 +89,7 @@ class MembersAdapter(
             }
             else -> { // Equals to TYPE_MEMBER
                 val binding = ItemMemberBinding.inflate(inflater, parent, false)
-                return MembersViewHolder(binding, membersAdapterClickListener, isDeleteBtnVisible)
+                return MembersViewHolder(binding)
             }
         }
     }
@@ -107,6 +99,11 @@ class MembersAdapter(
             is MembersViewHolder -> holder.bind(members[position], resources)
             is AdminsViewHolder -> holder.bind(members[position], resources)
             is CreatorsViewHolder -> holder.bind(members[position], resources)
+        }
+        holder.itemView.setOnClickListener {
+            if (holder !is CreatorsViewHolder) {
+                membersAdapterClickListener.memberSelected(members[position].id)
+            }
         }
     }
 

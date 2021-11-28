@@ -13,4 +13,17 @@ class ExampleUnitTest {
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
     }
+
+    @Test
+    fun drawable_ids_checking() {
+        var founded = false
+        for (i in R.drawable.av_done .. R.drawable.rounded_corner) {
+            if (i == 2131165285) {
+                founded = true
+                break
+            }
+        }
+
+        assertEquals(true, founded)
+    }
 }
