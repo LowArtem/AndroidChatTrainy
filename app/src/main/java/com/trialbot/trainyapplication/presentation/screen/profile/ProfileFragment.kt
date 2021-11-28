@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -23,6 +22,7 @@ import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapter
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
+import com.trialbot.trainyapplication.utils.resultDialog
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -345,25 +345,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
     // Реакция на изменение пароля
     private fun passwordChanged(result: Boolean) {
-        if (result) {
-            AlertDialog.Builder(requireContext()).apply {
-                setTitle("Password changed")
-                setMessage("Password has successfully changed")
-
-                setNeutralButton("Ok") { _, _ -> }
-
-                setCancelable(true)
-            }.create().show()
-        } else {
-            AlertDialog.Builder(requireContext()).apply {
-                setTitle("The change was failed")
-                setMessage("The password has not been changed. Try again or contact technical support")
-
-                setNeutralButton("Ok") { _, _ -> }
-
-                setCancelable(true)
-            }.create().show()
-        }
+        requireContext().resultDialog(
+            result = result,
+            textSuccess = "Password has successfully changed",
+            textFailed = "The password has not been changed. Try again or contact technical support"
+        )
 
         with(binding) {
             changePasswordTI.text?.clear()

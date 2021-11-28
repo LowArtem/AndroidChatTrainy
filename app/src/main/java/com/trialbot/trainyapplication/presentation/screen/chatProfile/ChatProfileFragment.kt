@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.screen.chatProfile
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,6 +14,8 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MemberType
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapter
+import com.trialbot.trainyapplication.utils.confirmDialog
+import com.trialbot.trainyapplication.utils.resultDialog
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -76,7 +77,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                         setDefaultChatData(state.chatName, state.chatIcon)
 
                         deleteChatBtn.setOnClickListener {
-                            confirmDialog("Are you sure you want to permanently delete this chat?") {
+                            requireContext().confirmDialog("Are you sure you want to permanently delete this chat?") {
                                 viewModel.deleteChat()
                             }
                         }
@@ -100,7 +101,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                         setDefaultChatData(state.chatName, state.chatIcon)
 
                         deleteChatBtn.setOnClickListener {
-                            confirmDialog("Are you sure you want to leave this chat?") {
+                            requireContext().confirmDialog("Are you sure you want to leave this chat?") {
                                 viewModel.leaveChat()
                             }
                         }
@@ -123,7 +124,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                         setDefaultChatData(state.chatName, state.chatIcon)
 
                         deleteChatBtn.setOnClickListener {
-                            confirmDialog("Are you sure you want to leave this chat?") {
+                            requireContext().confirmDialog("Are you sure you want to leave this chat?") {
                                 viewModel.leaveChat()
                             }
                         }
@@ -143,7 +144,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
         with(binding) {
             viewModel.isChatDeleted.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    resultDialog(
+                    requireContext().resultDialog(
                         result = result,
                         textSuccess = "The chat was successfully deleted",
                         textFailed = "The chat has not been deleted. Maybe you don't have enough rights.",
@@ -168,7 +169,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isAdminAdded.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    resultDialog(
+                    requireContext().resultDialog(
                         result = result,
                         textSuccess = "Admin was successfully added",
                         textFailed = "Admin has not been added. We are working on a fix."
@@ -178,7 +179,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isAdminDeleted.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    resultDialog(
+                    requireContext().resultDialog(
                         result = result,
                         textSuccess = "Admin was successfully deleted",
                         textFailed = "Admin has not been deleted. We are working on a fix."
@@ -188,7 +189,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isMemberDeleted.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    resultDialog(
+                    requireContext().resultDialog(
                         result = result,
                         textSuccess = "Member was successfully deleted",
                         textFailed = "Member has not been deleted. We are working on a fix."
@@ -198,7 +199,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isChatLeft.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    resultDialog(
+                    requireContext().resultDialog(
                         result = result,
                         textSuccess = "You are successfully left this chat",
                         textFailed = "Something went wrong. We are working on a fix.",
@@ -318,43 +319,6 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
     private fun updateMembersCount(newCount: Int) {
         binding.membersCount.text = if (newCount <= 1) "$newCount member" else "$newCount members"
-    }
-
-    private fun resultDialog(
-        result: Boolean,
-        textSuccess: String = "The operation was successful",
-        textFailed: String = "The operation failed",
-        successfulAction: () -> Unit = {  }
-    ) {
-        AlertDialog.Builder(requireContext()).apply {
-
-            if (result) {
-                setTitle("Success")
-                setMessage(textSuccess)
-                setNeutralButton("Ok") { _, _ -> successfulAction() }
-            } else {
-                setTitle("Fail")
-                setMessage(textFailed)
-                setNeutralButton("Ok") { _, _ ->  }
-            }
-
-            setCancelable(true)
-        }.create().show()
-    }
-
-    private fun confirmDialog(textConfirm: String, positiveAction: () -> Unit) {
-        AlertDialog.Builder(requireContext()).apply {
-            setTitle("Confirmation")
-            setMessage(textConfirm)
-
-            setPositiveButton("Yes") { _, _ ->
-                positiveAction()
-            }
-
-            setNegativeButton("Cancel") {_, _ -> }
-
-            setCancelable(true)
-        }.create().show()
     }
 
     override fun getIconRes(): Int? {

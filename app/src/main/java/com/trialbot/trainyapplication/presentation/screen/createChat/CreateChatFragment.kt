@@ -2,7 +2,6 @@ package com.trialbot.trainyapplication.presentation.screen.createChat
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -14,6 +13,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.screen.createChat.recycler.UserSearchAdapter
 import com.trialbot.trainyapplication.utils.hideKeyboard
+import com.trialbot.trainyapplication.utils.resultDialog
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -45,32 +45,19 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
             viewModel.isChatSuccessfullyCreated.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
                     if (result) {
-                        AlertDialog.Builder(requireContext()).apply {
-                            setTitle("Chat created")
-                            setMessage(getString(R.string.chat_has_created_alert_text))
-
-                            setNeutralButton("Ok") { _, _ ->
-                                findNavController().navigateUp()
-                            }
-
-                            setCancelable(true)
-                        }.create().show()
-
                         with(binding) {
                             chatCreatingNameET.text.clear()
                             chatCreatingAboutET.text.clear()
                         }
-
-                    } else {
-                        AlertDialog.Builder(requireContext()).apply {
-                            setTitle("The creating was failed")
-                            setMessage(getString(R.string.chat_has_not_created_alert_text))
-
-                            setNeutralButton("Ok") { _, _ -> }
-
-                            setCancelable(true)
-                        }.create().show()
                     }
+                    requireContext().resultDialog(
+                        result = result,
+                        textSuccess = getString(R.string.chat_has_created_alert_text),
+                        textFailed = getString(R.string.chat_has_not_created_alert_text),
+                        successfulAction = {
+                            findNavController().navigateUp()
+                        }
+                    )
                 }
             })
 
