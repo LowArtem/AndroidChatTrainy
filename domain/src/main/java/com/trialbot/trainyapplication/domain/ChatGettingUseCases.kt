@@ -48,7 +48,7 @@ class ChatGettingUseCases(
         return foundedChats
     }
 
-    suspend fun getDialogName(chatId: Long): String? {
+    suspend fun getDialogNameSuspend(chatId: Long): String? {
         try {
             val chat = chatControllerRemote.getChat(chatId) ?: return null
             val currentUser = localDataUseCases.getLocalData() ?: return null
@@ -59,6 +59,42 @@ class ChatGettingUseCases(
         } catch (e: Exception) {
             logE(e.localizedMessage)
             return null
+        }
+    }
+
+    fun getDialogName(username: String, chatName: String): String? {
+        return try {
+            val names = chatName.split(DIALOG_DIVIDER)
+            if (username == names[0]) names[1] else names[0]
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getDialogNameInverted(username: String, chatName: String): String? {
+        return try {
+            val names = chatName.split(DIALOG_DIVIDER)
+            if (username == names[0]) names[0] else names[1]
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getDialogIcon(username: String, chat: ChatDetails): Int? {
+        return try {
+            val names = chat.name.split(DIALOG_DIVIDER)
+            if (username == names[0]) chat.secondIcon else chat.icon
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getDialogIconInverted(username: String, chat: ChatDetails): Int? {
+        return try {
+            val names = chat.name.split(DIALOG_DIVIDER)
+            if (username == names[0]) chat.icon else chat.secondIcon
+        } catch (e: Exception) {
+            null
         }
     }
 }

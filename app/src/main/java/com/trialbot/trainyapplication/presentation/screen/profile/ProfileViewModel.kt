@@ -2,12 +2,11 @@ package com.trialbot.trainyapplication.presentation.screen.profile
 
 import androidx.lifecycle.*
 import com.trialbot.trainyapplication.domain.*
-import com.trialbot.trainyapplication.domain.model.User
-import com.trialbot.trainyapplication.domain.model.UserFull
-import com.trialbot.trainyapplication.domain.model.UserLocal
-import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
+import com.trialbot.trainyapplication.domain.model.*
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.drawable.AvatarController
+import com.trialbot.trainyapplication.utils.BooleanState
+import com.trialbot.trainyapplication.utils.MutableBooleanState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
 import java.util.*
@@ -17,12 +16,23 @@ class ProfileViewModel(
     private val loginStatus: LoginStatusUseCases,
     private val localDataUseCases: LocalDataUseCases,
     private val userStatusDataUseCases: UserStatusDataUseCases,
-    private val startStopRemoteActions: StartStopRemoteActions
+    private val startStopRemoteActions: StartStopRemoteActions,
+    private val chatEditingUseCases: ChatEditingUseCases,
+    private val chatGettingUseCases: ChatGettingUseCases
 ) : ViewModel() {
 
 
     private val _state = MutableLiveData<ProfileState>().default(ProfileState.Loading)
     val state: LiveData<ProfileState> = _state
+
+    private val _isDialogSuccessfullyCreated = MutableBooleanState().default(null)
+    val isDialogSuccessfullyCreated: BooleanState = _isDialogSuccessfullyCreated
+
+    var chatCreatedId: Long? = null
+        private set
+
+    var createdChat: ChatDetails? = null
+        private set
 
     var user: User? = null
         private set
@@ -79,8 +89,20 @@ class ProfileViewModel(
         loginStatus.saveLoginStatus(false)
     }
 
-    fun createChat() {
-
+    fun sendMessageToUser(currentUserId: Long, selectedUserId: Long) {
+        if (currentUserId > 0 && selectedUserId > 0) {
+            viewModelScope.launch {
+                val createdDialogId = chatEditingUseCases.createDialog(currentUserId, selectedUserId)
+                if (createdDialogId != null) {
+                    createdChat = chatGettingUseCases.openChat(createdDialogId)
+                    _isDialogSuccessfullyCreated.postValue(true)
+                    chatCreatedId = createdDialogId
+                } else {
+                    _isDialogSuccessfullyCreated.postValue(false)
+                    chatCreatedId = null
+                }
+            }
+        }
     }
 
     fun confirmNewPassword(newPassword: String, handler: (Boolean) -> Unit) {
@@ -95,10 +117,6 @@ class ProfileViewModel(
 
     fun editAvatar() {
         _state.postValue(ProfileState.AvatarChangingOpened(AvatarController.getAvatars()))
-    }
-
-    fun sendMessageToUser() {
-
     }
 
     fun saveAvatar(avatarId: Int) {
@@ -133,5 +151,26 @@ class ProfileViewModel(
             return (user as UserFull).password == password
         }
         return false
+    }
+
+    fun getDialogName(username: String): String? {
+        return if (createdChat != null) {
+            chatGettingUseCases.getDialogNameInverted(username, createdChat!!.name)
+        } else {
+            null
+        }
+    }
+
+    fun getDialogIcon(username: String): Int? {
+        return if (createdChat != null) {
+            chatGettingUseCases.getDialogIconInverted(username, createdChat!!)
+        } else {
+            null
+        }
+    }
+
+    // Нужно очищать результат создания диалога, иначе, если внутри чата нажать назад, то будет опять перебрасывать в чат
+    fun cleanDialogCreatedResult() {
+        _isDialogSuccessfullyCreated.postValue(null)
     }
 }

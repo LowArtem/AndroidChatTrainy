@@ -8,11 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ItemChatBinding
 import com.trialbot.trainyapplication.domain.model.ChatInfo
+import com.trialbot.trainyapplication.domain.utils.DIALOG_DIVIDER
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
 import com.trialbot.trainyapplication.utils.BaseViewHolder
-
-
-const val DIALOG_DIVIDER: String = "\$@\$-%@%"
 
 
 class ChatDiffCallback(

@@ -20,8 +20,10 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
+import com.trialbot.trainyapplication.presentation.screen.chat.ChatFragmentDirections
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapter
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
+import com.trialbot.trainyapplication.utils.navigateSafe
 import com.trialbot.trainyapplication.utils.resultDialog
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -101,8 +103,37 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         avatarIV.setImageDrawable(DrawableController.getDrawableFromId(it.user.icon, resources))
 
                         sendMessageBtn.setOnClickListener {
-                            viewModel.sendMessageToUser()
+                            viewModel.sendMessageToUser(args.currentUserId, args.userId)
                         }
+
+                        viewModel.isDialogSuccessfullyCreated.observe(viewLifecycleOwner, { result ->
+                            if (result != null) {
+                                if (result) {
+
+                                    viewModel.cleanDialogCreatedResult()
+
+                                    val chatName = viewModel.getDialogName(args.username) ?: "Chat"
+                                    val chatIconId = viewModel.getDialogIcon(args.username) ?: -1
+                                    val chatId = viewModel.chatCreatedId ?: -1
+
+                                    val direction =
+                                        ProfileFragmentDirections.actionProfileFragmentToMessageFragment(
+                                            chatName = chatName,
+                                            chatIconId = chatIconId,
+                                            chatId = chatId
+                                        )
+
+                                    findNavController().navigateSafe(direction)
+
+                                } else {
+                                    requireContext().resultDialog(
+                                        result = false,
+                                        textFailed = "Dialog has not been created. Please, try again.",
+                                    )
+                                }
+                            }
+                        })
+
                         addToChatBtn.setOnClickListener {
                             val direction = ProfileFragmentDirections.actionProfileFragmentToChooseChatFragment(
                                 currentUserId = args.currentUserId,
@@ -170,7 +201,15 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         }
 
                         createTheChatBtn.setOnClickListener {
-                            viewModel.createChat()
+                            val direction = ChatFragmentDirections.actionChatFragmentToCreateChatFragment(args.currentUserId)
+                            findNavController().navigate(direction, navOptions {
+                                anim {
+                                    enter = R.anim.enter
+                                    exit = R.anim.exit
+                                    popEnter = R.anim.pop_enter
+                                    popExit = R.anim.pop_exit
+                                }
+                            })
                         }
 
                         // Set confirmation button isEnable if text2 == text1

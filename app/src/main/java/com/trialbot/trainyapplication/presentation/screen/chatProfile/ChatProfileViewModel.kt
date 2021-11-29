@@ -115,7 +115,7 @@ class ChatProfileViewModel(
 
     private suspend fun getChatName(chatId: Long, isDialog: Boolean): String {
         return when {
-            isDialog -> chatGettingUseCases.getDialogName(chatId) ?: currentChat!!.name
+            isDialog -> chatGettingUseCases.getDialogNameSuspend(chatId) ?: currentChat!!.name
             currentChat != null -> currentChat!!.name
             else -> {
                 logE("Chat is null")

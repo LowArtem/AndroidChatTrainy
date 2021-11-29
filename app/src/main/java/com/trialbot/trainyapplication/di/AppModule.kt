@@ -52,13 +52,14 @@ val appModule = module {
             loginStatus = get(),
             localDataUseCases = get(),
             userStatusDataUseCases = get(),
-            startStopRemoteActions = get()
+            startStopRemoteActions = get(),
+            chatEditingUseCases = get(),
+            chatGettingUseCases = get()
         )
     }
 
     viewModel {
         ChatViewModel(
-            chatEditingUseCases = get(),
             chatGettingUseCases = get()
         )
     }

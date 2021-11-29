@@ -145,7 +145,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.openChat -> {
-                openChat()
+                openChatProfile()
                 true
             }
             else -> {
@@ -198,7 +198,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         })
     }
 
-    private fun openChat() {
+    private fun openChatProfile() {
         val direction = MessageFragmentDirections.actionMessageFragmentToChatProfileFragment(
             userType = viewModel.userType.value ?: UserType.Member.toString(),
             userId = viewModel.getCurrentUserId(),

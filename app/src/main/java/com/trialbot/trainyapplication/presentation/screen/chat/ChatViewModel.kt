@@ -4,14 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.trialbot.trainyapplication.domain.ChatEditingUseCases
 import com.trialbot.trainyapplication.domain.ChatGettingUseCases
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
 
 class ChatViewModel(
-    private val chatEditingUseCases: ChatEditingUseCases,
     private val chatGettingUseCases: ChatGettingUseCases
 ) : ViewModel() {
 
