@@ -14,5 +14,5 @@ interface MessageControllerRemote {
 
     suspend fun saveMessage(chatId: Long, message: MessageWithAuthUser): Boolean
 
-    suspend fun deleteMessage(chatId: Long, messageId: Long): Boolean
+    suspend fun deleteMessage(chatId: Long, messageId: Long, currentUserId: Long): Boolean
 }

@@ -26,9 +26,9 @@
         android:textColor="@color/blue_800"
         android:textSize="14sp"
         android:textAlignment="textStart"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/authorAvatarIV"
         app:layout_constraintTop_toTopOf="@id/authorAvatarIV"
+        android:drawablePadding="6dp"
         tools:text="John Smith" />
 
     <TextView

@@ -16,6 +16,7 @@ import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.M
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapter
 import com.trialbot.trainyapplication.utils.confirmDialog
 import com.trialbot.trainyapplication.utils.resultDialog
+import com.trialbot.trainyapplication.utils.resultDialogWithoutSuccessText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -52,6 +53,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                     }
                     is ChatProfileState.Creator -> {
                         deleteChatBtn.visibility = View.VISIBLE
+                        deleteChatBtn.text = getString(R.string.delete_chat_btn)
 
                         if (state.isDialog) {
                             deleteAdminBtn.visibility = View.GONE
@@ -169,9 +171,8 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isAdminAdded.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    requireContext().resultDialog(
+                    requireContext().resultDialogWithoutSuccessText(
                         result = result,
-                        textSuccess = "Admin was successfully added",
                         textFailed = "Admin has not been added. We are working on a fix."
                     )
                 }
@@ -179,9 +180,8 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isAdminDeleted.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    requireContext().resultDialog(
+                    requireContext().resultDialogWithoutSuccessText(
                         result = result,
-                        textSuccess = "Admin was successfully deleted",
                         textFailed = "Admin has not been deleted. We are working on a fix."
                     )
                 }
@@ -199,9 +199,8 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isChatLeft.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
-                    requireContext().resultDialog(
+                    requireContext().resultDialogWithoutSuccessText(
                         result = result,
-                        textSuccess = "You are successfully left this chat",
                         textFailed = "Something went wrong. We are working on a fix.",
                         successfulAction = {
                             val direction = ChatProfileFragmentDirections.actionChatProfileFragmentToChatFragment(

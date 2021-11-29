@@ -50,9 +50,9 @@ class MessageControllerRemoteImpl(private val chatApi: ChatApi) : MessageControl
         }
     }
 
-    override suspend fun deleteMessage(chatId: Long, messageId: Long): Boolean {
+    override suspend fun deleteMessage(chatId: Long, messageId: Long, currentUserId: Long): Boolean {
         return try {
-            chatApi.deleteMessage(chatId, messageId)
+            chatApi.deleteMessage(chatId, messageId, currentUserId)
             true
         } catch (e: Exception) {
             logE(e.localizedMessage ?: "Some error")

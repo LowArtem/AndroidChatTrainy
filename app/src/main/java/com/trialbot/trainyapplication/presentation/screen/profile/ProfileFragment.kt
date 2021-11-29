@@ -25,6 +25,7 @@ import com.trialbot.trainyapplication.presentation.screen.profile.recycler.Avata
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
 import com.trialbot.trainyapplication.utils.navigateSafe
 import com.trialbot.trainyapplication.utils.resultDialog
+import com.trialbot.trainyapplication.utils.resultDialogWithoutSuccessText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -108,29 +109,26 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
 
                         viewModel.isDialogSuccessfullyCreated.observe(viewLifecycleOwner, { result ->
                             if (result != null) {
-                                if (result) {
+                                requireContext().resultDialogWithoutSuccessText(
+                                    result = result,
+                                    textFailed = "Dialog has not been created. Please, try again.",
+                                    successfulAction = {
+                                        viewModel.cleanDialogCreatedResult()
 
-                                    viewModel.cleanDialogCreatedResult()
+                                        val chatName = viewModel.getDialogName(args.username) ?: "Chat"
+                                        val chatIconId = viewModel.getDialogIcon(args.username) ?: -1
+                                        val chatId = viewModel.chatCreatedId ?: -1
 
-                                    val chatName = viewModel.getDialogName(args.username) ?: "Chat"
-                                    val chatIconId = viewModel.getDialogIcon(args.username) ?: -1
-                                    val chatId = viewModel.chatCreatedId ?: -1
+                                        val direction =
+                                            ProfileFragmentDirections.actionProfileFragmentToMessageFragment(
+                                                chatName = chatName,
+                                                chatIconId = chatIconId,
+                                                chatId = chatId
+                                            )
 
-                                    val direction =
-                                        ProfileFragmentDirections.actionProfileFragmentToMessageFragment(
-                                            chatName = chatName,
-                                            chatIconId = chatIconId,
-                                            chatId = chatId
-                                        )
-
-                                    findNavController().navigateSafe(direction)
-
-                                } else {
-                                    requireContext().resultDialog(
-                                        result = false,
-                                        textFailed = "Dialog has not been created. Please, try again.",
-                                    )
-                                }
+                                        findNavController().navigateSafe(direction)
+                                    }
+                                )
                             }
                         })
 

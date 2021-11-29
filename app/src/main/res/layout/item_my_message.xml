@@ -30,6 +30,7 @@
         app:layout_constraintEnd_toStartOf="@id/authorAvatarIV"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/authorAvatarIV"
+        android:drawablePadding="6dp"
         tools:text="John Smith" />
 
     <TextView

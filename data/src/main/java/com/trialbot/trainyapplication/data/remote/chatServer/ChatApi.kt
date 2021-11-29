@@ -33,7 +33,8 @@ interface ChatApi {
     @DELETE("./messages/DeleteMessage")
     suspend fun deleteMessage(
         @Query("chatId") chatId: Long,
-        @Query("messageId") messageId: Long
+        @Query("messageId") messageId: Long,
+        @Query("currentUserId") currentUserId: Long
     )
 
     // Users

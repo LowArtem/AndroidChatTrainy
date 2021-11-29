@@ -13,6 +13,6 @@ class MessageEditUseCases(
 
         if (!admins.contains(currentUserId) && chatCreatorId != currentUserId) return false
 
-        return messageControllerRemote.deleteMessage(chatId, messageId)
+        return messageControllerRemote.deleteMessage(chatId, messageId, currentUserId)
     }
 }

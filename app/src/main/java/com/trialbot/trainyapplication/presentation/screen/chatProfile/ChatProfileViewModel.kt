@@ -136,6 +136,9 @@ class ChatProfileViewModel(
 
     fun leaveChat() {
         viewModelScope.launch {
+            if (userType == UserType.Admin) {
+                chatEditingUseCases.removeAdmin(chatId ?: -1, currentUserId)
+            }
             _isChatLeft.postValue(chatEditingUseCases.removeMember(chatId ?: -1, currentUserId))
         }
     }

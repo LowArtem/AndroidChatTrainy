@@ -14,6 +14,7 @@ import com.trialbot.trainyapplication.domain.model.UserAuthId
 import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.AdminChecking
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageItemMenuClick
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageItemMenuOptions
 import com.trialbot.trainyapplication.utils.BooleanState
@@ -29,7 +30,7 @@ class MessageViewModel(
     private val localDataUseCases: LocalDataUseCases,
     private val chatGettingUseCases: ChatGettingUseCases,
     private val messageEditUseCases: MessageEditUseCases
-) : ViewModel(), MessageItemMenuClick {
+) : ViewModel(), MessageItemMenuClick, AdminChecking {
 
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
@@ -185,13 +186,13 @@ class MessageViewModel(
                 message1.author.icon == message2.author.icon
     }
 
-    fun getUserType(chatId: Long): String = runBlocking(Dispatchers.IO) {
+    fun getUserType(chatId: Long, userId: Long = getCurrentUserId()): String = runBlocking(Dispatchers.IO) {
         return@runBlocking when {
-            chatGettingUseCases.checkIsCreator(chatId, getCurrentUserId()) == true -> {
+            chatGettingUseCases.checkIsCreator(chatId, userId) == true -> {
                 _userType.postValue(UserType.Creator.toString())
                 UserType.Creator.toString()
             }
-            chatGettingUseCases.checkIsAdmin(chatId, getCurrentUserId()) == true -> {
+            chatGettingUseCases.checkIsAdmin(chatId, userId) == true -> {
                 _userType.postValue(UserType.Admin.toString())
                 UserType.Admin.toString()
             }
@@ -208,5 +209,13 @@ class MessageViewModel(
         } else {
             type == UserType.Admin.toString() || type == UserType.Creator.toString()
         }
+    }
+
+    fun clearResult() {
+        _isMessageDeleted.postValue(null)
+    }
+
+    override fun isUserAdmin(userId: Long): Boolean {
+        return getUserType(chatId ?: -1, userId) == UserType.Admin.toString()
     }
 }

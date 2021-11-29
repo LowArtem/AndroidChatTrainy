@@ -50,12 +50,17 @@ interface MessageItemMenuClick {
     fun executeMessageMenuItemAction(messageId: Long, menuOption: MessageItemMenuOptions)
 }
 
+interface AdminChecking {
+    fun isUserAdmin(userId: Long): Boolean
+}
+
 class MessageAdapter(
     private val currentUserId: Long,
     private val resources: Resources,
     private val clickNavigation: MessageAdapterClickNavigation,
     private val messageItemMenuClick: MessageItemMenuClick,
-    private val isCurrentUserCanDeleteMessages: Boolean
+    private val isCurrentUserCanDeleteMessages: Boolean,
+    private val adminChecking: AdminChecking
 ) : RecyclerView.Adapter<BaseViewHolder<*>>() {
 
     private var messages: MutableList<MessageDTO> = mutableListOf()
@@ -71,12 +76,20 @@ class MessageAdapter(
         private val binding: ItemMessageBinding,
         private val clickNavigation: MessageAdapterClickNavigation,
         private val messageItemMenuClick: MessageItemMenuClick,
-        private val isCurrentUserCanDeleteMessages: Boolean
+        private val isCurrentUserCanDeleteMessages: Boolean,
+        private val adminChecking: AdminChecking
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
                 authorAvatarIV.setImageDrawable(DrawableController.getDrawableFromId(item.author.icon, resources))
                 authorNameTV.text = item.author.username
+
+                if (adminChecking.isUserAdmin(item.author.id)) {
+                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_shield, 0)
+                } else {
+                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
+                }
+
                 messageTextTV.text = item.text
 
                 val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
@@ -110,12 +123,20 @@ class MessageAdapter(
 
     class MyMessageViewHolder(
         private val binding: ItemMyMessageBinding,
-        private val clickNavigation: MessageAdapterClickNavigation
+        private val clickNavigation: MessageAdapterClickNavigation,
+        private val adminChecking: AdminChecking
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
                 authorAvatarIV.setImageDrawable(DrawableController.getDrawableFromId(item.author.icon, resources))
                 authorNameTV.text = item.author.username
+
+                if (adminChecking.isUserAdmin(item.author.id)) {
+                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_shield, 0)
+                } else {
+                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
+                }
+
                 messageTextTV.text = item.text
 
                 val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
@@ -137,7 +158,11 @@ class MessageAdapter(
         val inflater = LayoutInflater.from(parent.context)
         if (viewType == TYPE_MY_MESSAGE) {
             val binding = ItemMyMessageBinding.inflate(inflater, parent, false)
-            return MyMessageViewHolder(binding, clickNavigation)
+            return MyMessageViewHolder(
+                binding = binding,
+                clickNavigation = clickNavigation,
+                adminChecking = adminChecking
+            )
         }
         else {
             val binding = ItemMessageBinding.inflate(inflater, parent, false)
@@ -145,7 +170,8 @@ class MessageAdapter(
                 binding = binding,
                 clickNavigation = clickNavigation,
                 messageItemMenuClick = messageItemMenuClick,
-                isCurrentUserCanDeleteMessages = isCurrentUserCanDeleteMessages
+                isCurrentUserCanDeleteMessages = isCurrentUserCanDeleteMessages,
+                adminChecking = adminChecking
             )
         }
     }

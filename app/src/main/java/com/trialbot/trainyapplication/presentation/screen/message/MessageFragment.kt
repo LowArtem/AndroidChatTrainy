@@ -24,7 +24,6 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
-import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
@@ -55,7 +54,8 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             resources = requireContext().resources,
             clickNavigation = this,
             messageItemMenuClick = viewModel,
-            isCurrentUserCanDeleteMessages = viewModel.isUserAdminOrCreator(type)
+            isCurrentUserCanDeleteMessages = viewModel.isUserAdminOrCreator(type),
+            adminChecking = viewModel
         )
 
         setHasOptionsMenu(true)
@@ -136,6 +136,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                         result = false,
                         textFailed = "The message has not been deleted. Maybe you don't have enough rights."
                     )
+                    viewModel.clearResult()
                 }
             }
         })
@@ -221,7 +222,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
 
     private fun openChatProfile() {
         val direction = MessageFragmentDirections.actionMessageFragmentToChatProfileFragment(
-            userType = viewModel.userType.value ?: UserType.Member.toString(),
+            userType = viewModel.getUserType(args.chatId),
             userId = viewModel.getCurrentUserId(),
             chatId = viewModel.chatId!!
         )

@@ -24,6 +24,24 @@ fun Context.resultDialog(
     }.create().show()
 }
 
+// Не показывает алерт, если все успешно, выполняет действие, если оно задано
+fun Context.resultDialogWithoutSuccessText(
+    result: Boolean,
+    textFailed: String,
+    successfulAction: () -> Unit = { }
+) {
+    if (!result) {
+        AlertDialog.Builder(this).apply {
+            setTitle("Fail")
+            setMessage(textFailed)
+            setNeutralButton("Ok") { _, _ -> }
+            setCancelable(true)
+        }.create().show()
+    } else {
+        successfulAction()
+    }
+}
+
 fun Context.confirmDialog(textConfirm: String, positiveAction: () -> Unit) {
     AlertDialog.Builder(this).apply {
         setTitle("Confirmation")
