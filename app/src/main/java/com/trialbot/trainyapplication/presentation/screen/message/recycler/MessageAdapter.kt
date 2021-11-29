@@ -2,9 +2,12 @@ package com.trialbot.trainyapplication.presentation.screen.message.recycler
 
 import android.content.res.Resources
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.ItemMessageBinding
 import com.trialbot.trainyapplication.databinding.ItemMyMessageBinding
 import com.trialbot.trainyapplication.domain.model.MessageDTO
@@ -43,10 +46,16 @@ interface MessageAdapterClickNavigation {
     fun openProfile(user: UserMessage, viewStatus: ProfileViewStatus)
 }
 
+interface MessageItemMenuClick {
+    fun executeMessageMenuItemAction(messageId: Long, menuOption: MessageItemMenuOptions)
+}
+
 class MessageAdapter(
     private val currentUserId: Long,
     private val resources: Resources,
-    private val clickNavigation: MessageAdapterClickNavigation
+    private val clickNavigation: MessageAdapterClickNavigation,
+    private val messageItemMenuClick: MessageItemMenuClick,
+    private val isCurrentUserCanDeleteMessages: Boolean
 ) : RecyclerView.Adapter<BaseViewHolder<*>>() {
 
     private var messages: MutableList<MessageDTO> = mutableListOf()
@@ -60,7 +69,9 @@ class MessageAdapter(
 
     class CommonMessageViewHolder(
         private val binding: ItemMessageBinding,
-        private val clickNavigation: MessageAdapterClickNavigation
+        private val clickNavigation: MessageAdapterClickNavigation,
+        private val messageItemMenuClick: MessageItemMenuClick,
+        private val isCurrentUserCanDeleteMessages: Boolean
     ) : BaseViewHolder<MessageDTO>(binding.root) {
         override fun bind(item: MessageDTO, resources: Resources) {
             with(this.binding) {
@@ -73,6 +84,25 @@ class MessageAdapter(
 
                 authorAvatarIV.setOnClickListener {
                     clickNavigation.openProfile(item.author, ProfileViewStatus.Guest)
+                }
+
+                moreBtn.visibility = if (isCurrentUserCanDeleteMessages) View.VISIBLE else View.GONE
+
+                moreBtn.setOnClickListener {
+                    val popupMenu = PopupMenu(itemView.context, moreBtn)
+                    popupMenu.inflate(R.menu.message_menu)
+                    popupMenu.setOnMenuItemClickListener { menuItem ->
+                        when(menuItem.itemId) {
+                            R.id.deleteMessageBtn -> {
+                                messageItemMenuClick.executeMessageMenuItemAction(item.id, MessageItemMenuOptions.DELETE)
+                                true
+                            }
+                            else -> {
+                                false
+                            }
+                        }
+                    }
+                    popupMenu.show()
                 }
             }
         }
@@ -111,7 +141,12 @@ class MessageAdapter(
         }
         else {
             val binding = ItemMessageBinding.inflate(inflater, parent, false)
-            return CommonMessageViewHolder(binding, clickNavigation)
+            return CommonMessageViewHolder(
+                binding = binding,
+                clickNavigation = clickNavigation,
+                messageItemMenuClick = messageItemMenuClick,
+                isCurrentUserCanDeleteMessages = isCurrentUserCanDeleteMessages
+            )
         }
     }
 

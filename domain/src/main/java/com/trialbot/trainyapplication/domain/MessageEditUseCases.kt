@@ -11,7 +11,6 @@ class MessageEditUseCases(
         val chatCreatorId = chatControllerRemote.getChat(chatId)?.creatorId ?: return false
         val admins = chatControllerRemote.getAdminIds(chatId) ?: return false
 
-        if (admins.isEmpty()) return false
         if (!admins.contains(currentUserId) && chatCreatorId != currentUserId) return false
 
         return messageControllerRemote.deleteMessage(chatId, messageId)

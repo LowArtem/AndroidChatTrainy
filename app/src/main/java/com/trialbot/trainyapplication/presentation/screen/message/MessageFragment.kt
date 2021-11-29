@@ -29,6 +29,7 @@ import com.trialbot.trainyapplication.presentation.screen.message.recycler.Messa
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
+import com.trialbot.trainyapplication.utils.resultDialog
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -47,7 +48,15 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMessageBinding.bind(view)
 
-        adapter = MessageAdapter(viewModel.getCurrentUserId(), requireContext().resources, this)
+        val type = viewModel.getUserType(args.chatId)
+
+        adapter = MessageAdapter(
+            currentUserId = viewModel.getCurrentUserId(),
+            resources = requireContext().resources,
+            clickNavigation = this,
+            messageItemMenuClick = viewModel,
+            isCurrentUserCanDeleteMessages = viewModel.isUserAdminOrCreator(type)
+        )
 
         setHasOptionsMenu(true)
 
@@ -59,7 +68,9 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             messagesRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
             messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
-                (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
+                if (viewModel.needAutoScroll)
+                    (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
+                else viewModel.needAutoScroll = true
             }
 
             sendBtn.setOnClickListener {
@@ -118,8 +129,18 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             }
         })
 
+        viewModel.isMessageDeleted.observe(viewLifecycleOwner, { result ->
+            if (result != null) {
+                if (!result) {
+                    requireContext().resultDialog(
+                        result = false,
+                        textFailed = "The message has not been deleted. Maybe you don't have enough rights."
+                    )
+                }
+            }
+        })
+
         viewModel.render(args.chatId)
-        viewModel.getUserType()
 
         // Observing messages
         viewLifecycleOwner.lifecycleScope.launch{
@@ -139,7 +160,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.message_menu, menu)
+        inflater.inflate(R.menu.chat_profile_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

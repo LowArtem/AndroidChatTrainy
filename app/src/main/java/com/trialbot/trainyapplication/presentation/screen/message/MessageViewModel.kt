@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trialbot.trainyapplication.domain.ChatGettingUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
+import com.trialbot.trainyapplication.domain.MessageEditUseCases
 import com.trialbot.trainyapplication.domain.MessageSendingUseCases
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
@@ -13,6 +14,10 @@ import com.trialbot.trainyapplication.domain.model.UserAuthId
 import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageItemMenuClick
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageItemMenuOptions
+import com.trialbot.trainyapplication.utils.BooleanState
+import com.trialbot.trainyapplication.utils.MutableBooleanState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
 import java.util.*
@@ -22,8 +27,9 @@ import kotlin.coroutines.cancellation.CancellationException
 class MessageViewModel(
     private val messageSendingUseCases: MessageSendingUseCases,
     private val localDataUseCases: LocalDataUseCases,
-    private val chatGettingUseCases: ChatGettingUseCases
-) : ViewModel() {
+    private val chatGettingUseCases: ChatGettingUseCases,
+    private val messageEditUseCases: MessageEditUseCases
+) : ViewModel(), MessageItemMenuClick {
 
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
@@ -33,6 +39,9 @@ class MessageViewModel(
     private val _messages = MutableLiveData<List<MessageDTO>>()
     val messages: LiveData<List<MessageDTO>> = _messages
 
+    private val _isMessageDeleted = MutableBooleanState().default(null)
+    val isMessageDeleted: BooleanState = _isMessageDeleted
+
     private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
 
     var chatId: Long? = null
@@ -40,6 +49,8 @@ class MessageViewModel(
 
     var currentUser: UserLocal? = null
         private set
+
+    var needAutoScroll = true
 
     private val _userType = MutableLiveData<String?>().default(null)
     val userType: LiveData<String?> = _userType
@@ -115,6 +126,24 @@ class MessageViewModel(
         }
     }
 
+
+    override fun executeMessageMenuItemAction(messageId: Long, menuOption: MessageItemMenuOptions) {
+        viewModelScope.launch {
+            when (menuOption) {
+                MessageItemMenuOptions.DELETE -> {
+                    _isMessageDeleted.postValue(messageEditUseCases.deleteMessage(
+                        chatId = chatId ?: -1,
+                        messageId = messageId,
+                        currentUserId = getCurrentUserId()
+                    ))
+                    val gotMessages = messageSendingUseCases.getNewMessages(chatId ?: -1)
+                    _messages.postValue(gotMessages)
+                    needAutoScroll = false
+                }
+            }
+        }
+    }
+
     fun applicationClosing() {
         messageObservingScope.cancel()
     }
@@ -156,20 +185,28 @@ class MessageViewModel(
                 message1.author.icon == message2.author.icon
     }
 
-    fun getUserType() {
-        viewModelScope.launch {
-            when {
-                chatGettingUseCases.checkIsCreator(chatId!!, getCurrentUserId()) == true -> {
-                    _userType.postValue(UserType.Creator.toString())
-                }
-                chatGettingUseCases.checkIsAdmin(chatId!!, getCurrentUserId()) == true -> {
-                    _userType.postValue(UserType.Admin.toString())
-                }
-                else -> {
-                    _userType.postValue(UserType.Member.toString())
-                }
+    fun getUserType(chatId: Long): String = runBlocking(Dispatchers.IO) {
+        return@runBlocking when {
+            chatGettingUseCases.checkIsCreator(chatId, getCurrentUserId()) == true -> {
+                _userType.postValue(UserType.Creator.toString())
+                UserType.Creator.toString()
+            }
+            chatGettingUseCases.checkIsAdmin(chatId, getCurrentUserId()) == true -> {
+                _userType.postValue(UserType.Admin.toString())
+                UserType.Admin.toString()
+            }
+            else -> {
+                _userType.postValue(UserType.Member.toString())
+                UserType.Member.toString()
             }
         }
     }
 
+    fun isUserAdminOrCreator(type: String? = null): Boolean {
+        return if (type == null) {
+            userType.value == UserType.Admin.toString() || userType.value == UserType.Creator.toString()
+        } else {
+            type == UserType.Admin.toString() || type == UserType.Creator.toString()
+        }
+    }
 }

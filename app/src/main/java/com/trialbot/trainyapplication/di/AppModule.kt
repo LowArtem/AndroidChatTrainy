@@ -33,7 +33,8 @@ val appModule = module {
         MessageViewModel(
             messageSendingUseCases = get(),
             localDataUseCases = get(),
-            chatGettingUseCases = get()
+            chatGettingUseCases = get(),
+            messageEditUseCases = get()
         )
     }
 

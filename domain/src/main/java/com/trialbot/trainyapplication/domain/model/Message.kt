@@ -3,6 +3,7 @@ package com.trialbot.trainyapplication.domain.model
 import java.util.*
 
 data class MessageDTO(
+    val id: Long,
     val text: String,
     val author: UserMessage,
     val pubDate: Date

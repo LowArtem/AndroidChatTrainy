@@ -50,4 +50,5 @@
     <string name="delete_member_btn">Delete member</string>
     <string name="leave_chat_btn">Leave chat</string>
     <string name="chat_admin_tooltip">Chat administrator</string>
+    <string name="delete_message_title">Delete message</string>
 </resources>
