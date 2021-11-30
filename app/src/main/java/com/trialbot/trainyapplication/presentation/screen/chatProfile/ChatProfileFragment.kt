@@ -2,7 +2,9 @@ package com.trialbot.trainyapplication.presentation.screen.chatProfile
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
@@ -171,6 +173,13 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isAdminAdded.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
+                    if (result) {
+                        setFragmentResult(
+                            ADMIN_UPDATED_TAG,
+                            bundleOf(ADMIN_UPDATED_TAG to true)
+                        )
+                    }
+
                     requireContext().resultDialogWithoutSuccessText(
                         result = result,
                         textFailed = "Admin has not been added. We are working on a fix."
@@ -180,6 +189,13 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
             viewModel.isAdminDeleted.observe(viewLifecycleOwner, { result ->
                 if (result != null) {
+                    if (result) {
+                        setFragmentResult(
+                            ADMIN_UPDATED_TAG,
+                            bundleOf(ADMIN_UPDATED_TAG to true)
+                        )
+                    }
+
                     requireContext().resultDialogWithoutSuccessText(
                         result = result,
                         textFailed = "Admin has not been deleted. We are working on a fix."
@@ -326,5 +342,9 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
 
     override fun getTitle(): String {
         return "Chat info"
+    }
+
+    companion object {
+        const val ADMIN_UPDATED_TAG = "ADMIN_UPDATED_TAG"
     }
 }

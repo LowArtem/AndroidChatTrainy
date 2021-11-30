@@ -37,8 +37,11 @@ class MessageViewModel(
 
     private var messagesCash: List<MessageDTO> = emptyList()
 
-    private val _messages = MutableLiveData<List<MessageDTO>>()
-    val messages: LiveData<List<MessageDTO>> = _messages
+    private val _messages = MutableLiveData<List<MessageDTO>?>().default(null)
+    val messages: LiveData<List<MessageDTO>?> = _messages
+
+    private val _isNeedToRedrawRecycler = MutableBooleanState().default(null)
+    val isNeedToRedrawRecycler: BooleanState = _isNeedToRedrawRecycler
 
     private val _isMessageDeleted = MutableBooleanState().default(null)
     val isMessageDeleted: BooleanState = _isMessageDeleted
@@ -53,32 +56,38 @@ class MessageViewModel(
 
     var needAutoScroll = true
 
-    private val _userType = MutableLiveData<String?>().default(null)
-    val userType: LiveData<String?> = _userType
+
+    private var adminIds: List<Long> = emptyList()
+    private var creatorId: Long = -1L
 
 
     // Main activity control function
     fun render(chatId: Long) {
-        this.chatId = chatId
+        if (_messages.value == null) {
+            this.chatId = chatId
 
-        try {
-            currentUser = localDataUseCases.getLocalData()
-                ?: throw Exception("User local auth not found")
+            try {
+                currentUser = localDataUseCases.getLocalData()
+                    ?: throw Exception("User local auth not found")
 
-            messageObservingScope.launch {
-                val gotMessages = messageSendingUseCases.getNewMessages(chatId)
-                _messages.postValue(gotMessages)
+                messageObservingScope.launch {
+                    val gotMessages = messageSendingUseCases.getNewMessages(chatId)
+                    _messages.postValue(gotMessages)
 
-                if (gotMessages.isEmpty()) {
-                    _state.postValue(MessageState.Empty)
+                    if (gotMessages.isEmpty()) {
+                        _state.postValue(MessageState.Empty)
+                    } else {
+                        _state.postValue(MessageState.Success(gotMessages))
+                    }
                 }
-                else {
-                    _state.postValue(MessageState.Success(gotMessages))
-                }
+            } catch (e: Exception) {
+                logE(e.localizedMessage ?: "Some error")
+                _state.postValue(
+                    MessageState.Error(
+                        e.localizedMessage?.toString() ?: "Message getting error"
+                    )
+                )
             }
-        } catch (e: Exception) {
-            logE(e.localizedMessage ?: "Some error")
-            _state.postValue(MessageState.Error(e.localizedMessage?.toString() ?: "Message getting error"))
         }
     }
 
@@ -101,6 +110,22 @@ class MessageViewModel(
             _state.postValue(
                 MessageState.Error("Message getting error")
             )
+        }
+    }
+
+    fun updateMessages() {
+        viewModelScope.launch {
+            try {
+                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
+                _isNeedToRedrawRecycler.postValue(true)
+            } catch (e1: CancellationException) {
+            } catch (e2: Exception) {
+                logE(e2.localizedMessage ?: "Some error")
+
+                _state.postValue(
+                    MessageState.Error("Admins getting error")
+                )
+            }
         }
     }
 
@@ -187,25 +212,26 @@ class MessageViewModel(
     }
 
     fun getUserType(chatId: Long, userId: Long = getCurrentUserId()): String = runBlocking(Dispatchers.IO) {
+        if (adminIds.isEmpty()) adminIds = chatGettingUseCases.getAdminIds(chatId)
+        if (creatorId == -1L) creatorId = chatGettingUseCases.openChat(chatId)?.creatorId ?:
+            return@runBlocking UserType.Member.toString()
+
         return@runBlocking when {
-            chatGettingUseCases.checkIsCreator(chatId, userId) == true -> {
-                _userType.postValue(UserType.Creator.toString())
+            userId == creatorId -> {
                 UserType.Creator.toString()
             }
-            chatGettingUseCases.checkIsAdmin(chatId, userId) == true -> {
-                _userType.postValue(UserType.Admin.toString())
+            adminIds.contains(userId) -> {
                 UserType.Admin.toString()
             }
             else -> {
-                _userType.postValue(UserType.Member.toString())
                 UserType.Member.toString()
             }
         }
     }
 
-    fun isUserAdminOrCreator(type: String? = null): Boolean {
+    fun isUserAdminOrCreator(chatId: Long, type: String? = null): Boolean {
         return if (type == null) {
-            userType.value == UserType.Admin.toString() || userType.value == UserType.Creator.toString()
+            getUserType(chatId) == UserType.Admin.toString() || getUserType(chatId) == UserType.Creator.toString()
         } else {
             type == UserType.Admin.toString() || type == UserType.Creator.toString()
         }
@@ -213,6 +239,7 @@ class MessageViewModel(
 
     fun clearResult() {
         _isMessageDeleted.postValue(null)
+        _isNeedToRedrawRecycler.postValue(null)
     }
 
     override fun isUserAdmin(userId: Long): Boolean {

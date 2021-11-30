@@ -24,6 +24,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
+import com.trialbot.trainyapplication.presentation.screen.chatProfile.ChatProfileFragment
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
@@ -54,7 +55,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             resources = requireContext().resources,
             clickNavigation = this,
             messageItemMenuClick = viewModel,
-            isCurrentUserCanDeleteMessages = viewModel.isUserAdminOrCreator(type),
+            isCurrentUserCanDeleteMessages = viewModel.isUserAdminOrCreator(args.chatId, type),
             adminChecking = viewModel
         )
 
@@ -89,6 +90,12 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                 USER_AVATAR_ICON_TAG,
                 bundleOf(USER_AVATAR_ICON_TAG to avatarId)
             )
+        }
+
+        setFragmentResultListener(ChatProfileFragment.ADMIN_UPDATED_TAG) {_, bundle ->
+            if (bundle.getBoolean(ChatProfileFragment.ADMIN_UPDATED_TAG)) {
+                viewModel.updateMessages()
+            }
         }
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
@@ -141,6 +148,14 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             }
         })
 
+        viewModel.isNeedToRedrawRecycler.observe(viewLifecycleOwner, { result ->
+            if (result == true) {
+                binding.messagesRV.adapter = adapter
+
+                viewModel.clearResult()
+            }
+        })
+
         viewModel.render(args.chatId)
 
         // Observing messages
@@ -151,7 +166,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         }
     }
 
-    private fun emptyObserver(): (t: List<MessageDTO>) -> Unit =
+    private fun emptyObserver(): (t: List<MessageDTO>?) -> Unit =
         {
             if (it != null) {
                 adapter.updateMessages(it)

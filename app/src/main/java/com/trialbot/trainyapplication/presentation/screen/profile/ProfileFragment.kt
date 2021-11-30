@@ -20,7 +20,6 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
-import com.trialbot.trainyapplication.presentation.screen.chat.ChatFragmentDirections
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapter
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
 import com.trialbot.trainyapplication.utils.navigateSafe
@@ -199,15 +198,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         }
 
                         createTheChatBtn.setOnClickListener {
-                            val direction = ChatFragmentDirections.actionChatFragmentToCreateChatFragment(args.currentUserId)
-                            findNavController().navigate(direction, navOptions {
-                                anim {
-                                    enter = R.anim.enter
-                                    exit = R.anim.exit
-                                    popEnter = R.anim.pop_enter
-                                    popExit = R.anim.pop_exit
-                                }
-                            })
+                            val direction = ProfileFragmentDirections.actionProfileFragmentToCreateChatFragment(args.currentUserId)
+                            findNavController().navigateSafe(direction)
                         }
 
                         // Set confirmation button isEnable if text2 == text1
