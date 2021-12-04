@@ -13,11 +13,11 @@ import com.trialbot.trainyapplication.domain.model.UserLocal
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.GetMemberType
-import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MemberType
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapterClickListener
 import com.trialbot.trainyapplication.utils.BooleanState
 import com.trialbot.trainyapplication.utils.MutableBooleanState
 import com.trialbot.trainyapplication.utils.default
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -63,6 +63,9 @@ class ChatProfileViewModel(
     private var userType: UserType = UserType.Member
     private var isDialog: Boolean = false
     private var currentUser: UserLocal? = null
+
+    private var adminIds: MutableList<Long> = mutableListOf()
+    private var creatorId: Long = -1L
 
     fun render(userType: String, userId: Long, chatId: Long) {
         viewModelScope.launch {
@@ -152,7 +155,10 @@ class ChatProfileViewModel(
     fun addAdmin() {
         viewModelScope.launch {
             val result = chatEditingUseCases.addAdmin(chatId ?: -1, selectedUserId.value ?: -1)
-            if (result) unselectMember()
+            if (result) {
+                adminIds.add(selectedUserId.value!!)
+                unselectMember()
+            }
             _isAdminAdded.postValue(result)
         }
     }
@@ -160,7 +166,10 @@ class ChatProfileViewModel(
     fun deleteAdmin() {
         viewModelScope.launch {
             val result = chatEditingUseCases.removeAdmin(chatId ?: -1, selectedUserId.value ?: -1)
-            if (result) unselectMember()
+            if (result) {
+                adminIds.remove(selectedUserId.value!!)
+                unselectMember()
+            }
             _isAdminDeleted.postValue(result)
         }
     }
@@ -193,15 +202,25 @@ class ChatProfileViewModel(
         _selectedUserId.postValue(null)
     }
 
-    override fun getMemberType(memberId: Long): MemberType {
-        return getMemberTypeBlocking(memberId)
+    override fun getMemberType(memberId: Long): UserType {
+        return UserType.fromString(getUserType(chatId ?: -1, memberId))
     }
 
-    private fun getMemberTypeBlocking(memberId: Long): MemberType = runBlocking {
-        if (chatGettingUseCases.checkIsAdmin(chatId ?: -1, memberId) == true)
-            return@runBlocking MemberType.ADMIN
-        else if (chatGettingUseCases.checkIsCreator(chatId ?: -1, memberId) == true)
-            return@runBlocking MemberType.CREATOR
-        return@runBlocking MemberType.COMMON_MEMBER
+    private fun getUserType(chatId: Long, userId: Long = currentUserId): String = runBlocking(Dispatchers.IO) {
+        if (adminIds.isEmpty()) adminIds = chatGettingUseCases.getAdminIds(chatId).toMutableList()
+        if (creatorId == -1L) creatorId = chatGettingUseCases.openChat(chatId)?.creatorId ?:
+                return@runBlocking UserType.Member.toString()
+
+        return@runBlocking when {
+            userId == creatorId -> {
+                UserType.Creator.toString()
+            }
+            adminIds.contains(userId) -> {
+                UserType.Admin.toString()
+            }
+            else -> {
+                UserType.Member.toString()
+            }
+        }
     }
 }

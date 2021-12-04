@@ -20,20 +20,28 @@ import java.util.*
 
 class MessageDiffCallback(
     private val oldMessages: List<MessageDTO>,
-    private val newMessages: List<MessageDTO>
+    private val newMessages: List<MessageDTO>,
+    private val adminChecking: AdminChecking
 ): DiffUtil.Callback() {
     override fun getOldListSize(): Int = oldMessages.size
 
     override fun getNewListSize(): Int = newMessages.size
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldMessages[oldItemPosition].pubDate == newMessages[newItemPosition].pubDate &&
-                oldMessages[oldItemPosition].author.id == newMessages[newItemPosition].author.id
+        val oldItem = oldMessages[oldItemPosition]
+        val newItem = newMessages[newItemPosition]
+
+        return oldItem.pubDate == newItem.pubDate &&
+                oldItem.author.id == newItem.author.id
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldMessages[oldItemPosition] == newMessages[newItemPosition] &&
-                oldMessages[oldItemPosition].author.icon == newMessages[newItemPosition].author.icon
+        val oldItem = oldMessages[oldItemPosition]
+        val newItem = newMessages[newItemPosition]
+
+        return oldItem == newItem &&
+                oldItem.author.icon == newItem.author.icon &&
+                adminChecking.isUserAdmin(oldItem.author.id) == adminChecking.isUserAdmin(newItem.author.id)
     }
 }
 
@@ -65,7 +73,7 @@ class MessageAdapter(
 
     private var messages: MutableList<MessageDTO> = mutableListOf()
         set(newValue) {
-            val diffCallback = MessageDiffCallback(field, newValue)
+            val diffCallback = MessageDiffCallback(field, newValue, adminChecking)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             field.clear()
             field = newValue

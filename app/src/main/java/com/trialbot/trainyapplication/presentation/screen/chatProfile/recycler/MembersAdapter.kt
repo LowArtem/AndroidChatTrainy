@@ -9,6 +9,7 @@ import com.trialbot.trainyapplication.databinding.ItemMemberBinding
 import com.trialbot.trainyapplication.databinding.ItemMemberCreatorBinding
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
+import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
 import com.trialbot.trainyapplication.utils.BaseViewHolder
 
 interface MembersAdapterClickListener {
@@ -16,7 +17,7 @@ interface MembersAdapterClickListener {
 }
 
 interface GetMemberType {
-    fun getMemberType(memberId: Long): MemberType
+    fun getMemberType(memberId: Long): UserType
 }
 
 class MembersAdapter(
@@ -32,7 +33,6 @@ class MembersAdapter(
             notifyDataSetChanged()
         }
 
-    private var selectedPos = RecyclerView.NO_POSITION
 
     class MembersViewHolder(
         private val binding: ItemMemberBinding
@@ -110,11 +110,10 @@ class MembersAdapter(
     override fun getItemCount(): Int = members.size
 
     override fun getItemViewType(position: Int): Int {
-        val memberType = getMemberType.getMemberType(members[position].id)
-        return when(memberType) {
-            MemberType.COMMON_MEMBER -> TYPE_MEMBER
-            MemberType.ADMIN -> TYPE_ADMIN
-            MemberType.CREATOR -> TYPE_CREATOR
+        return when(getMemberType.getMemberType(members[position].id)) {
+            UserType.Member -> TYPE_MEMBER
+            UserType.Admin -> TYPE_ADMIN
+            UserType.Creator -> TYPE_CREATOR
         }
     }
 

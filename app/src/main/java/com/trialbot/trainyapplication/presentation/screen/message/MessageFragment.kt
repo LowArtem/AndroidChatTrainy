@@ -24,7 +24,6 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
-import com.trialbot.trainyapplication.presentation.screen.chatProfile.ChatProfileFragment
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
@@ -92,11 +91,11 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             )
         }
 
-        setFragmentResultListener(ChatProfileFragment.ADMIN_UPDATED_TAG) {_, bundle ->
-            if (bundle.getBoolean(ChatProfileFragment.ADMIN_UPDATED_TAG)) {
-                viewModel.updateMessages()
-            }
-        }
+//        setFragmentResultListener(ChatProfileFragment.ADMIN_UPDATED_TAG) {_, bundle ->
+//            if (bundle.getBoolean(ChatProfileFragment.ADMIN_UPDATED_TAG)) {
+//                viewModel.updateAdmins()
+//            }
+//        }
 
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
             when(newValue) {

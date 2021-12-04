@@ -14,7 +14,6 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChatProfileBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
-import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MemberType
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapter
 import com.trialbot.trainyapplication.utils.confirmDialog
 import com.trialbot.trainyapplication.utils.resultDialog
@@ -243,26 +242,26 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                     memberOptionsLL.visibility = View.GONE
                 } else {
                     when(viewModel.getMemberType(viewModel.currentUserId)) {
-                        MemberType.CREATOR -> {
+                        UserType.Creator -> {
                             coverMode = CoverMode.MEMBER_OPTIONS
                             chatCoverTransparent.visibility = View.VISIBLE
 
-                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) != MemberType.ADMIN)
+                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) != UserType.Admin)
                                 deleteMemberBtn.visibility = View.VISIBLE
                             else deleteMemberBtn.visibility = View.GONE
 
-                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) == MemberType.ADMIN)
+                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) == UserType.Admin)
                                 deleteAdminBtn.visibility = View.VISIBLE
                             else deleteAdminBtn.visibility = View.GONE
 
-                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) != MemberType.ADMIN)
+                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) != UserType.Admin)
                                 addAdminBtn.visibility = View.VISIBLE
                             else addAdminBtn.visibility = View.GONE
 
                             memberOptionsLL.visibility = View.VISIBLE
                         }
-                        MemberType.ADMIN -> {
-                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) == MemberType.COMMON_MEMBER) {
+                        UserType.Admin -> {
+                            if (viewModel.getMemberType(viewModel.selectedUserId.value ?: -1) == UserType.Member) {
                                 coverMode = CoverMode.MEMBER_OPTIONS
                                 chatCoverTransparent.visibility = View.VISIBLE
 
@@ -273,7 +272,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                                 memberOptionsLL.visibility = View.VISIBLE
                             }
                         }
-                        MemberType.COMMON_MEMBER -> {
+                        UserType.Member -> {
                             memberOptionsLL.visibility = View.GONE
                         }
                     }

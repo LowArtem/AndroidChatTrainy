@@ -97,10 +97,9 @@ class MessageViewModel(
             while (true) {
                 if (chatId == null) delay(3000)
 
+                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
                 val gotMessages = messageSendingUseCases.getNewMessages(chatId!!)
-                if (isContentChanged(gotMessages)) {
-                    _messages.postValue(gotMessages)
-                }
+                _messages.postValue(gotMessages)
                 delay(3000)
             }
         } catch (e1: CancellationException) {}
@@ -113,7 +112,7 @@ class MessageViewModel(
         }
     }
 
-    fun updateMessages() {
+    fun updateAdmins() {
         viewModelScope.launch {
             try {
                 adminIds = chatGettingUseCases.getAdminIds(chatId!!)
