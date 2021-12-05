@@ -32,24 +32,22 @@ class CreateChatViewModel(
         this.currentUserId = currentUserId
     }
 
-    fun createChat(name: String, icon: Int = -1, about: String? = null) {
-        if (currentUserId != null) {
-            viewModelScope.launch {
-                val createdChatId = chatEditingUseCases.createChat(
-                    ChatCreating(
-                        name = name,
-                        about = about ?: "",
-                        icon = icon,
-                        creatorId = currentUserId!!
-                    )
+    fun createChat(name: String, icon: Int = -1, currentUserId: Long, about: String? = null) {
+        viewModelScope.launch {
+            val createdChatId = chatEditingUseCases.createChat(
+                ChatCreating(
+                    name = name,
+                    about = about ?: "",
+                    icon = icon,
+                    creatorId = currentUserId
                 )
-                if (createdChatId != null) {
-                    _isChatSuccessfullyCreated.postValue(true)
-                    chatCreatedId = createdChatId
-                } else {
-                    _isChatSuccessfullyCreated.postValue(false)
-                    chatCreatedId = null
-                }
+            )
+            if (createdChatId != null) {
+                _isChatSuccessfullyCreated.postValue(true)
+                chatCreatedId = createdChatId
+            } else {
+                _isChatSuccessfullyCreated.postValue(false)
+                chatCreatedId = null
             }
         }
     }

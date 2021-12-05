@@ -198,7 +198,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         }
 
                         createTheChatBtn.setOnClickListener {
-                            val direction = ProfileFragmentDirections.actionProfileFragmentToCreateChatFragment(args.currentUserId)
+                            val direction = ProfileFragmentDirections.actionProfileFragmentToCreateChatFragment(userId)
                             findNavController().navigateSafe(direction)
                         }
 

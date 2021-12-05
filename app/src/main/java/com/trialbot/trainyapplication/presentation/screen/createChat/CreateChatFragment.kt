@@ -71,6 +71,7 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
                     viewModel.createChat(
                         name = chatCreatingNameET.text.toString(),
                         icon = chatIcon,
+                        currentUserId = args.currentUserId,
                         about = if (chatCreatingAboutET.text.isNotBlank()) chatCreatingNameET.text.toString() else null
                     )
                 }

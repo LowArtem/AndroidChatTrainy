@@ -26,9 +26,9 @@ class MyApp: Application() {
 
     companion object {
         // AVD
-        const val MY_BASE_URL = "https://10.0.2.2:5001/api/"
+//        const val MY_BASE_URL = "https://10.0.2.2:5001/api/"
         // REAL PHONE
-//        const val MY_BASE_URL = "https://479b-188-233-55-51.ngrok.io/api/"
+        const val MY_BASE_URL = "https://trialbot-chat-server.herokuapp.com/api/"
 
         const val SHARED_PREFS_AUTH_TAG = "user_auth_info"
     }

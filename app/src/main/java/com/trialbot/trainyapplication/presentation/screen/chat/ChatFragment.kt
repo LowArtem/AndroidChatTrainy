@@ -88,6 +88,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
                     with(binding) {
                         loadingPanel.visibility = View.VISIBLE
                         textEmpty.visibility = View.GONE
+                        createChatFloating.visibility = View.GONE
                     }
                 }
                 is ChatState.Empty -> {
@@ -95,24 +96,14 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.VISIBLE
+                        createChatFloating.visibility = View.VISIBLE
                     }
                 }
                 is ChatState.Success -> {
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
-
-                        createChatFloating.setOnClickListener {
-                            val direction = ChatFragmentDirections.actionChatFragmentToCreateChatFragment(args.userId)
-                            findNavController().navigate(direction, navOptions {
-                                anim {
-                                    enter = R.anim.enter
-                                    exit = R.anim.exit
-                                    popEnter = R.anim.pop_enter
-                                    popExit = R.anim.pop_exit
-                                }
-                            })
-                        }
+                        createChatFloating.visibility = View.VISIBLE
                     }
                     adapter.updateChats(state.chats)
 
@@ -122,11 +113,26 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
+                        createChatFloating.visibility = View.GONE
                     }
                     Snackbar.make(binding.root, "Error: ${state.message}", Snackbar.LENGTH_LONG).show()
                 }
             }
         })
+
+        with(binding) {
+            createChatFloating.setOnClickListener {
+                val direction = ChatFragmentDirections.actionChatFragmentToCreateChatFragment(args.userId)
+                findNavController().navigate(direction, navOptions {
+                    anim {
+                        enter = R.anim.enter
+                        exit = R.anim.exit
+                        popEnter = R.anim.pop_enter
+                        popExit = R.anim.pop_exit
+                    }
+                })
+            }
+        }
 
         viewModel.render(args.userId)
     }
