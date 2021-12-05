@@ -54,7 +54,7 @@ class MessageViewModel(
     var needAutoScroll = true
 
 
-    private var adminIds: List<Long> = emptyList()
+    private var adminIds: List<Long>? = null
     private var creatorIds: MutableList<Long>? = null
     private var currentChat: ChatDetails? = null
 
@@ -193,7 +193,10 @@ class MessageViewModel(
     fun getUserType(chatId: Long, userId: Long = getCurrentUserId()): String = runBlocking(Dispatchers.IO) {
         val chat = initChat(chatId) ?: return@runBlocking UserType.Member.toString()
 
-        if (adminIds.isEmpty()) adminIds = chatGettingUseCases.getAdminIds(chatId).toMutableList()
+        if (adminIds == null) {
+            adminIds = chatGettingUseCases.getAdminIds(chatId).toMutableList()
+        }
+
         if (creatorIds.isNullOrEmpty()) creatorIds = mutableListOf(chatGettingUseCases.openChat(chatId)?.creatorId ?:
         return@runBlocking UserType.Member.toString())
 
@@ -203,7 +206,7 @@ class MessageViewModel(
             creatorIds?.contains(userId) ?: false -> {
                 UserType.Creator.toString()
             }
-            adminIds.contains(userId) -> {
+            adminIds?.contains(userId) ?: false -> {
                 UserType.Admin.toString()
             }
             else -> {
