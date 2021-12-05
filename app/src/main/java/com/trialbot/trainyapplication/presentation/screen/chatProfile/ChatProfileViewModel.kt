@@ -65,7 +65,7 @@ class ChatProfileViewModel(
     private var currentUser: UserLocal? = null
 
     private var adminIds: MutableList<Long> = mutableListOf()
-    private var creatorId: Long = -1L
+    private var creatorIds: MutableList<Long>? = null
 
     fun render(userType: String, userId: Long, chatId: Long) {
         viewModelScope.launch {
@@ -208,11 +208,13 @@ class ChatProfileViewModel(
 
     private fun getUserType(chatId: Long, userId: Long = currentUserId): String = runBlocking(Dispatchers.IO) {
         if (adminIds.isEmpty()) adminIds = chatGettingUseCases.getAdminIds(chatId).toMutableList()
-        if (creatorId == -1L) creatorId = chatGettingUseCases.openChat(chatId)?.creatorId ?:
-                return@runBlocking UserType.Member.toString()
+        if (creatorIds.isNullOrEmpty()) creatorIds = mutableListOf(chatGettingUseCases.openChat(chatId)?.creatorId ?:
+                return@runBlocking UserType.Member.toString())
+
+        if (isDialog) creatorIds?.add(currentChat?.secondDialogMemberId!!)
 
         return@runBlocking when {
-            userId == creatorId -> {
+            creatorIds?.contains(userId) ?: false -> {
                 UserType.Creator.toString()
             }
             adminIds.contains(userId) -> {

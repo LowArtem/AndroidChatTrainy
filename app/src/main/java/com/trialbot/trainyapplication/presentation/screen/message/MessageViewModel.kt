@@ -8,10 +8,7 @@ import com.trialbot.trainyapplication.domain.ChatGettingUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.MessageEditUseCases
 import com.trialbot.trainyapplication.domain.MessageSendingUseCases
-import com.trialbot.trainyapplication.domain.model.MessageDTO
-import com.trialbot.trainyapplication.domain.model.MessageWithAuthUser
-import com.trialbot.trainyapplication.domain.model.UserAuthId
-import com.trialbot.trainyapplication.domain.model.UserLocal
+import com.trialbot.trainyapplication.domain.model.*
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.AdminChecking
@@ -35,7 +32,7 @@ class MessageViewModel(
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
 
-    private var messagesCash: List<MessageDTO> = emptyList()
+//    private var messagesCash: List<MessageDTO> = emptyList()
 
     private val _messages = MutableLiveData<List<MessageDTO>?>().default(null)
     val messages: LiveData<List<MessageDTO>?> = _messages
@@ -58,7 +55,8 @@ class MessageViewModel(
 
 
     private var adminIds: List<Long> = emptyList()
-    private var creatorId: Long = -1L
+    private var creatorIds: MutableList<Long>? = null
+    private var currentChat: ChatDetails? = null
 
 
     // Main activity control function
@@ -69,6 +67,10 @@ class MessageViewModel(
             try {
                 currentUser = localDataUseCases.getLocalData()
                     ?: throw Exception("User local auth not found")
+
+                viewModelScope.launch {
+                    if (initChat(chatId) == null) throw Exception("Cannot get the current chat")
+                }
 
                 messageObservingScope.launch {
                     val gotMessages = messageSendingUseCases.getNewMessages(chatId)
@@ -89,6 +91,13 @@ class MessageViewModel(
                 )
             }
         }
+    }
+
+    private suspend fun initChat(chatId: Long): ChatDetails? {
+        if (currentChat == null) {
+            currentChat = chatGettingUseCases.openChat(chatId)
+        }
+        return currentChat
     }
 
 
@@ -112,21 +121,21 @@ class MessageViewModel(
         }
     }
 
-    fun updateAdmins() {
-        viewModelScope.launch {
-            try {
-                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
-                _isNeedToRedrawRecycler.postValue(true)
-            } catch (e1: CancellationException) {
-            } catch (e2: Exception) {
-                logE(e2.localizedMessage ?: "Some error")
-
-                _state.postValue(
-                    MessageState.Error("Admins getting error")
-                )
-            }
-        }
-    }
+//    fun updateAdmins() {
+//        viewModelScope.launch {
+//            try {
+//                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
+//                _isNeedToRedrawRecycler.postValue(true)
+//            } catch (e1: CancellationException) {
+//            } catch (e2: Exception) {
+//                logE(e2.localizedMessage ?: "Some error")
+//
+//                _state.postValue(
+//                    MessageState.Error("Admins getting error")
+//                )
+//            }
+//        }
+//    }
 
     fun send(input: String)
     {
@@ -181,42 +190,17 @@ class MessageViewModel(
         _state.postValue(MessageState.Success(messages))
     }
 
-
-
-    private fun isContentChanged(newMessages: List<MessageDTO>): Boolean {
-        if (messagesCash.isNullOrEmpty() && !newMessages.isNullOrEmpty()) {
-            messagesCash = newMessages
-            return true
-        }
-
-        if (newMessages.isNullOrEmpty() && !messagesCash.isNullOrEmpty()) {
-            messagesCash = newMessages
-            return true
-        }
-        if (newMessages.isNullOrEmpty() && messagesCash.isNullOrEmpty()) return false
-
-        val result = !areMessagesEqual(messagesCash.last(), newMessages.last())
-        return if (result) {
-            messagesCash = newMessages
-            true
-        } else false
-    }
-
-    private fun areMessagesEqual(message1: MessageDTO, message2: MessageDTO): Boolean {
-        return message1.text == message2.text &&
-                message1.pubDate == message2.pubDate &&
-                message1.author.id == message2.author.id &&
-                message1.author.username == message2.author.username &&
-                message1.author.icon == message2.author.icon
-    }
-
     fun getUserType(chatId: Long, userId: Long = getCurrentUserId()): String = runBlocking(Dispatchers.IO) {
-        if (adminIds.isEmpty()) adminIds = chatGettingUseCases.getAdminIds(chatId)
-        if (creatorId == -1L) creatorId = chatGettingUseCases.openChat(chatId)?.creatorId ?:
-            return@runBlocking UserType.Member.toString()
+        val chat = initChat(chatId) ?: return@runBlocking UserType.Member.toString()
+
+        if (adminIds.isEmpty()) adminIds = chatGettingUseCases.getAdminIds(chatId).toMutableList()
+        if (creatorIds.isNullOrEmpty()) creatorIds = mutableListOf(chatGettingUseCases.openChat(chatId)?.creatorId ?:
+        return@runBlocking UserType.Member.toString())
+
+        if (chat.secondDialogMemberId != -1L) creatorIds?.add(chat.secondDialogMemberId)
 
         return@runBlocking when {
-            userId == creatorId -> {
+            creatorIds?.contains(userId) ?: false -> {
                 UserType.Creator.toString()
             }
             adminIds.contains(userId) -> {
@@ -229,6 +213,8 @@ class MessageViewModel(
     }
 
     fun isUserAdminOrCreator(chatId: Long, type: String? = null): Boolean {
+        if (currentChat?.secondDialogMemberId != -1L) return false
+
         return if (type == null) {
             getUserType(chatId) == UserType.Admin.toString() || getUserType(chatId) == UserType.Creator.toString()
         } else {
