@@ -126,8 +126,28 @@
                 android:layout_marginTop="6dp"
                 android:text="@string/user_online_status_online"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/nameTV"
-                app:layout_constraintTop_toBottomOf="@+id/nameTV" />
+                app:layout_constraintStart_toStartOf="@id/nameTV"
+                app:layout_constraintTop_toBottomOf="@id/nameTV" />
+
+            <TextView
+                android:id="@+id/lastSeenLabelTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Last seen: "
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/statusTV"
+                app:layout_constraintTop_toBottomOf="@id/statusTV" />
+
+            <TextView
+                android:id="@+id/lastSeenTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                app:layout_constraintTop_toTopOf="@id/lastSeenLabelTV"
+                app:layout_constraintBottom_toBottomOf="@id/lastSeenLabelTV"
+                app:layout_constraintStart_toEndOf="@id/lastSeenLabelTV"
+                tools:text="at 12:53"/>
 
             <ImageButton
                 android:id="@+id/sendMessageBtn"

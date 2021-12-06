@@ -9,7 +9,9 @@ import com.trialbot.trainyapplication.utils.BooleanState
 import com.trialbot.trainyapplication.utils.MutableBooleanState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ProfileViewModel(
     private val editUserUseCases: EditUserUseCases,
@@ -172,5 +174,33 @@ class ProfileViewModel(
     // Нужно очищать результат создания диалога, иначе, если внутри чата нажать назад, то будет опять перебрасывать в чат
     fun cleanDialogCreatedResult() {
         _isDialogSuccessfullyCreated.postValue(null)
+    }
+
+    fun lastSeenCounter(lastDate: Date): String {
+        val date = Calendar.getInstance()
+        date.time = lastDate
+        val currentDate = Calendar.getInstance()
+
+        val diff = currentDate.timeInMillis - date.timeInMillis
+        val dayDiff = TimeUnit.MILLISECONDS.toDays(diff)
+
+        return when {
+            dayDiff < 1L -> { // Today (within 24 hours)
+                val formatter = SimpleDateFormat("HH:mm", Locale.ROOT)
+                "at ${formatter.format(date.time)}"
+            }
+            dayDiff == 1L -> { // Yesterday
+                val formatter = SimpleDateFormat("HH:mm", Locale.ROOT)
+                "Yesterday at ${formatter.format(date.time)}"
+            }
+            dayDiff <= 30L -> { // On this month
+                val formatter = SimpleDateFormat("dd.MM", Locale.ROOT)
+                formatter.format(date.time)
+            }
+            else -> { // Very long time ago (MM:yyyy)
+                val formatter = SimpleDateFormat("MM.yyyy", Locale.ROOT)
+                formatter.format(date.time)
+            }
+        }
     }
 }

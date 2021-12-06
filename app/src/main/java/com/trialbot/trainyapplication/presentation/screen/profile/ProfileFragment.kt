@@ -71,6 +71,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         avatarsRV.visibility = View.GONE
                         avatarCoverTransparent.visibility = View.GONE
                         newPasswordLL.visibility = View.GONE
+                        lastSeenLabelTV.visibility = View.GONE
+                        lastSeenTV.visibility = View.GONE
 
                         loadingPanel.visibility = View.VISIBLE
                     }
@@ -94,10 +96,16 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         avatarCoverTransparent.visibility = View.GONE
                         newPasswordLL.visibility = View.GONE
 
-                        if (it.user.isOnline)
+                        if (it.user.isOnline) {
                             statusTV.text = getString(R.string.user_online_status_online)
-                        else
+                            lastSeenLabelTV.visibility = View.GONE
+                            lastSeenTV.visibility = View.GONE
+                        } else {
                             statusTV.text = getString(R.string.user_online_status_offline)
+                            lastSeenLabelTV.visibility = View.VISIBLE
+                            lastSeenTV.visibility = View.VISIBLE
+                            lastSeenTV.text = viewModel.lastSeenCounter((viewModel.user as UserWithoutPassword).lastDate)
+                        }
 
                         nameTV.text = it.user.username
                         avatarIV.setImageDrawable(DrawableController.getDrawableFromId(it.user.icon, resources))
@@ -165,6 +173,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         loadingPanel.visibility = View.GONE
                         avatarsRV.visibility = View.GONE
                         avatarCoverTransparent.visibility = View.GONE
+                        lastSeenLabelTV.visibility = View.GONE
+                        lastSeenTV.visibility = View.GONE
 
                         statusTV.text = getString(R.string.user_online_status_online)
                         nameTV.text = it.user.username
@@ -260,6 +270,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         errorLayout.visibility = View.GONE
                         loadingPanel.visibility = View.GONE
                         newPasswordLL.visibility = View.GONE
+                        lastSeenLabelTV.visibility = View.GONE
+                        lastSeenTV.visibility = View.GONE
 
                         avatarCoverTransparent.visibility = View.VISIBLE
                         avatarsRV.visibility = View.VISIBLE
@@ -301,6 +313,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         sendMessageBtn.visibility = View.GONE
                         errorLayout.visibility = View.GONE
                         loadingPanel.visibility = View.GONE
+                        lastSeenLabelTV.visibility = View.GONE
+                        lastSeenTV.visibility = View.GONE
 
                         avatarsRV.visibility = View.GONE
                         avatarCoverTransparent.visibility = View.GONE
@@ -332,6 +346,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
                         avatarsRV.visibility = View.GONE
                         avatarCoverTransparent.visibility = View.GONE
                         newPasswordLL.visibility = View.GONE
+                        lastSeenLabelTV.visibility = View.GONE
+                        lastSeenTV.visibility = View.GONE
 
                         errorLayout.visibility = View.VISIBLE
 
