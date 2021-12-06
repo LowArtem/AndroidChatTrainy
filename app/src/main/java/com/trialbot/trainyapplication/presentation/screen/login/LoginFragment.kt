@@ -123,7 +123,8 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
         if (
             usernameEdit.text!!.isNotBlank() &&
             passwordEdit.text!!.isNotBlank() &&
-            passwordEdit.length() > 5
+            passwordEdit.length() > 5 &&
+            usernameEdit.text!!.length <= 26
         ) {
             usernameEdit.error = null
             passwordEdit.error = null
@@ -131,11 +132,16 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
             return true
         }
         else {
-            if (usernameEdit.text!!.isBlank()) {
-                usernameEdit.error = "Please enter the username"
-            }
-            else {
-                passwordEdit.error = "Please enter the password more than 5 symbols"
+            when {
+                usernameEdit.text!!.isBlank() -> {
+                    usernameEdit.error = "Please enter the username"
+                }
+                usernameEdit.text!!.length > 26 -> {
+                    usernameEdit.error = "The username is too long"
+                }
+                else -> {
+                    passwordEdit.error = "Please enter the password more than 5 symbols"
+                }
             }
 
             return false
