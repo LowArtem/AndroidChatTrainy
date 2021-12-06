@@ -91,12 +91,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             )
         }
 
-//        setFragmentResultListener(ChatProfileFragment.ADMIN_UPDATED_TAG) {_, bundle ->
-//            if (bundle.getBoolean(ChatProfileFragment.ADMIN_UPDATED_TAG)) {
-//                viewModel.updateAdmins()
-//            }
-//        }
-
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
             when(newValue) {
                 is MessageState.Loading -> {
@@ -144,14 +138,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                     )
                     viewModel.clearResult()
                 }
-            }
-        })
-
-        viewModel.isNeedToRedrawRecycler.observe(viewLifecycleOwner, { result ->
-            if (result == true) {
-                binding.messagesRV.adapter = adapter
-
-                viewModel.clearResult()
             }
         })
 
