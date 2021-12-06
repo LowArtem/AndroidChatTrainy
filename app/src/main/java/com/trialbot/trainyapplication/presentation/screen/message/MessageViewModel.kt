@@ -4,10 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.trialbot.trainyapplication.data.MessagesPageSource
 import com.trialbot.trainyapplication.domain.ChatGettingUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.MessageEditUseCases
 import com.trialbot.trainyapplication.domain.MessageSendingUseCases
+import com.trialbot.trainyapplication.domain.interfaces.MessageControllerRemote
 import com.trialbot.trainyapplication.domain.model.*
 import com.trialbot.trainyapplication.domain.utils.logE
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.UserType
@@ -18,22 +23,24 @@ import com.trialbot.trainyapplication.utils.BooleanState
 import com.trialbot.trainyapplication.utils.MutableBooleanState
 import com.trialbot.trainyapplication.utils.default
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import java.util.*
-import kotlin.coroutines.cancellation.CancellationException
 
 
 class MessageViewModel(
     private val messageSendingUseCases: MessageSendingUseCases,
     private val localDataUseCases: LocalDataUseCases,
     private val chatGettingUseCases: ChatGettingUseCases,
-    private val messageEditUseCases: MessageEditUseCases
+    private val messageEditUseCases: MessageEditUseCases,
+    private val messageControllerRemote: MessageControllerRemote
 ) : ViewModel(), MessageItemMenuClick, AdminChecking {
 
-    private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
+    private val _state = MutableLiveData<MessageState>().default(MessageState.Success(emptyList()))
     val state: LiveData<MessageState> = _state
 
-    private val _messages = MutableLiveData<List<MessageDTO>?>().default(null)
-    val messages: LiveData<List<MessageDTO>?> = _messages
+    lateinit var messages: StateFlow<PagingData<MessageDTO>>
 
     private val _isMessageDeleted = MutableBooleanState().default(null)
     val isMessageDeleted: BooleanState = _isMessageDeleted
@@ -53,37 +60,43 @@ class MessageViewModel(
     private var creatorIds: MutableList<Long>? = null
     private var currentChat: ChatDetails? = null
 
+    fun initPaging(chatId: Long) {
+        messages = Pager(
+            PagingConfig(20, initialLoadSize = 30)
+        ) {
+            MessagesPageSource(messageControllerRemote, chatId)
+        }.flow.stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
+    }
+
 
     fun render(chatId: Long) {
-        if (_messages.value == null) {
-            this.chatId = chatId
+        this.chatId = chatId
 
-            try {
-                currentUser = localDataUseCases.getLocalData()
-                    ?: throw Exception("User local auth not found")
+        try {
+            currentUser = localDataUseCases.getLocalData()
+                ?: throw Exception("User local auth not found")
 
-                viewModelScope.launch {
-                    if (initChat(chatId) == null) throw Exception("Cannot get the current chat")
-                }
-
-                messageObservingScope.launch {
-                    val gotMessages = messageSendingUseCases.getNewMessages(chatId)
-                    _messages.postValue(gotMessages)
-
-                    if (gotMessages.isEmpty()) {
-                        _state.postValue(MessageState.Empty)
-                    } else {
-                        _state.postValue(MessageState.Success(gotMessages))
-                    }
-                }
-            } catch (e: Exception) {
-                logE(e.localizedMessage ?: "Some error")
-                _state.postValue(
-                    MessageState.Error(
-                        e.localizedMessage?.toString() ?: "Message getting error"
-                    )
-                )
+            viewModelScope.launch {
+                if (initChat(chatId) == null) throw Exception("Cannot get the current chat")
             }
+
+//            messageObservingScope.launch {
+//                val gotMessages = messageSendingUseCases.getNewMessages(chatId)
+//                messages.postValue(gotMessages)
+//
+//                if (gotMessages.isEmpty()) {
+//                    _state.postValue(MessageState.Empty)
+//                } else {
+//                    _state.postValue(MessageState.Success(gotMessages))
+//                }
+//            }
+        } catch (e: Exception) {
+            logE(e.localizedMessage ?: "Some error")
+            _state.postValue(
+                MessageState.Error(
+                    e.localizedMessage?.toString() ?: "Message getting error"
+                )
+            )
         }
     }
 
@@ -95,25 +108,25 @@ class MessageViewModel(
     }
 
 
-    suspend fun startMessageObserving() {
-        try {
-            while (true) {
-                if (chatId == null) delay(3000)
-
-                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
-                val gotMessages = messageSendingUseCases.getNewMessages(chatId!!)
-                _messages.postValue(gotMessages)
-                delay(3000)
-            }
-        } catch (e1: CancellationException) {}
-        catch (e2: Exception) {
-            logE(e2.localizedMessage ?: "Some error")
-
-            _state.postValue(
-                MessageState.Error("Message getting error")
-            )
-        }
-    }
+//    suspend fun startMessageObserving() {
+//        try {
+//            while (true) {
+//                if (chatId == null) delay(3000)
+//
+//                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
+//                val gotMessages = messageSendingUseCases.getNewMessages(chatId!!)
+//                messages.postValue(gotMessages)
+//                delay(3000)
+//            }
+//        } catch (e1: CancellationException) {}
+//        catch (e2: Exception) {
+//            logE(e2.localizedMessage ?: "Some error")
+//
+//            _state.postValue(
+//                MessageState.Error("Message getting error")
+//            )
+//        }
+//    }
 
     fun send(input: String)
     {
@@ -148,8 +161,8 @@ class MessageViewModel(
                         messageId = messageId,
                         currentUserId = getCurrentUserId()
                     ))
-                    val gotMessages = messageSendingUseCases.getNewMessages(chatId ?: -1)
-                    _messages.postValue(gotMessages)
+//                    val gotMessages = messageSendingUseCases.getNewMessages(chatId ?: -1)
+//                    messages.postValue(gotMessages)
                     needAutoScroll = false
                 }
             }

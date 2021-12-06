@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.trialbot.trainyapplication.R
@@ -13,35 +14,17 @@ import com.trialbot.trainyapplication.databinding.ItemMyMessageBinding
 import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
-import com.trialbot.trainyapplication.utils.BaseViewHolder
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class MessageDiffCallback(
-    private val oldMessages: List<MessageDTO>,
-    private val newMessages: List<MessageDTO>,
-    private val adminChecking: AdminChecking
-): DiffUtil.Callback() {
-    override fun getOldListSize(): Int = oldMessages.size
-
-    override fun getNewListSize(): Int = newMessages.size
-
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldItem = oldMessages[oldItemPosition]
-        val newItem = newMessages[newItemPosition]
-
-        return oldItem.pubDate == newItem.pubDate &&
-                oldItem.author.id == newItem.author.id
+private object MessageDiffCallback : DiffUtil.ItemCallback<MessageDTO>() {
+    override fun areItemsTheSame(oldItem: MessageDTO, newItem: MessageDTO): Boolean {
+        return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldItem = oldMessages[oldItemPosition]
-        val newItem = newMessages[newItemPosition]
-
-        return oldItem == newItem &&
-                oldItem.author.icon == newItem.author.icon &&
-                adminChecking.isUserAdmin(oldItem.author.id) == adminChecking.isUserAdmin(newItem.author.id)
+    override fun areContentsTheSame(oldItem: MessageDTO, newItem: MessageDTO): Boolean {
+        return oldItem.author.icon == newItem.author.icon && oldItem.text == newItem.text
     }
 }
 
@@ -62,6 +45,10 @@ interface AdminChecking {
     fun isUserAdmin(userId: Long): Boolean
 }
 
+abstract class BasePagingViewHolder<T>(viewItem: View) : RecyclerView.ViewHolder(viewItem) {
+    abstract fun bind(item: T?, resources: Resources)
+}
+
 class MessageAdapter(
     private val currentUserId: Long,
     private val resources: Resources,
@@ -69,16 +56,7 @@ class MessageAdapter(
     private val messageItemMenuClick: MessageItemMenuClick,
     private val isCurrentUserCanDeleteMessages: Boolean,
     private val adminChecking: AdminChecking
-) : RecyclerView.Adapter<BaseViewHolder<*>>() {
-
-    private var messages: MutableList<MessageDTO> = mutableListOf()
-        set(newValue) {
-            val diffCallback = MessageDiffCallback(field, newValue, adminChecking)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            field.clear()
-            field = newValue
-            diffResult.dispatchUpdatesTo(this)
-        }
+) : PagingDataAdapter<MessageDTO, BasePagingViewHolder<*>>(MessageDiffCallback) {
 
     class CommonMessageViewHolder(
         private val binding: ItemMessageBinding,
@@ -86,44 +64,69 @@ class MessageAdapter(
         private val messageItemMenuClick: MessageItemMenuClick,
         private val isCurrentUserCanDeleteMessages: Boolean,
         private val adminChecking: AdminChecking
-    ) : BaseViewHolder<MessageDTO>(binding.root) {
-        override fun bind(item: MessageDTO, resources: Resources) {
+    ) : BasePagingViewHolder<MessageDTO>(binding.root) {
+
+        override fun bind(item: MessageDTO?, resources: Resources) {
             with(this.binding) {
-                authorAvatarIV.setImageDrawable(DrawableController.getDrawableFromId(item.author.icon, resources))
-                authorNameTV.text = item.author.username
+                if (item != null) {
+                    authorAvatarIV.setImageDrawable(
+                        DrawableController.getDrawableFromId(
+                            item.author.icon,
+                            resources
+                        )
+                    )
+                    authorNameTV.visibility = View.VISIBLE
+                    authorNameTV.text = item.author.username
 
-                if (adminChecking.isUserAdmin(item.author.id)) {
-                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_shield, 0)
-                } else {
-                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
-                }
+                    if (adminChecking.isUserAdmin(item.author.id)) {
+                        authorNameTV.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.ic_shield,
+                            0
+                        )
+                    } else {
+                        authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+                    }
 
-                messageTextTV.text = item.text
+                    messageTextTV.visibility = View.VISIBLE
+                    messageTextTV.text = item.text
 
-                val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
-                pubDateTV.text = formatter.format(item.pubDate)
+                    val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
+                    pubDateTV.text = formatter.format(item.pubDate)
 
-                authorAvatarIV.setOnClickListener {
-                    clickNavigation.openProfile(item.author, ProfileViewStatus.Guest)
-                }
+                    authorAvatarIV.setOnClickListener {
+                        clickNavigation.openProfile(item.author, ProfileViewStatus.Guest)
+                    }
 
-                moreBtn.visibility = if (isCurrentUserCanDeleteMessages) View.VISIBLE else View.GONE
+                    moreBtn.visibility =
+                        if (isCurrentUserCanDeleteMessages) View.VISIBLE else View.GONE
 
-                moreBtn.setOnClickListener {
-                    val popupMenu = PopupMenu(itemView.context, moreBtn)
-                    popupMenu.inflate(R.menu.message_menu)
-                    popupMenu.setOnMenuItemClickListener { menuItem ->
-                        when(menuItem.itemId) {
-                            R.id.deleteMessageBtn -> {
-                                messageItemMenuClick.executeMessageMenuItemAction(item.id, MessageItemMenuOptions.DELETE)
-                                true
-                            }
-                            else -> {
-                                false
+                    moreBtn.setOnClickListener {
+                        val popupMenu = PopupMenu(itemView.context, moreBtn)
+                        popupMenu.inflate(R.menu.message_menu)
+                        popupMenu.setOnMenuItemClickListener { menuItem ->
+                            when (menuItem.itemId) {
+                                R.id.deleteMessageBtn -> {
+                                    messageItemMenuClick.executeMessageMenuItemAction(
+                                        item.id,
+                                        MessageItemMenuOptions.DELETE
+                                    )
+                                    true
+                                }
+                                else -> {
+                                    false
+                                }
                             }
                         }
+                        popupMenu.show()
                     }
-                    popupMenu.show()
+                } else {
+                    authorAvatarIV.setImageResource(R.drawable.ic_avatar_skeleton)
+                    authorNameTV.visibility = View.GONE
+                    authorNameSkeleton.visibility = View.VISIBLE
+                    messageTextTV.visibility = View.GONE
+                    messageTextSkeleton.visibility = View.VISIBLE
                 }
             }
         }
@@ -133,36 +136,56 @@ class MessageAdapter(
         private val binding: ItemMyMessageBinding,
         private val clickNavigation: MessageAdapterClickNavigation,
         private val adminChecking: AdminChecking
-    ) : BaseViewHolder<MessageDTO>(binding.root) {
-        override fun bind(item: MessageDTO, resources: Resources) {
+    ) : BasePagingViewHolder<MessageDTO>(binding.root) {
+        override fun bind(item: MessageDTO?, resources: Resources) {
             with(this.binding) {
-                authorAvatarIV.setImageDrawable(DrawableController.getDrawableFromId(item.author.icon, resources))
-                authorNameTV.text = item.author.username
+                if (item != null) {
+                    authorAvatarIV.setImageDrawable(
+                        DrawableController.getDrawableFromId(
+                            item.author.icon,
+                            resources
+                        )
+                    )
+                    authorNameTV.visibility = View.VISIBLE
+                    authorNameTV.text = item.author.username
 
-                if (adminChecking.isUserAdmin(item.author.id)) {
-                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_shield, 0)
+                    if (adminChecking.isUserAdmin(item.author.id)) {
+                        authorNameTV.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.ic_shield,
+                            0
+                        )
+                    } else {
+                        authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+                    }
+
+                    messageTextTV.visibility = View.VISIBLE
+                    messageTextTV.text = item.text
+
+                    val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
+                    pubDateTV.text = formatter.format(item.pubDate)
+
+                    authorAvatarIV.setOnClickListener {
+                        clickNavigation.openProfile(item.author, ProfileViewStatus.Owner)
+                    }
                 } else {
-                    authorNameTV.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
-                }
-
-                messageTextTV.text = item.text
-
-                val formatter = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.ROOT)
-                pubDateTV.text = formatter.format(item.pubDate)
-
-                authorAvatarIV.setOnClickListener {
-                    clickNavigation.openProfile(item.author, ProfileViewStatus.Owner)
+                    authorAvatarIV.setImageResource(R.drawable.ic_avatar_skeleton)
+                    authorNameTV.visibility = View.GONE
+                    authorNameSkeleton.visibility = View.VISIBLE
+                    messageTextTV.visibility = View.GONE
+                    messageTextSkeleton.visibility = View.VISIBLE
                 }
             }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (messages[position].author.id == currentUserId) return TYPE_MY_MESSAGE
+        if (getItem(position)?.author?.id == currentUserId) return TYPE_MY_MESSAGE
         else return TYPE_COMMON_MESSAGE
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BasePagingViewHolder<*> {
         val inflater = LayoutInflater.from(parent.context)
         if (viewType == TYPE_MY_MESSAGE) {
             val binding = ItemMyMessageBinding.inflate(inflater, parent, false)
@@ -184,17 +207,11 @@ class MessageAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<*>, position: Int) {
+    override fun onBindViewHolder(holder: BasePagingViewHolder<*>, position: Int) {
         when(holder) {
-            is CommonMessageViewHolder -> holder.bind(messages[position], resources)
-            is MyMessageViewHolder -> holder.bind(messages[position], resources)
+            is CommonMessageViewHolder -> holder.bind(getItem(position), resources)
+            is MyMessageViewHolder -> holder.bind(getItem(position), resources)
         }
-    }
-
-    override fun getItemCount(): Int = messages.size
-
-    fun updateMessages(new_messages: List<MessageDTO>) {
-        messages = new_messages.toMutableList()
     }
 
     companion object {

@@ -22,13 +22,13 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
-import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
 import com.trialbot.trainyapplication.utils.resultDialog
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -47,6 +47,7 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMessageBinding.bind(view)
 
+        viewModel.initPaging(args.chatId)
         val type = viewModel.getUserType(args.chatId)
 
         adapter = MessageAdapter(
@@ -105,19 +106,18 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.VISIBLE
                     }
-                    viewModel.messages.observe(viewLifecycleOwner, emptyObserver())
+//                    viewModel.messages.observe(viewLifecycleOwner, emptyObserver())
                 }
                 is MessageState.Success -> {
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
                     }
-                    adapter.updateMessages(newValue.messages)
-                    viewModel.messages.observe(viewLifecycleOwner, {
-                        if (it != null) {
-                            adapter.updateMessages(it)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            viewModel.messages.collectLatest(adapter::submitData)
                         }
-                    })
+                    }
                 }
                 is MessageState.Error -> {
                     with(binding) {
@@ -144,21 +144,21 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         viewModel.render(args.chatId)
 
         // Observing messages
-        viewLifecycleOwner.lifecycleScope.launch{
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.startMessageObserving()
-            }
-        }
+//        viewLifecycleOwner.lifecycleScope.launch{
+//            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.startMessageObserving()
+//            }
+//        }
     }
 
-    private fun emptyObserver(): (t: List<MessageDTO>?) -> Unit =
-        {
-            if (it != null) {
-                adapter.updateMessages(it)
-                viewModel.messagesAreNoLongerEmpty(it)
-                viewModel.messages.removeObserver(emptyObserver())
-            }
-        }
+//    private fun emptyObserver(): (t: List<MessageDTO>?) -> Unit =
+//        {
+//            if (it != null) {
+//                adapter.updateMessages(it)
+//                viewModel.messagesAreNoLongerEmpty(it)
+//                viewModel.messages.removeObserver(emptyObserver())
+//            }
+//        }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.chat_profile_menu, menu)
