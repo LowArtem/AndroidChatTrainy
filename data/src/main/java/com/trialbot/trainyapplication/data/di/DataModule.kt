@@ -32,7 +32,7 @@ val dataModule = module {
 
     single {
         Retrofit.Builder()
-            .baseUrl(getProperty("base_url"))
+            .baseUrl(getUrlString(getProperty("base_url")))
             .client(get())
             .addConverterFactory(GsonConverterFactory.create(get()))
             .build()
@@ -93,4 +93,8 @@ private fun OkHttpClient.Builder.ignoreAllSSLErrors(): OkHttpClient.Builder {
     sslSocketFactory(insecureSocketFactory, naiveTrustManager)
     hostnameVerifier { _, _ -> true }
     return this
+}
+
+private fun getUrlString(prop: String): String {
+    return prop
 }

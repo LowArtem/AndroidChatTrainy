@@ -34,7 +34,8 @@ val appModule = module {
             messageSendingUseCases = get(),
             localDataUseCases = get(),
             chatGettingUseCases = get(),
-            messageEditUseCases = get()
+            messageEditUseCases = get(),
+            messageControllerRemote = get()
         )
     }
 
