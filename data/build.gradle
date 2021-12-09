@@ -34,7 +34,6 @@ android {
 dependencies {
     def retrofit_version = "2.9.0"
     def koin_version = "3.1.4"
-    def paging_version = "3.1.0"
 
     implementation project(path: ":domain")
 
@@ -48,8 +47,6 @@ dependencies {
     // Koin
     implementation("io.insert-koin:koin-core:$koin_version")
     implementation("io.insert-koin:koin-android:$koin_version")
-    //Paging
-    implementation("androidx.paging:paging-runtime-ktx:$paging_version")
 
     // Tests
     testImplementation 'junit:junit:4.+'
