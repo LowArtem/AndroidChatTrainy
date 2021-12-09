@@ -32,8 +32,6 @@ class MessageViewModel(
     private val _state = MutableLiveData<MessageState>().default(MessageState.Loading)
     val state: LiveData<MessageState> = _state
 
-//    private var messagesCash: List<MessageDTO> = emptyList()
-
     private val _messages = MutableLiveData<List<MessageDTO>?>().default(null)
     val messages: LiveData<List<MessageDTO>?> = _messages
 
@@ -59,7 +57,6 @@ class MessageViewModel(
     private var currentChat: ChatDetails? = null
 
 
-    // Main activity control function
     fun render(chatId: Long) {
         if (_messages.value == null) {
             this.chatId = chatId
@@ -120,22 +117,6 @@ class MessageViewModel(
             )
         }
     }
-
-//    fun updateAdmins() {
-//        viewModelScope.launch {
-//            try {
-//                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
-//                _isNeedToRedrawRecycler.postValue(true)
-//            } catch (e1: CancellationException) {
-//            } catch (e2: Exception) {
-//                logE(e2.localizedMessage ?: "Some error")
-//
-//                _state.postValue(
-//                    MessageState.Error("Admins getting error")
-//                )
-//            }
-//        }
-//    }
 
     fun send(input: String)
     {

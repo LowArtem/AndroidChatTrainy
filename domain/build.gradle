@@ -9,7 +9,7 @@ java {
 }
 
 dependencies {
-    def koin_version = "3.1.3"
+    def koin_version = "3.1.4"
     def coroutines_version = "1.5.2"
 
     // Koin
