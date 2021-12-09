@@ -7,7 +7,8 @@ import com.trialbot.trainyapplication.domain.model.MessageDTO
 
 class MessagesPageSource(
     private val messageControllerRemote: MessageControllerRemote,
-    private val chatId: Long
+    private val chatId: Long,
+    private val onPageLoaded: ((currentStartIndex: Int) -> Unit)
 ) : PagingSource<Int, MessageDTO>() {
 
     override fun getRefreshKey(state: PagingState<Int, MessageDTO>): Int? {
@@ -24,11 +25,13 @@ class MessagesPageSource(
                 val nextStartIndex = if (messages.size < pageSize) null else startIndex + pageSize
                 val prevStartIndex = if (startIndex == 0) null else startIndex - pageSize
 
+                onPageLoaded(startIndex)
                 return LoadResult.Page(messages, prevStartIndex, nextStartIndex)
             } else {
                 val nextStartIndex = null
                 val prevStartIndex = if (startIndex == 0) null else startIndex - pageSize
 
+                onPageLoaded(startIndex)
                 return LoadResult.Page(emptyList(), prevStartIndex, nextStartIndex)
             }
         } catch (e: Exception) {

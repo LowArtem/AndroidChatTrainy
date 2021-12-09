@@ -42,10 +42,14 @@ class MessageViewModel(
 
     lateinit var messages: StateFlow<PagingData<MessageDTO>>
 
+    private var messagesCash: List<MessageDTO> = emptyList()
+
     private val _isMessageDeleted = MutableBooleanState().default(null)
     val isMessageDeleted: BooleanState = _isMessageDeleted
 
     private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
+    private lateinit var pageSource: MessagesPageSource
+    private var currentStartIndex: Int = 0
 
     var chatId: Long? = null
         private set
@@ -62,9 +66,12 @@ class MessageViewModel(
 
     fun initPaging(chatId: Long) {
         messages = Pager(
-            PagingConfig(20, initialLoadSize = 30)
+            PagingConfig(PAGE_SIZE, initialLoadSize = INITIAL_LOAD_SIZE, prefetchDistance = PAGE_SIZE / 3)
         ) {
-            MessagesPageSource(messageControllerRemote, chatId)
+            pageSource = MessagesPageSource(messageControllerRemote, chatId) { currentStartIndex: Int ->
+                this.currentStartIndex = currentStartIndex
+            }
+            pageSource
         }.flow.stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
     }
 
@@ -108,25 +115,35 @@ class MessageViewModel(
     }
 
 
-//    suspend fun startMessageObserving() {
-//        try {
-//            while (true) {
-//                if (chatId == null) delay(3000)
-//
-//                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
-//                val gotMessages = messageSendingUseCases.getNewMessages(chatId!!)
-//                messages.postValue(gotMessages)
-//                delay(3000)
-//            }
-//        } catch (e1: CancellationException) {}
-//        catch (e2: Exception) {
-//            logE(e2.localizedMessage ?: "Some error")
-//
-//            _state.postValue(
-//                MessageState.Error("Message getting error")
-//            )
-//        }
-//    }
+    suspend fun startMessageObserving() {
+        try {
+            while (true) {
+                if (chatId == null) delay(3000)
+
+                adminIds = chatGettingUseCases.getAdminIds(chatId!!)
+                val gotMessages = messageControllerRemote.getMessagesPage(chatId!!, PAGE_SIZE, 0) ?: emptyList()
+
+                if (gotMessages.containsAll(messagesCash) && messagesCash.containsAll(gotMessages)) {
+                    messagesCash = gotMessages
+
+                    // if we on the first page
+                    if (currentStartIndex < PAGE_SIZE) {
+                        pageSource.invalidate()
+                        initPaging(chatId!!)
+                    }
+                }
+
+                delay(3000)
+            }
+        } catch (e1: CancellationException) {}
+        catch (e2: Exception) {
+            logE(e2.localizedMessage ?: "Some error")
+
+            _state.postValue(
+                MessageState.Error("Message getting error")
+            )
+        }
+    }
 
     fun send(input: String)
     {
@@ -222,5 +239,10 @@ class MessageViewModel(
 
     override fun isUserAdmin(userId: Long): Boolean {
         return getUserType(chatId ?: -1, userId) == UserType.Admin.toString()
+    }
+
+    companion object {
+        const val PAGE_SIZE = 30
+        const val INITIAL_LOAD_SIZE = 50
     }
 }

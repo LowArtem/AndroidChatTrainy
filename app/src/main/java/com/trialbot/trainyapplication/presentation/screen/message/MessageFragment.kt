@@ -68,11 +68,11 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             messagesRV.adapter = adapter
             messagesRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
-            messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
-                if (viewModel.needAutoScroll)
-                    (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
-                else viewModel.needAutoScroll = true
-            }
+//            messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
+//                if (viewModel.needAutoScroll)
+//                    (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
+//                else viewModel.needAutoScroll = true
+//            }
 
             sendBtn.setOnClickListener {
                 sendMessage()
