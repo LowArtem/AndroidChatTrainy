@@ -25,6 +25,7 @@ import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserMessage
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageLoadStateAdapter
@@ -52,6 +53,8 @@ class MessageFragment : Fragment(R.layout.fragment_message),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMessageBinding.bind(view)
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         viewModel.initPaging(args.chatId)
         val type = viewModel.getUserType(args.chatId)

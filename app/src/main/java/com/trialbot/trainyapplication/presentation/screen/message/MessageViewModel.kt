@@ -183,9 +183,6 @@ class MessageViewModel(
                         messageId = messageId,
                         currentUserId = getCurrentUserId()
                     ))
-                    // TODO: доделать сюда обновление списка
-//                    val gotMessages = messageSendingUseCases.getNewMessages(chatId ?: -1)
-//                    messages.postValue(gotMessages)
                 }
             }
         }

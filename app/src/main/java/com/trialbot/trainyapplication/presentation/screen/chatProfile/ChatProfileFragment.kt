@@ -12,6 +12,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChatProfileBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapter
 import com.trialbot.trainyapplication.utils.confirmDialog
 import com.trialbot.trainyapplication.utils.resultDialog
@@ -39,6 +40,8 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
         binding = FragmentChatProfileBinding.bind(view)
 
         viewModel.render(args.userType, args.userId, args.chatId)
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         viewModel.state.observe(viewLifecycleOwner, {state ->
             with(binding) {

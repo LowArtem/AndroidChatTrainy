@@ -17,6 +17,7 @@ import com.trialbot.trainyapplication.databinding.FragmentChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.screen.baseActivity.BaseActivity
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapter
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
 import com.trialbot.trainyapplication.presentation.screen.message.MessageFragment
@@ -46,6 +47,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
             drawerTitle = args.username
             drawerImageId = args.iconId
         }
+
+        (activity as NavDrawerController).setDrawerEnabled(true)
 
         setFragmentResultListener(MessageFragment.USER_AVATAR_ICON_TAG) { _, bundle ->
             drawerImageId = bundle.getInt(MessageFragment.USER_AVATAR_ICON_TAG)

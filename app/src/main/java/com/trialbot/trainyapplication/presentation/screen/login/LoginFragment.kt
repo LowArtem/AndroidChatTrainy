@@ -13,6 +13,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.domain.contract.HasDisplayHomeDisabled
 import com.trialbot.trainyapplication.domain.utils.logE
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.utils.hideKeyboard
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -37,6 +38,8 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
             connectivityManager = (requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager),
             firebaseAnalytics = firebaseAnalytics
         )
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         viewModel.state.observe(viewLifecycleOwner, {
             when(it) {

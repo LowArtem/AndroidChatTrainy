@@ -16,6 +16,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentChooseChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapter
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -32,6 +33,8 @@ class ChooseChatFragment : Fragment(R.layout.fragment_choose_chat), ChatAdapterC
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentChooseChatBinding.bind(view)
         adapter = ChatAdapter(resources, this, args.currentUsername)
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         with(binding) {
             chatsRV.adapter = adapter
