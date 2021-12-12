@@ -68,7 +68,7 @@ class MessageViewModel(
 
     fun initPaging(chatId: Long) {
         messages = Pager(
-            PagingConfig(PAGE_SIZE, initialLoadSize = INITIAL_LOAD_SIZE, prefetchDistance = PAGE_SIZE / 3)
+            PagingConfig(PAGE_SIZE, initialLoadSize = INITIAL_LOAD_SIZE, prefetchDistance = PAGE_SIZE / 3, maxSize = 400)
         ) {
             pageSource = MessagesPageSource(messageControllerRemote, chatId)
             pageSource

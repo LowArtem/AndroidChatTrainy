@@ -27,6 +27,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserMessage
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageLoadStateAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
 import com.trialbot.trainyapplication.utils.resultDialog
@@ -71,7 +72,11 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             val layoutManager = LinearLayoutManager(context)
             layoutManager.reverseLayout = true
             messagesRV.layoutManager = layoutManager
-            messagesRV.adapter = adapter
+            messagesRV.adapter = adapter.withLoadStateHeaderAndFooter(
+                header = MessageLoadStateAdapter(),
+                footer = MessageLoadStateAdapter()
+            )
+
             messagesRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
             messagesRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
