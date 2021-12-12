@@ -15,8 +15,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
@@ -28,7 +30,10 @@ import com.trialbot.trainyapplication.presentation.screen.message.recycler.Messa
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
 import com.trialbot.trainyapplication.utils.resultDialog
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -64,15 +69,19 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         with (binding)
         {
             val layoutManager = LinearLayoutManager(context)
+            layoutManager.reverseLayout = true
             messagesRV.layoutManager = layoutManager
             messagesRV.adapter = adapter
             messagesRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
-//            messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
-//                if (viewModel.needAutoScroll)
-//                    (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
-//                else viewModel.needAutoScroll = true
-//            }
+            messagesRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        val position = (messagesRV.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        viewModel.changeCurrentPage(position)
+                    }
+                }
+            })
 
             sendBtn.setOnClickListener {
                 sendMessage()
@@ -100,22 +109,30 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                         textEmpty.visibility = View.GONE
                     }
                 }
-                is MessageState.Empty -> {
-                    Toast.makeText(context, "Empty", Toast.LENGTH_SHORT).show()
-                    with(binding) {
-                        loadingPanel.visibility = View.GONE
-                        textEmpty.visibility = View.VISIBLE
-                    }
-//                    viewModel.messages.observe(viewLifecycleOwner, emptyObserver())
-                }
                 is MessageState.Success -> {
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
                     }
+
                     viewLifecycleOwner.lifecycleScope.launch {
                         viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                             viewModel.messages.collectLatest(adapter::submitData)
+                        }
+                    }
+
+                    // Checking if messages list is empty
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            adapter.loadStateFlow.map { it.refresh }
+                                .distinctUntilChanged()
+                                .collect {
+                                    if (it is LoadState.NotLoading) {
+                                        if (adapter.itemCount == 0) {
+                                            Toast.makeText(context, "Empty", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                }
                         }
                     }
                 }
@@ -144,21 +161,18 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         viewModel.render(args.chatId)
 
         // Observing messages
-//        viewLifecycleOwner.lifecycleScope.launch{
-//            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.startMessageObserving()
-//            }
-//        }
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.startMessageObserving()
+            }
+        }
+        viewModel.isNeedToRefresh.observe(viewLifecycleOwner, { result ->
+            if (result == true) {
+                adapter.refresh()
+                viewModel.clearResult()
+            }
+        })
     }
-
-//    private fun emptyObserver(): (t: List<MessageDTO>?) -> Unit =
-//        {
-//            if (it != null) {
-//                adapter.updateMessages(it)
-//                viewModel.messagesAreNoLongerEmpty(it)
-//                viewModel.messages.removeObserver(emptyObserver())
-//            }
-//        }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.chat_profile_menu, menu)

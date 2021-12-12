@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.trialbot.trainyapplication.data.MessagesPageSource
 import com.trialbot.trainyapplication.domain.ChatGettingUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
@@ -57,7 +58,9 @@ class MessageViewModel(
     var currentUser: UserLocal? = null
         private set
 
-    var needAutoScroll = true
+    private var currentPage = 0
+    private val _isNeedToRefresh = MutableBooleanState().default(null)
+    val isNeedToRefresh: BooleanState = _isNeedToRefresh
 
 
     private var adminIds: List<Long>? = null
@@ -68,11 +71,9 @@ class MessageViewModel(
         messages = Pager(
             PagingConfig(PAGE_SIZE, initialLoadSize = INITIAL_LOAD_SIZE, prefetchDistance = PAGE_SIZE / 3)
         ) {
-            pageSource = MessagesPageSource(messageControllerRemote, chatId) { currentStartIndex: Int ->
-                this.currentStartIndex = currentStartIndex
-            }
+            pageSource = MessagesPageSource(messageControllerRemote, chatId)
             pageSource
-        }.flow.stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
+        }.flow.cachedIn(viewModelScope).stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
     }
 
 
@@ -87,6 +88,7 @@ class MessageViewModel(
                 if (initChat(chatId) == null) throw Exception("Cannot get the current chat")
             }
 
+            // TODO: изменить систему контроля состояний
 //            messageObservingScope.launch {
 //                val gotMessages = messageSendingUseCases.getNewMessages(chatId)
 //                messages.postValue(gotMessages)
@@ -97,6 +99,7 @@ class MessageViewModel(
 //                    _state.postValue(MessageState.Success(gotMessages))
 //                }
 //            }
+
         } catch (e: Exception) {
             logE(e.localizedMessage ?: "Some error")
             _state.postValue(
@@ -123,13 +126,12 @@ class MessageViewModel(
                 adminIds = chatGettingUseCases.getAdminIds(chatId!!)
                 val gotMessages = messageControllerRemote.getMessagesPage(chatId!!, PAGE_SIZE, 0) ?: emptyList()
 
-                if (gotMessages.containsAll(messagesCash) && messagesCash.containsAll(gotMessages)) {
+                if (!gotMessages.containsAll(messagesCash) || !messagesCash.containsAll(gotMessages)) {
                     messagesCash = gotMessages
 
                     // if we on the first page
-                    if (currentStartIndex < PAGE_SIZE) {
-                        pageSource.invalidate()
-                        initPaging(chatId!!)
+                    if (currentPage == 0) {
+                        _isNeedToRefresh.postValue(true)
                     }
                 }
 
@@ -143,6 +145,10 @@ class MessageViewModel(
                 MessageState.Error("Message getting error")
             )
         }
+    }
+
+    fun changeCurrentPage(firstViewPosition: Int) {
+        currentPage = if (firstViewPosition < PAGE_SIZE) 0 else -1
     }
 
     fun send(input: String)
@@ -178,9 +184,9 @@ class MessageViewModel(
                         messageId = messageId,
                         currentUserId = getCurrentUserId()
                     ))
+                    // TODO: доделать сюда обновление списка
 //                    val gotMessages = messageSendingUseCases.getNewMessages(chatId ?: -1)
 //                    messages.postValue(gotMessages)
-                    needAutoScroll = false
                 }
             }
         }
@@ -192,10 +198,6 @@ class MessageViewModel(
 
     fun getCurrentUserId(): Long {
         return localDataUseCases.getLocalData()?.id ?: -1
-    }
-
-    fun messagesAreNoLongerEmpty(messages: List<MessageDTO>) {
-        _state.postValue(MessageState.Success(messages))
     }
 
     fun getUserType(chatId: Long, userId: Long = getCurrentUserId()): String = runBlocking(Dispatchers.IO) {
@@ -235,6 +237,7 @@ class MessageViewModel(
 
     fun clearResult() {
         _isMessageDeleted.postValue(null)
+        _isNeedToRefresh.postValue(null)
     }
 
     override fun isUserAdmin(userId: Long): Boolean {
