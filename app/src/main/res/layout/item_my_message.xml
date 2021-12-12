@@ -18,6 +18,26 @@
         app:layout_constraintStart_toEndOf="@+id/messageTextTV"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/authorNameSkeleton"
+        android:layout_width="150dp"
+        android:layout_height="15dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toStartOf="@id/authorAvatarIV"
+        app:layout_constraintTop_toTopOf="@id/authorAvatarIV"
+        android:src="@drawable/ic_line_skeleton"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/messageTextSkeleton"
+        android:layout_width="250dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintTop_toBottomOf="@id/authorNameTV"
+        app:layout_constraintEnd_toStartOf="@id/authorAvatarIV"
+        android:src="@drawable/ic_line_skeleton"
+        android:visibility="gone"/>
+
     <TextView
         android:id="@+id/authorNameTV"
         android:layout_width="0dp"

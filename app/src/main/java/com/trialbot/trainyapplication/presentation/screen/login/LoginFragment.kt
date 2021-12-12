@@ -8,10 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentLoginBinding
 import com.trialbot.trainyapplication.domain.contract.HasDisplayHomeDisabled
 import com.trialbot.trainyapplication.domain.utils.logE
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.utils.hideKeyboard
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -22,12 +24,22 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
 
     private val viewModel by viewModel<LoginViewModel>()
 
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
+
         binding = FragmentLoginBinding.bind(view)
 
-        viewModel.render((requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
+        viewModel.render(
+            connectivityManager = (requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager),
+            firebaseAnalytics = firebaseAnalytics
+        )
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         viewModel.state.observe(viewLifecycleOwner, {
             when(it) {
@@ -70,6 +82,11 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
             loginBtn.setOnClickListener {
                 if (checkInput()) {
                     hideKeyboard(requireActivity())
+
+                    val bundle = Bundle()
+                    bundle.putString(FirebaseAnalytics.Param.METHOD, "user")
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
+
                     viewModel.login(
                         usernameEntered = usernameEdit.text.toString(),
                         passwordEntered = passwordEdit.text.toString(),
@@ -80,6 +97,11 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
             registerBtn.setOnClickListener {
                 if (checkInput()) {
                     hideKeyboard(requireActivity())
+
+                    val bundle = Bundle()
+                    bundle.putString(FirebaseAnalytics.Param.METHOD, "email")
+                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, bundle)
+
                     viewModel.register(
                         usernameEntered = usernameEdit.text.toString(),
                         passwordEntered = passwordEdit.text.toString(),

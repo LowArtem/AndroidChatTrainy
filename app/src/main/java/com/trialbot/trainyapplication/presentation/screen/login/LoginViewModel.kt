@@ -1,10 +1,12 @@
 package com.trialbot.trainyapplication.presentation.screen.login
 
 import android.net.ConnectivityManager
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.trialbot.trainyapplication.domain.AuthUseCases
 import com.trialbot.trainyapplication.domain.LocalDataUseCases
 import com.trialbot.trainyapplication.domain.LoginStatusUseCases
@@ -38,7 +40,7 @@ class LoginViewModel(
     private var isLoginSuccessful: Boolean = false
 
 
-    fun render(connectivityManager: ConnectivityManager) = viewModelScope.launch {
+    fun render(connectivityManager: ConnectivityManager, firebaseAnalytics: FirebaseAnalytics) = viewModelScope.launch {
         var isServerAvailable = false
 
         if (isInternetAvailable(connectivityManager)) {
@@ -51,6 +53,11 @@ class LoginViewModel(
 
         if (isServerAvailable) {
             if (getUserLoginStatus()) {
+
+                val bundle = Bundle()
+                bundle.putString(FirebaseAnalytics.Param.METHOD, "auto")
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
+
                 isLoginSuccessful = true
                 _state.postValue(LoginState.Success(username!!, avatarId))
             } else {

@@ -11,6 +11,7 @@ import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentCreateChatBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.createChat.recycler.UserSearchAdapter
 import com.trialbot.trainyapplication.utils.hideKeyboard
 import com.trialbot.trainyapplication.utils.resultDialog
@@ -30,6 +31,8 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentCreateChatBinding.bind(view)
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         viewModel.init(args.currentUserId)
 

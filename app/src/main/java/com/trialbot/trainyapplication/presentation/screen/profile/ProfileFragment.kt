@@ -20,6 +20,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.domain.model.UserFull
 import com.trialbot.trainyapplication.domain.model.UserWithoutPassword
 import com.trialbot.trainyapplication.presentation.drawable.DrawableController
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapter
 import com.trialbot.trainyapplication.presentation.screen.profile.recycler.AvatarAdapterClickAction
 import com.trialbot.trainyapplication.utils.navigateSafe
@@ -50,6 +51,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile), AvatarAdapterClickA
         val username: String = args.username
         val userIcon: Int = args.userIcon
         val viewStatus: String = args.viewStatus
+
+        (activity as NavDrawerController).setDrawerEnabled(false)
 
         viewModel.render(viewStatus, userId, username, userIcon)
 

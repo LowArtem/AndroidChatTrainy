@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
@@ -24,7 +26,14 @@ import com.trialbot.trainyapplication.domain.utils.logD
 import com.trialbot.trainyapplication.presentation.screen.chat.ChatFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class BaseActivity : AppCompatActivity() {
+
+
+
+interface NavDrawerController {
+    fun setDrawerEnabled(enabled: Boolean)
+}
+
+class BaseActivity : AppCompatActivity(), NavDrawerController {
 
     private lateinit var navController: NavController
     private lateinit var binding: ActivityBaseBinding
@@ -74,9 +83,11 @@ class BaseActivity : AppCompatActivity() {
         binding.navView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.profileFragment -> {
-                    (currentFragment as ChatFragment).openProfile(user_icon)
-                    binding.root.closeDrawer(GravityCompat.START)
-                    true
+                    if (currentFragment is ChatFragment) {
+                        (currentFragment as ChatFragment).openProfile(user_icon)
+                        binding.root.closeDrawer(GravityCompat.START)
+                        true
+                    } else false
                 }
                 else -> {
                     true
@@ -192,5 +203,18 @@ class BaseActivity : AppCompatActivity() {
     fun updateDrawerTitle(title: String) {
         val text = binding.navView.getHeaderView(0).findViewById(R.id.nameTV) as TextView
         text.text = title
+    }
+
+    override fun setDrawerEnabled(enabled: Boolean) {
+        with(binding) {
+            when (enabled) {
+                true -> {
+                    root.setDrawerLockMode(LOCK_MODE_UNLOCKED)
+                }
+                false -> {
+                    root.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
+                }
+            }
+        }
     }
 }

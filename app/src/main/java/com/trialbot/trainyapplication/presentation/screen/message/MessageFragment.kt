@@ -15,20 +15,27 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navOptions
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.trialbot.trainyapplication.R
 import com.trialbot.trainyapplication.databinding.FragmentMessageBinding
 import com.trialbot.trainyapplication.domain.contract.HasCustomAppbarIcon
 import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
-import com.trialbot.trainyapplication.domain.model.MessageDTO
 import com.trialbot.trainyapplication.domain.model.UserMessage
+import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageAdapterClickNavigation
+import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageLoadStateAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
 import com.trialbot.trainyapplication.utils.resultDialog
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -47,6 +54,9 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMessageBinding.bind(view)
 
+        (activity as NavDrawerController).setDrawerEnabled(false)
+
+        viewModel.initPaging(args.chatId)
         val type = viewModel.getUserType(args.chatId)
 
         adapter = MessageAdapter(
@@ -63,15 +73,23 @@ class MessageFragment : Fragment(R.layout.fragment_message),
         with (binding)
         {
             val layoutManager = LinearLayoutManager(context)
+            layoutManager.reverseLayout = true
             messagesRV.layoutManager = layoutManager
-            messagesRV.adapter = adapter
+            messagesRV.adapter = adapter.withLoadStateHeaderAndFooter(
+                header = MessageLoadStateAdapter(),
+                footer = MessageLoadStateAdapter()
+            )
+
             messagesRV.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
-            messagesRV.viewTreeObserver.addOnGlobalLayoutListener {
-                if (viewModel.needAutoScroll)
-                    (adapter.itemCount - 1).takeIf { it > 0 }?.let(messagesRV::smoothScrollToPosition)
-                else viewModel.needAutoScroll = true
-            }
+            messagesRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        val position = (messagesRV.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        viewModel.changeCurrentPage(position)
+                    }
+                }
+            })
 
             sendBtn.setOnClickListener {
                 sendMessage()
@@ -91,12 +109,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             )
         }
 
-//        setFragmentResultListener(ChatProfileFragment.ADMIN_UPDATED_TAG) {_, bundle ->
-//            if (bundle.getBoolean(ChatProfileFragment.ADMIN_UPDATED_TAG)) {
-//                viewModel.updateAdmins()
-//            }
-//        }
-
         viewModel.state.observe(viewLifecycleOwner, { newValue ->
             when(newValue) {
                 is MessageState.Loading -> {
@@ -105,25 +117,32 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                         textEmpty.visibility = View.GONE
                     }
                 }
-                is MessageState.Empty -> {
-                    Toast.makeText(context, "Empty", Toast.LENGTH_SHORT).show()
-                    with(binding) {
-                        loadingPanel.visibility = View.GONE
-                        textEmpty.visibility = View.VISIBLE
-                    }
-                    viewModel.messages.observe(viewLifecycleOwner, emptyObserver())
-                }
                 is MessageState.Success -> {
                     with(binding) {
                         loadingPanel.visibility = View.GONE
                         textEmpty.visibility = View.GONE
                     }
-                    adapter.updateMessages(newValue.messages)
-                    viewModel.messages.observe(viewLifecycleOwner, {
-                        if (it != null) {
-                            adapter.updateMessages(it)
+
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            viewModel.messages.collectLatest(adapter::submitData)
                         }
-                    })
+                    }
+
+                    // Checking if messages list is empty
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            adapter.loadStateFlow.map { it.refresh }
+                                .distinctUntilChanged()
+                                .collect {
+                                    if (it is LoadState.NotLoading) {
+                                        if (adapter.itemCount == 0) {
+                                            Toast.makeText(context, "Empty", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                }
+                        }
+                    }
                 }
                 is MessageState.Error -> {
                     with(binding) {
@@ -147,14 +166,6 @@ class MessageFragment : Fragment(R.layout.fragment_message),
             }
         })
 
-        viewModel.isNeedToRedrawRecycler.observe(viewLifecycleOwner, { result ->
-            if (result == true) {
-                binding.messagesRV.adapter = adapter
-
-                viewModel.clearResult()
-            }
-        })
-
         viewModel.render(args.chatId)
 
         // Observing messages
@@ -163,16 +174,17 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                 viewModel.startMessageObserving()
             }
         }
-    }
-
-    private fun emptyObserver(): (t: List<MessageDTO>?) -> Unit =
-        {
-            if (it != null) {
-                adapter.updateMessages(it)
-                viewModel.messagesAreNoLongerEmpty(it)
-                viewModel.messages.removeObserver(emptyObserver())
+        viewModel.isNeedToRefresh.observe(viewLifecycleOwner, { result ->
+            if (result == true) {
+                adapter.refresh()
+                viewModel.clearResult()
             }
+        })
+
+        adapter.addOnPagesUpdatedListener {
+            binding.messagesRV.smoothScrollToPosition(0)
         }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.chat_profile_menu, menu)
