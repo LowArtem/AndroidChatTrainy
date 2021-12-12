@@ -172,6 +172,10 @@ class MessageFragment : Fragment(R.layout.fragment_message),
                 viewModel.clearResult()
             }
         })
+
+        adapter.addOnPagesUpdatedListener {
+            binding.messagesRV.smoothScrollToPosition(0)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -50,7 +50,6 @@ class MessageViewModel(
 
     private val messageObservingScope = CoroutineScope(Job() + Dispatchers.IO)
     private lateinit var pageSource: MessagesPageSource
-    private var currentStartIndex: Int = 0
 
     var chatId: Long? = null
         private set
