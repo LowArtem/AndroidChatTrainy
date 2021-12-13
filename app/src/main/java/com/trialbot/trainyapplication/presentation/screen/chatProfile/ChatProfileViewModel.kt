@@ -51,12 +51,16 @@ class ChatProfileViewModel(
         private set
     var chatName: String? = null
         private set
+    var chatAbout: String = ""
+        private set
 
     private val _chatMembers = MutableLiveData<List<UserWithoutPassword>?>().default(null)
     val chatMembers: LiveData<List<UserWithoutPassword>?> = _chatMembers
 
     private val _membersCount = MutableLiveData<Int>().default(0)
     val membersCount: LiveData<Int> = _membersCount
+
+    val isAboutChanged = MutableBooleanState().default(null)
 
     private var chatId: Long? = null
     private var currentChat: ChatDetails? = null
@@ -87,6 +91,10 @@ class ChatProfileViewModel(
 
             this@ChatProfileViewModel._chatMembers.postValue(chatGettingUseCases.getChatMembers(chatId))
             this@ChatProfileViewModel._membersCount.postValue(chatGettingUseCases.getChatMembers(chatId).size)
+
+            this@ChatProfileViewModel.chatAbout = currentChat!!.about
+            if (chatAbout.isNotBlank())
+                isAboutChanged.postValue(true)
 
             this@ChatProfileViewModel.isDialog = currentChat!!.secondDialogMemberId != -1L
             this@ChatProfileViewModel.chatName = getChatName(chatId, isDialog)
@@ -134,6 +142,19 @@ class ChatProfileViewModel(
             return if (icon > 0) icon else R.drawable.ic_avatar_default
         } else {
             return currentChat?.icon ?: R.drawable.ic_default_chat
+        }
+    }
+
+    fun editAbout(text: String) {
+        viewModelScope.launch {
+            if (userType == UserType.Admin || userType == UserType.Creator) {
+                val isUpdated = chatEditingUseCases.updateChatAbout(chatId ?: -1, text)
+                if (isUpdated) {
+                    this@ChatProfileViewModel.chatAbout = text
+                } else {
+                    isAboutChanged.postValue(true)
+                }
+            }
         }
     }
 

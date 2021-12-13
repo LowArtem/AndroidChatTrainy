@@ -2,6 +2,7 @@ package com.trialbot.trainyapplication.presentation.screen.chatProfile
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,6 +16,7 @@ import com.trialbot.trainyapplication.domain.contract.HasCustomTitle
 import com.trialbot.trainyapplication.presentation.screen.baseActivity.NavDrawerController
 import com.trialbot.trainyapplication.presentation.screen.chatProfile.recycler.MembersAdapter
 import com.trialbot.trainyapplication.utils.confirmDialog
+import com.trialbot.trainyapplication.utils.hideKeyboard
 import com.trialbot.trainyapplication.utils.resultDialog
 import com.trialbot.trainyapplication.utils.resultDialogWithoutSuccessText
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -52,6 +54,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                         addAdminBtn.visibility = View.GONE
                         loadingPanel.visibility = View.VISIBLE
                         errorLayout.visibility = View.GONE
+                        editAboutBtn.visibility = View.GONE
                     }
                     is ChatProfileState.Creator -> {
                         deleteChatBtn.visibility = View.VISIBLE
@@ -86,6 +89,15 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                             }
                         }
 
+                        aboutLL.isVisible = true
+                        editAboutBtn.isVisible = true
+                        aboutTI.isEnabled = true
+                        editAboutBtn.setOnClickListener {
+                            if (aboutTI.text?.toString() != viewModel.chatAbout && aboutTI.text!!.length <= 50) {
+                                viewModel.editAbout(aboutTI.text!!.toString())
+                                hideKeyboard(requireActivity())
+                            }
+                        }
                     }
                     is ChatProfileState.Admin -> {
                         deleteChatBtn.visibility = View.VISIBLE
@@ -107,6 +119,16 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                         deleteChatBtn.setOnClickListener {
                             requireContext().confirmDialog("Are you sure you want to leave this chat?") {
                                 viewModel.leaveChat()
+                            }
+                        }
+
+                        aboutLL.isVisible = true
+                        editAboutBtn.isVisible = true
+                        aboutTI.isEnabled = true
+                        editAboutBtn.setOnClickListener {
+                            if (aboutTI.text?.toString() != viewModel.chatAbout && aboutTI.text!!.length <= 50) {
+                                viewModel.editAbout(aboutTI.text!!.toString())
+                                hideKeyboard(requireActivity())
                             }
                         }
                     }
@@ -132,12 +154,17 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                                 viewModel.leaveChat()
                             }
                         }
+
+                        aboutLL.isVisible = true
+                        editAboutBtn.isVisible = false
+                        aboutTI.isEnabled = false
                     }
                     is ChatProfileState.Error -> {
                         deleteChatBtn.visibility = View.GONE
                         deleteAdminBtn.visibility = View.GONE
                         addAdminBtn.visibility = View.GONE
                         loadingPanel.visibility = View.GONE
+                        aboutLL.isVisible = false
 
                         errorLayout.visibility = View.VISIBLE
                     }
@@ -168,6 +195,17 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                             })
                         }
                     )
+                }
+            })
+
+            viewModel.isAboutChanged.observe(viewLifecycleOwner, { result ->
+                if (result == true) {
+                    aboutTI.setText(
+                        viewModel.chatAbout.toCharArray(),
+                        0,
+                        viewModel.chatAbout.length
+                    )
+                    viewModel.isAboutChanged.postValue(null)
                 }
             })
 
