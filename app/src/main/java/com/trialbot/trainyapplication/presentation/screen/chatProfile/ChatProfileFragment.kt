@@ -55,6 +55,7 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                         loadingPanel.visibility = View.VISIBLE
                         errorLayout.visibility = View.GONE
                         editAboutBtn.visibility = View.GONE
+                        aboutLL.visibility = View.GONE
                     }
                     is ChatProfileState.Creator -> {
                         deleteChatBtn.visibility = View.VISIBLE
@@ -89,7 +90,6 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                             }
                         }
 
-                        aboutLL.isVisible = true
                         editAboutBtn.isVisible = true
                         aboutTI.isEnabled = true
                         editAboutBtn.setOnClickListener {
@@ -122,7 +122,6 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                             }
                         }
 
-                        aboutLL.isVisible = true
                         editAboutBtn.isVisible = true
                         aboutTI.isEnabled = true
                         editAboutBtn.setOnClickListener {
@@ -155,7 +154,6 @@ class ChatProfileFragment : Fragment(R.layout.fragment_chat_profile), HasCustomT
                             }
                         }
 
-                        aboutLL.isVisible = true
                         editAboutBtn.isVisible = false
                         aboutTI.isEnabled = false
                     }

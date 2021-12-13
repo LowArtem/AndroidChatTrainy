@@ -92,11 +92,14 @@ class ChatProfileViewModel(
             this@ChatProfileViewModel._chatMembers.postValue(chatGettingUseCases.getChatMembers(chatId))
             this@ChatProfileViewModel._membersCount.postValue(chatGettingUseCases.getChatMembers(chatId).size)
 
-            this@ChatProfileViewModel.chatAbout = currentChat!!.about
-            if (chatAbout.isNotBlank())
-                isAboutChanged.postValue(true)
 
             this@ChatProfileViewModel.isDialog = currentChat!!.secondDialogMemberId != -1L
+
+            if (!this@ChatProfileViewModel.isDialog) {
+                this@ChatProfileViewModel.chatAbout = currentChat!!.about
+                isAboutChanged.postValue(true)
+            }
+
             this@ChatProfileViewModel.chatName = getChatName(chatId, isDialog)
             this@ChatProfileViewModel.currentUser = getLocalUser()
 
