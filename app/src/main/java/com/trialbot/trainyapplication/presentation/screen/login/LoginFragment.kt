@@ -84,7 +84,7 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
                     hideKeyboard(requireActivity())
 
                     val bundle = Bundle()
-                    bundle.putString(FirebaseAnalytics.Param.METHOD, "user")
+                    bundle.putString(FirebaseAnalytics.Param.VALUE, "user")
                     firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
 
                     viewModel.login(
@@ -99,7 +99,7 @@ class LoginFragment : Fragment(R.layout.fragment_login), HasDisplayHomeDisabled 
                     hideKeyboard(requireActivity())
 
                     val bundle = Bundle()
-                    bundle.putString(FirebaseAnalytics.Param.METHOD, "email")
+                    bundle.putString(FirebaseAnalytics.Param.VALUE, "email")
                     firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, bundle)
 
                     viewModel.register(

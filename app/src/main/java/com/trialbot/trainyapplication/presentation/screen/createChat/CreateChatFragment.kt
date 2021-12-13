@@ -69,7 +69,7 @@ class CreateChatFragment : Fragment(R.layout.fragment_create_chat), HasCustomApp
             })
 
             createChatBtn.setOnClickListener {
-                if (chatCreatingNameET.text.isNotBlank()) {
+                if (chatCreatingNameET.text.isNotBlank() && chatCreatingNameET.text.length <= 25) {
                     hideKeyboard(requireActivity())
                     viewModel.createChat(
                         name = chatCreatingNameET.text.toString(),

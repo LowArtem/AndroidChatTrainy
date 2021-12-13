@@ -31,6 +31,7 @@ import com.trialbot.trainyapplication.presentation.screen.message.recycler.Messa
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.MessageLoadStateAdapter
 import com.trialbot.trainyapplication.presentation.screen.message.recycler.ProfileViewStatus
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
+import com.trialbot.trainyapplication.utils.hideKeyboard
 import com.trialbot.trainyapplication.utils.resultDialog
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -53,6 +54,8 @@ class MessageFragment : Fragment(R.layout.fragment_message),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMessageBinding.bind(view)
+
+        hideKeyboard(requireActivity())
 
         (activity as NavDrawerController).setDrawerEnabled(false)
 

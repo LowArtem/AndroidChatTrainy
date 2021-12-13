@@ -22,6 +22,7 @@ import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdap
 import com.trialbot.trainyapplication.presentation.screen.chat.recycler.ChatAdapterClickAction
 import com.trialbot.trainyapplication.presentation.screen.message.MessageFragment
 import com.trialbot.trainyapplication.presentation.screen.profile.ProfileFragment
+import com.trialbot.trainyapplication.utils.hideKeyboard
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, HasCustomTitle, HasCustomAppbarIcon {
@@ -40,6 +41,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat), ChatAdapterClickAction, H
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentChatBinding.bind(view)
+
+        hideKeyboard(requireActivity())
 
         adapter = ChatAdapter(requireContext().resources, this, args.username)
 

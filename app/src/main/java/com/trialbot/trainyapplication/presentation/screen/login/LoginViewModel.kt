@@ -55,7 +55,7 @@ class LoginViewModel(
             if (getUserLoginStatus()) {
 
                 val bundle = Bundle()
-                bundle.putString(FirebaseAnalytics.Param.METHOD, "auto")
+                bundle.putString(FirebaseAnalytics.Param.VALUE, "auto")
                 firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
 
                 isLoginSuccessful = true
